@@ -10,49 +10,16 @@ import logging
 import os
 import re
 import string
-import sys
+
+import helpers
 
 
 log = logging.getLogger("fileops")
 
 
-def configure_logger(loglevel=2, quiet=False):
-    "Creates the logger instance and adds handlers and formatting."
-    logger = logging.getLogger()
-
-    # Set the loglevel.
-    if loglevel > 3:
-        loglevel = 3  # Cap at 3 to avoid index errors.
-    levels = [logging.ERROR, logging.WARN, logging.INFO, logging.DEBUG]
-    logger.setLevel(levels[loglevel])
-
-    logformat = "%(asctime)-14s %(levelname)-8s %(name)-8s %(message)s"
-
-    formatter = logging.Formatter(logformat, "%Y-%m-%d %H:%M:%S")
-
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-    if quiet:
-        log.info("Quiet mode: logging disabled.")
-        logging.disable(logging.ERROR)
-
-
-def walklevels(path, levels=1):
-    path = path.rstrip(os.path.sep)
-    assert os.path.isdir(path)
-    num_sep = path.count(os.path.sep)
-    for root, dirs, files in os.walk(path):
-        yield root, dirs, files
-        num_sep_this = root.count(os.path.sep)
-        if num_sep + levels <= num_sep_this:
-            del dirs[:]
-
-
 class FileOps(object):
 
-    def __init__(self, quiet=False, verbosity=1,
+    def __init__(self, quiet=False, verbosity=1, configdir=None,
                  dirsonly=False, filesonly=False, recursive=False,
                  hidden=False, simulate=False, interactive=False, prompt=False,
                  noclobber=False, keepext=False, regex=False, exclude=None,
@@ -73,6 +40,7 @@ class FileOps(object):
                      "countsufedit", "deletecheck", "deletestart", "deleteend",
                      "matchcheck")
         # Universal options:
+        self.configdir = configdir
         self._dirsonly = dirsonly  # Only edit directory names.
         self._filesonly = False if dirsonly else filesonly  # Only file names.
         self._recursive = recursive  # Look for files recursively
@@ -118,7 +86,7 @@ class FileOps(object):
         self._recursivedepth = 1
 
         # Create the logger.
-        configure_logger(verbosity, quiet)
+        helpers.configure_logger(verbosity, quiet)
         self.history = []  # History of commited operations, useful to undo.
         self.defaultopts = {i:getattr(self, "_" + i, None) for i in self.opts}
 
@@ -145,7 +113,7 @@ class FileOps(object):
         levels = 0
         if self.recursive:
             levels = self.recursivedepth
-        for root, dirs, files in walklevels(path, levels):
+        for root, dirs, files in helpers.walklevels(path, levels):
             # To unicode.
             root = root.decode("utf-8") + "/"
             dirs = [d.decode("utf-8") for d in dirs]

@@ -28,6 +28,7 @@ from PyQt4 import QtGui, QtCore, uic
 
 import fileops
 import history
+import helpers
 
 
 log = logging.getLogger("gui")
@@ -85,7 +86,7 @@ class DirModel(QtGui.QFileSystemModel):
         parents = [par]
         # Create a list of n generations to specify path depth.
         if self.p.fileops.recursive:
-            for i in xrange(5):
+            for _ in xrange(5):
                 par = par.parent()
                 parents.append(par)
         if cidx in parents:
@@ -635,10 +636,13 @@ class DemiMoveGUI(QtGui.QMainWindow):
 def main():
     "Main entry point for demimove-ui."
     startdir = os.getcwd()
+    configdir = helpers.get_configdir()
     try:
         args = docopt(__doc__, version="0.1")
         args["-v"] = 3  # Force debug mode, for now.
-        fileop = fileops.FileOps(verbosity=args["-v"], quiet=args["--quiet"])
+        fileop = fileops.FileOps(verbosity=args["-v"],
+                                 quiet=args["--quiet"],
+                                 configdir=configdir)
         if args["--dir"]:
             startdir = args["--dir"]
     except NameError:
