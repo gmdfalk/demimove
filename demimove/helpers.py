@@ -37,6 +37,7 @@ def walklevels(path, levels=1):
         if num_sep + levels <= num_sep_this:
             del dirs[:]
 
+
 def get_configdir():
     "Determine the directory we read the configuration file from."
     xdgdir = os.path.join(os.path.expanduser("~"), ".config/demimove")
@@ -48,33 +49,30 @@ def get_configdir():
     return configdir
 
 
-def parse_config(configdir):
+def parse_configfile(configdir):
     config = ConfigParser()
-    config.read(os.path.join(configdir, "data/demimove.ini"))
-    networks = {}
+    configfile = "demimove.ini"
+    if not configdir.startswith("/home"):
+        configfile = "data/" + configfile
+    config.read(os.path.join(configdir, configfile))
+    options = {}
     for s in config.sections():
-        print {k:v for k, v in config.items(s)}
+        options[s] = {k:v for k, v in config.items(s)}
 
-    # Correct a couple of values.
-#     for n in networks:
-#         networks[n]["port"] = int(config.get(n, "port", 6667))
-#         for i in ["urltitles_enabled", "ssl"]:
-#             try:
-#                 networks[n][i] = config.getboolean(n, i)
-#             except NoOptionError:
-#                 print "ConfigError: Could not parse option {}.".format(i)
-#         for i in ["minperms", "lost_delay", "failed_delay", "rejoin_delay"]:
-#             try:
-#                 networks[n][i] = config.getint(n, i)
-#             except NoOptionError:
-#                 print "ConfigError: Could not parse option {}.".format(i)
-#         for k, v in networks[n].items():
-#             if k == "superadmins":
-#                 networks[n]["superadmins"] = set(v.replace(" ", "").split(","))
-#             elif k == "admins":
-#                 networks[n]["admins"] = set(v.replace(" ", "").split(","))
-#             elif k == "channels":
-#                 networks[n]["channels"] = {i if i.startswith("#") else "#" + i\
-#                                            for i in v.replace(" ", "").split(",")}
+    return options
 
-    return networks
+
+def get_opt(option, optiontype=str):
+    "Parse an option from config.ini"
+    config, account = None, None
+    section = account
+    if not config.has_section(section):
+        section = "DEFAULT"
+    if optiontype == int:
+        return config.getint(section, option)
+    elif optiontype == float:
+        return config.getfloat(section, option)
+    elif optiontype == bool:
+        return config.getboolean(section, option)
+    elif optiontype == str:
+        return config.get(section, option)
