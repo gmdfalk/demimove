@@ -120,11 +120,11 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.mainsplitter.setStretchFactor(0, 2)
         self.mainsplitter.setStretchFactor(1, 3)
 
-        self.checks = [self.capitalizecheck, self.spacecheck, self.removecheck,
-                       self.varaccentscheck, self.removeduplicatescheck,
-                       self.autopreviewcheck, self.extensioncheck,
-                       self.removenonwordscheck, self.removeextensionscheck, ]
-        self.boxes = [self.capitalizebox, self.spacebox]
+        self.checks = [self.casecheck, self.spacecheck, self.removecheck,
+                       self.normalizeaccentscheck, self.removeduplicatescheck,
+                       self.autopreviewcheck, self.keepextensionscheck,
+                       self.removenonwordscheck, self.removeextensionscheck]
+        self.boxes = [self.casebox, self.spacebox]
 
         self.create_browser(startdir)
         self.create_historytab()
@@ -234,7 +234,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         # Main buttons:
         self.commitbutton.clicked.connect(self.on_commitbutton)
         self.undobutton.clicked.connect(self.on_undobutton)
-        self.allradio.toggled.connect(self.on_allradio)
+        self.bothradio.toggled.connect(self.on_bothradio)
         self.dirsradio.toggled.connect(self.on_dirsradio)
         self.filesradio.toggled.connect(self.on_filesradio)
         self.switchviewcheck.toggled.connect(self.on_switchviewcheck)
@@ -242,18 +242,18 @@ class DemiMoveGUI(QtGui.QMainWindow):
         # Main options:
         self.autopreviewcheck.toggled.connect(self.on_autopreviewcheck)
         self.autostopcheck.toggled.connect(self.on_autostopcheck)
-        self.extensioncheck.toggled.connect(self.on_extensioncheck)
+        self.keepextensionscheck.toggled.connect(self.on_extensioncheck)
         self.hiddencheck.toggled.connect(self.on_hiddencheck)
-        self.mirrorcheck.toggled.connect(self.on_mirrorcheck)
+        self.manualmirrorcheck.toggled.connect(self.on_mirrorcheck)
         self.recursivecheck.toggled.connect(self.on_recursivecheck)
         self.recursivedepth.valueChanged.connect(self.on_recursivedepth)
 
         # Match options:
         self.matchcheck.toggled.connect(self.on_matchcheck)
         self.matchignorecase.toggled.connect(self.on_matchignorecase)
-        self.matchglob.toggled.connect(self.on_matchglob)
-        self.matchreplace.toggled.connect(self.on_matchreplace)
-        self.matchregex.toggled.connect(self.on_matchregex)
+        self.matchreplacecheck.toggled.connect(self.on_matchreplacecheck)
+        self.globradio.toggled.connect(self.on_matchglob)
+        self.regexradio.toggled.connect(self.on_matchregex)
         self.matchedit.textChanged.connect(self.on_matchedit)
         self.replaceedit.textChanged.connect(self.on_replaceedit)
 
@@ -282,16 +282,15 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.removenonwordscheck.toggled.connect(self.on_removenonwords)
 
         # Various options:
-        self.varcheck.toggled.connect(self.on_varcheck)
-        self.varaccentscheck.toggled.connect(self.on_varaccents)
-        self.varmediacheck.toggled.connect(self.on_varmediacheck)
+        self.normalizeaccentscheck.toggled.connect(self.on_normalizeaccents)
 
-        self.capitalizecheck.toggled.connect(self.on_capitalizecheck)
-        self.capitalizebox.currentIndexChanged[int].connect(self.on_capitalbox)
+        self.casecheck.toggled.connect(self.on_casecheck)
+        self.casebox.currentIndexChanged[int].connect(self.on_casebox)
         self.spacecheck.toggled.connect(self.on_spacecheck)
         self.spacebox.currentIndexChanged[int].connect(self.on_spacebox)
 
-        self.clearoptionscheck.toggled.connect(self.clearoptions)
+        self.mediaoptionscheck.toggled.connect(self.on_mediaoptions)
+        self.minimaloptionscheck.toggled.connect(self.on_minimaloptions)
 
     def on_commitbutton(self):
         self.update_preview()
@@ -349,8 +348,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if self.autopreview:
             self.update_preview()
 
-    def on_matchreplace(self, checked):
-        self.fileops.matchreplace = checked
+    def on_matchreplacecheck(self, checked):
+        self.fileops.matchreplacecheck = checked
         if self.autopreview:
             self.update_preview()
 
@@ -430,7 +429,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def on_removeextensions(self, checked):
         self.fileops.remext = checked
         if checked:
-            self.extensioncheck.setChecked(False)
+            self.keepextensionscheck.setChecked(False)
         if self.autopreview:
             self.update_preview()
 
@@ -439,7 +438,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if self.autopreview:
             self.update_preview()
 
-    def on_varaccents(self, checked):
+    def on_normalizeaccents(self, checked):
         self.fileops.accents = checked
         if self.autopreview:
             self.update_preview()
@@ -458,13 +457,13 @@ class DemiMoveGUI(QtGui.QMainWindow):
         for i in self.checks:
             i.setChecked(False)
         self.spacebox.setCurrentIndex(0)
-        self.capitalizebox.setCurrentIndex(0)
+        self.casebox.setCurrentIndex(0)
 
     def set_mediaoptions(self):
         for i in self.checks[:-2]:
             i.setChecked(True)
         self.spacebox.setCurrentIndex(6)
-        self.capitalizebox.setCurrentIndex(0)
+        self.casebox.setCurrentIndex(0)
 
     def toggle_options(self, boolean, mode=0):
         if boolean:
@@ -481,7 +480,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if self.autopreview:
             self.update_preview()
 
-    def on_varmediacheck(self, checked):
+    def on_mediaoptions(self, checked):
         self.toggle_options(checked, mode=0)
         if self.autopreview:
             self.update_preview()
@@ -492,10 +491,10 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.on_filesradio(True)
         elif self.dirsradio.isChecked():
             self.on_dirsradio(True)
-        elif self.allradio.isChecked():
-            self.on_allradio(True)
+        elif self.bothradio.isChecked():
+            self.on_bothradio(True)
 
-    def on_allradio(self, checked):
+    def on_bothradio(self, checked):
         self.fileops.filesonly = False
         self.fileops.dirsonly = False
         if self.switchview:
@@ -529,8 +528,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if self.autopreview:
             self.update_preview()
 
-    def on_capitalizecheck(self, checked):
-        self.fileops.capitalizecheck = checked
+    def on_casecheck(self, checked):
+        self.fileops.casecheck = checked
         if self.autopreview:
             self.update_preview()
 
@@ -562,13 +561,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if self.autopreview:
             self.update_preview()
 
-    def on_varcheck(self, checked):
-        self.fileops.varcheck = checked
-        if self.autopreview:
-            self.update_preview()
-
-    def on_capitalbox(self, index):
-        self.fileops.capitalizemode = index
+    def on_casebox(self, index):
+        self.fileops.casemode = index
         if self.autopreview:
             self.update_preview()
 

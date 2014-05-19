@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # TODO: Exclude option.
 # TODO: Fix count step and count base plus large listings (~i).
-# TODO: Reconcile keepext and not matchreplace.
+# TODO: Reconcile keepext and not matchreplacecheck.
 # TODO: Fix normalize accents.
 from copy import deepcopy
 from unicodedata import normalize, category
@@ -66,11 +66,10 @@ class FileOps(object):
                      "lower", "upper", "remdups", "remext", "remnonwords",
                      "ignorecase", "countpos",
                      "autostop", "mirror", "spacecheck", "spacemode",
-                     "capitalizecheck", "capitalizemode",
+                     "casecheck", "casemode",
                      "insertcheck", "insertpos", "insertedit",
                      "countcheck", "countfill", "countbase", "countpreedit",
-                     "countsufedit", "varcheck",
-                     "deletecheck", "deletestart", "deleteend",
+                     "countsufedit", "deletecheck", "deletestart", "deleteend",
                      "matchcheck")
         # Universal options:
         self._dirsonly = dirsonly  # Only edit directory names.
@@ -96,8 +95,8 @@ class FileOps(object):
         # Initialize GUI options.
         self._autostop = False  # Automatically stop execution on rename error.
         self._mirror = False  # Mirror manual rename to all targets.
-        self._capitalizecheck = False  # Whether to apply the capitalizemode.
-        self._capitalizemode = 0  # 0=lc, 1=uc, 2=flfw, 3=flew
+        self._casecheck = False  # Whether to apply the casemode.
+        self._casemode = 0  # 0=lc, 1=uc, 2=flfw, 3=flew
         self._spacecheck = False  # Whether to apply the spacemode.
         self._spacemode = 0  # 0=su, 1=sh, 2=sd, 3=ds, 4=hs, 5=us
         self._countcheck = False  # Whether to add a counter to the targets.
@@ -113,9 +112,8 @@ class FileOps(object):
         self._deletestart = 0  # Start index of deletion sequence.
         self._deleteend = 1  # End index of deletion sequence.
         self._matchcheck = True  # Whether to apply source/target patterns.
-        self._matchreplace = True
+        self._matchreplacecheck = True
         self._removecheck = False
-        self._varcheck = False  # Whether to apply various options (accents).
         self._recursivedepth = 1
 
         # Create the logger.
@@ -194,11 +192,10 @@ class FileOps(object):
         return self.modify_previews(deepcopy(targets), matchpat, replacepat)
 
     def set_mediaoptions(self):
-        self.capitalizecheck = True
+        self.casecheck = True
         self.spacecheck = True
         self.removecheck = True
-        self.varcheck = True
-        self.capitalizemode = 0
+        self.casemode = 0
         self.spacemode = 6
         self.remdups = True
         self.keepext = True
@@ -245,8 +242,8 @@ class FileOps(object):
 #             print name
             if self.matchcheck:
                 name = self.apply_match(name, matchpat, replacepat)
-            if self.capitalizecheck:
-                name = self.apply_capitalize(name)
+            if self.casecheck:
+                name = self.apply_case(name)
             if self.spacecheck:
                 name = self.apply_space(name)
             if self.deletecheck:
@@ -294,18 +291,18 @@ class FileOps(object):
 
         return s
 
-    def apply_capitalize(self, s):
-        if not self.capitalizecheck:
+    def apply_case(self, s):
+        if not self.casecheck:
             return s
 
-        if self.capitalizemode == 0:
+        if self.casemode == 0:
             s = s.lower()
-        elif self.capitalizemode == 1:
+        elif self.casemode == 1:
             s = s.upper()
-        elif self.capitalizemode == 2:
-            s = s.capitalize()
-        elif self.capitalizemode == 3:
-            s = " ".join([c.capitalize() for c in s.split()])
+        elif self.casemode == 2:
+            s = s.case()
+        elif self.casemode == 3:
+            s = " ".join([c.case() for c in s.split()])
 
         return s
 
@@ -337,6 +334,8 @@ class FileOps(object):
     def apply_remove(self, s):
         if not self.removecheck:
             return s
+        if self.accents:
+            s = "".join(c for c in normalize("NFD", s) if category(c) != "Mn")
         if self.remdups:
             s = re.sub(r"([-_ .])\1+", r"\1", s)
         if self.remnonwords:
@@ -357,7 +356,7 @@ class FileOps(object):
 #             log.debug("found src: {}.".format(match.group()))
         if not match:
             return s
-        if not self.matchreplace:
+        if not self.matchreplacecheck:
             result = match.group()
         else:
             replace = re.search(replacepat, s)
@@ -370,13 +369,6 @@ class FileOps(object):
         # TODO: Two functions: one to convert a glob into a pattern
         # and another to convert one into a replacement.
         return result
-
-    def apply_various(self, s):
-        if not self.varcheck:
-            return
-        if self.accents:
-            s = "".join(c for c in normalize("NFD", s) if category(c) != "Mn")
-        return s
 
     @property
     def dirsonly(self):
@@ -743,31 +735,31 @@ class FileOps(object):
         self._matchcheck = boolean
 
     @property
-    def matchreplace(self):
-        return self._matchreplace
+    def matchreplacecheck(self):
+        return self._matchreplacecheck
 
-    @matchreplace.setter
-    def matchreplace(self, boolean):
-        log.debug("matchreplace: {}".format(boolean))
-        self._matchreplace = boolean
-
-    @property
-    def capitalizecheck(self):
-        return self._capitalizecheck
-
-    @capitalizecheck.setter
-    def capitalizecheck(self, boolean):
-        log.debug("capitalizecheck: {}".format(boolean))
-        self._capitalizecheck = boolean
+    @matchreplacecheck.setter
+    def matchreplacecheck(self, boolean):
+        log.debug("matchreplacecheck: {}".format(boolean))
+        self._matchreplacecheck = boolean
 
     @property
-    def capitalizemode(self):
-        return self._capitalizemode
+    def casecheck(self):
+        return self._casecheck
 
-    @capitalizemode.setter
-    def capitalizemode(self, num):
-        log.debug("capitalizemode: {}".format(num))
-        self._capitalizemode = num
+    @casecheck.setter
+    def casecheck(self, boolean):
+        log.debug("casecheck: {}".format(boolean))
+        self._casecheck = boolean
+
+    @property
+    def casemode(self):
+        return self._casemode
+
+    @casemode.setter
+    def casemode(self, num):
+        log.debug("casemode: {}".format(num))
+        self._casemode = num
 
     @property
     def spacecheck(self):

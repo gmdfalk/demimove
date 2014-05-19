@@ -526,7 +526,7 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QCheckBox" name="extensioncheck">
+            <widget class="QCheckBox" name="keepextensionscheck">
              <property name="toolTip">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Preserve Extensions&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Only the edit the basename of the file. Leave the extension untouched.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
@@ -539,14 +539,14 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QCheckBox" name="minimaltogglecheck">
+            <widget class="QCheckBox" name="minimaloptionscheck">
              <property name="text">
               <string>Toggle minimal</string>
              </property>
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QCheckBox" name="mediatogglecheck">
+            <widget class="QCheckBox" name="mediaoptionscheck">
              <property name="toolTip">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Media mode&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This mode uses my preferred settings to sanitize folder- and directory names. It includes:&lt;/p&gt;&lt;p&gt;* All lowercase.&lt;/p&gt;&lt;p&gt;* Spaces and dots to underscores.&lt;/p&gt;&lt;p&gt;* Keep extensions.&lt;/p&gt;&lt;p&gt;* Remove duplicate symbols.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
