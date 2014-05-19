@@ -1150,5 +1150,37 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>mediaoptionscheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>minimaloptionscheck</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>83</x>
+     <y>548</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>234</x>
+     <y>548</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>minimaloptionscheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mediaoptionscheck</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>234</x>
+     <y>548</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>83</x>
+     <y>548</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

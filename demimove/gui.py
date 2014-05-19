@@ -456,6 +456,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def set_minimaloptions(self):
         for i in self.checks:
             i.setChecked(False)
+        self.autopreview.setChecked(True)
         self.spacebox.setCurrentIndex(0)
         self.casebox.setCurrentIndex(0)
 
@@ -475,7 +476,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         else:
             self.restore_options()
 
-    def on_clearoptionscheck(self, checked):
+    def on_minimaloptions(self, checked):
         self.toggle_options(checked, mode=1)
         if self.autopreview:
             self.update_preview()
