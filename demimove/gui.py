@@ -109,7 +109,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.targets = []
         self.history = []
         self.fileops = fileops
-        uic.loadUi("gui.ui", self)
+        uic.loadUi("data/gui.ui", self)
 
         self.setWindowIcon(QtGui.QIcon("data/icon.png"))
         self.mainsplitter.setStretchFactor(0, 2)
