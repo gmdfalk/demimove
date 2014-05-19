@@ -19,6 +19,7 @@ Options:
 # FIXME: Filesonly radio + switchview: bold font doesn't show.
 # FIXME: Fix performance on many files (recursive)? Maybe threading?
 # TODO: Use QFileSystemModels listing instead of fileops.get_targets()
+# TODO: "Clear all options"-option
 import logging
 import os
 import sys
@@ -104,14 +105,18 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self._cwdidx = None
         self._matchpat = ""  # Pattern to search for in files/dirs.
         self._replacepat = ""  # Pattern to replace above found matches with.
+        self.basedir = os.path.dirname(os.path.realpath(__file__))
+        self.guifile = os.path.join(self.basedir, "data/gui.ui")
+        self.iconfile = os.path.join(self.basedir, "data/icon.png")
+        self.histfile = os.path.join(self.basedir, "data/history.txt")
         self.switchview = False
         self.previews = []
         self.targets = []
         self.history = []
         self.fileops = fileops
-        uic.loadUi("data/gui.ui", self)
+        uic.loadUi(self.guifile, self)
 
-        self.setWindowIcon(QtGui.QIcon("data/icon.png"))
+        self.setWindowIcon(QtGui.QIcon(self.iconfile))
         self.mainsplitter.setStretchFactor(0, 2)
         self.mainsplitter.setStretchFactor(1, 3)
 
@@ -149,8 +154,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.dirview.setCurrentIndex(index)
 
     def create_historytab(self):
-        historyfile = "data/history.txt"
-        self.historymodel = history.HistoryTreeModel(historyfile, parent=self)
+        self.historymodel = history.HistoryTreeModel(self.histfile, parent=self)
         self.historytree.setModel(self.historymodel)
 
     def get_current_fileinfo(self):
@@ -286,6 +290,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.capitalizebox.currentIndexChanged[int].connect(self.on_capitalbox)
         self.spacecheck.toggled.connect(self.on_spacecheck)
         self.spacebox.currentIndexChanged[int].connect(self.on_spacebox)
+
+        self.clearoptionscheck.toggled.connect(self.clearoptions)
 
     def on_commitbutton(self):
         self.update_preview()
@@ -448,21 +454,35 @@ class DemiMoveGUI(QtGui.QMainWindow):
         for k, v in self.combosaves.items():
             k.setCurrentIndex(v)
 
+    def set_minimaloptions(self):
+        for i in self.checks:
+            i.setChecked(False)
+        self.spacebox.setCurrentIndex(0)
+        self.capitalizebox.setCurrentIndex(0)
+
     def set_mediaoptions(self):
         for i in self.checks[:-2]:
             i.setChecked(True)
         self.spacebox.setCurrentIndex(6)
         self.capitalizebox.setCurrentIndex(0)
 
-    def toggle_options(self, boolean):
+    def toggle_options(self, boolean, mode=0):
         if boolean:
             self.save_options()
-            self.set_mediaoptions()
+            if mode == 0:
+                self.set_mediaoptions()
+            elif mode == 1:
+                self.set_minimaloptions()
         else:
             self.restore_options()
 
+    def on_clearoptionscheck(self, checked):
+        self.toggle_options(checked, mode=1)
+        if self.autopreview:
+            self.update_preview()
+
     def on_varmediacheck(self, checked):
-        self.toggle_options(checked)
+        self.toggle_options(checked, mode=0)
         if self.autopreview:
             self.update_preview()
 

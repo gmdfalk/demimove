@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>935</width>
-    <height>635</height>
+    <width>978</width>
+    <height>656</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -463,15 +463,8 @@
                </property>
               </widget>
              </item>
-             <item row="14" column="0">
-              <widget class="QCheckBox" name="varcheck">
-               <property name="text">
-                <string>Various</string>
-               </property>
-              </widget>
-             </item>
              <item row="14" column="1">
-              <widget class="QCheckBox" name="varaccentscheck">
+              <widget class="QCheckBox" name="normalizeaccentscheck">
                <property name="enabled">
                 <bool>false</bool>
                </property>
@@ -480,19 +473,6 @@
                </property>
                <property name="text">
                 <string>Normalize accents</string>
-               </property>
-              </widget>
-             </item>
-             <item row="15" column="1">
-              <widget class="QCheckBox" name="varmediacheck">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Media mode&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This mode uses my preferred settings to sanitize folder- and directory names. It includes:&lt;/p&gt;&lt;p&gt;* All lowercase.&lt;/p&gt;&lt;p&gt;* Spaces and dots to underscores.&lt;/p&gt;&lt;p&gt;* Keep extensions.&lt;/p&gt;&lt;p&gt;* Remove duplicate symbols.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>Media mode</string>
                </property>
               </widget>
              </item>
@@ -511,8 +491,8 @@
           </layout>
          </item>
          <item>
-          <layout class="QGridLayout" name="optiongrid" rowstretch="0,0,0" columnstretch="0,0">
-           <item row="1" column="0">
+          <layout class="QGridLayout" name="optiongrid" rowstretch="0,0,0,0" columnstretch="0,0">
+           <item row="2" column="0">
             <widget class="QCheckBox" name="autopreviewcheck">
              <property name="toolTip">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Automatic Preview&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Will automatically update the filename previews whenever an option is changed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -525,7 +505,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <widget class="QCheckBox" name="mirrorcheck">
              <property name="toolTip">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Mirror Manual Changes&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When you manually change a file, MassRenamer will try to replace the same pattern in all files and/or directories.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -535,7 +515,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
+           <item row="3" column="1">
             <widget class="QCheckBox" name="autostopcheck">
              <property name="toolTip">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Stop On Error&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Halt the renaming process if an error occurs (e.g. a file cannot be renamed due to invalid characters).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -545,7 +525,7 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="2" column="1">
             <widget class="QCheckBox" name="extensioncheck">
              <property name="toolTip">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Preserve Extensions&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Only the edit the basename of the file. Leave the extension untouched.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -555,6 +535,23 @@
              </property>
              <property name="checked">
               <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="minimaloptionscheck">
+             <property name="text">
+              <string>Toggle minimal</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="mediaoptionscheck">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Media mode&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This mode uses my preferred settings to sanitize folder- and directory names. It includes:&lt;/p&gt;&lt;p&gt;* All lowercase.&lt;/p&gt;&lt;p&gt;* Spaces and dots to underscores.&lt;/p&gt;&lt;p&gt;* Keep extensions.&lt;/p&gt;&lt;p&gt;* Remove duplicate symbols.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Toggle media</string>
              </property>
             </widget>
            </item>
@@ -898,22 +895,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>varcheck</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>varaccentscheck</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>47</x>
-     <y>451</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>274</x>
-     <y>284</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>removecheck</sender>
    <signal>toggled(bool)</signal>
    <receiver>removeduplicatescheck</receiver>
@@ -1026,54 +1007,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>matchcheck</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>matchedit</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>49</x>
-     <y>54</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>485</x>
-     <y>605</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>matchcheck</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>replaceedit</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>49</x>
-     <y>54</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>774</x>
-     <y>605</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>varcheck</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>varmediacheck</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>47</x>
-     <y>448</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>212</x>
-     <y>478</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>recursivecheck</sender>
    <signal>toggled(bool)</signal>
    <receiver>recursivedepth</receiver>
@@ -1086,22 +1019,6 @@
     <hint type="destinationlabel">
      <x>699</x>
      <y>545</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>matchreplace</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>replaceedit</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>123</x>
-     <y>87</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>739</x>
-     <y>563</y>
     </hint>
    </hints>
   </connection>
@@ -1133,22 +1050,6 @@
     </hint>
     <hint type="destinationlabel">
      <x>200</x>
-     <y>87</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>matchcheck</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>matchexclude</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>43</x>
-     <y>54</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>270</x>
      <y>87</y>
     </hint>
    </hints>
@@ -1198,6 +1099,54 @@
     <hint type="destinationlabel">
      <x>200</x>
      <y>151</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removecheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>normalizeaccentscheck</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>50</x>
+     <y>419</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>200</x>
+     <y>509</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchreplace</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>replaceedit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>130</x>
+     <y>87</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>810</x>
+     <y>612</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>matchexclude</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>270</x>
+     <y>87</y>
     </hint>
    </hints>
   </connection>

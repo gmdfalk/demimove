@@ -2,6 +2,7 @@
 # TODO: Exclude option.
 # TODO: Fix count step and count base plus large listings (~i).
 # TODO: Reconcile keepext and not matchreplace.
+# TODO: Fix normalize accents.
 from copy import deepcopy
 from unicodedata import normalize, category
 import fnmatch
