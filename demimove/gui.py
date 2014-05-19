@@ -121,7 +121,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.mainsplitter.setStretchFactor(1, 3)
 
         self.checks = [self.casecheck, self.spacecheck, self.removecheck,
-                       self.normalizeaccentscheck, self.removeduplicatescheck,
+                       self.removesymbolscheck, self.removeduplicatescheck,
                        self.autopreviewcheck, self.keepextensionscheck,
                        self.removenonwordscheck, self.removeextensionscheck]
         self.boxes = [self.casebox, self.spacebox]
@@ -282,7 +282,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.removenonwordscheck.toggled.connect(self.on_removenonwords)
 
         # Various options:
-        self.normalizeaccentscheck.toggled.connect(self.on_normalizeaccents)
+        self.removesymbolscheck.toggled.connect(self.on_removesymbols)
 
         self.casecheck.toggled.connect(self.on_casecheck)
         self.casebox.currentIndexChanged[int].connect(self.on_casebox)
@@ -438,7 +438,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if self.autopreview:
             self.update_preview()
 
-    def on_normalizeaccents(self, checked):
+    def on_removesymbols(self, checked):
         self.fileops.accents = checked
         if self.autopreview:
             self.update_preview()
@@ -456,7 +456,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def set_minimaloptions(self):
         for i in self.checks:
             i.setChecked(False)
-        self.autopreview.setChecked(True)
+        self.autopreviewcheck.setChecked(True)
         self.spacebox.setCurrentIndex(0)
         self.casebox.setCurrentIndex(0)
 

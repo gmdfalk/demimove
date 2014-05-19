@@ -4,11 +4,12 @@
 # TODO: Reconcile keepext and not matchreplacecheck.
 # TODO: Fix normalize accents.
 from copy import deepcopy
-from unicodedata import normalize, category
+from unicodedata import normalize
 import fnmatch
 import logging
 import os
 import re
+import string
 import sys
 
 
@@ -55,14 +56,14 @@ class FileOps(object):
                  dirsonly=False, filesonly=False, recursive=False,
                  hidden=False, simulate=False, interactive=False, prompt=False,
                  noclobber=False, keepext=False, regex=False, exclude=None,
-                 mediamode=False, accents=False, lower=False, upper=False,
+                 mediamode=False, symbolsaccents=False, lower=False, upper=False,
                  remdups=False, remext=False, remnonwords=False,
                  ignorecase=False, countpos=0):
         # List of available options.
         self.opts = ("quiet", "verbosity",
                      "dirsonly", "filesonly", "recursive", "hidden",
                      "simulate", "interactive", "prompt", "noclobber",
-                     "keepext", "regex", "exclude", "media", "accents",
+                     "keepext", "regex", "exclude", "media", "symbolsaccents",
                      "lower", "upper", "remdups", "remext", "remnonwords",
                      "ignorecase", "countpos",
                      "autostop", "mirror", "spacecheck", "spacemode",
@@ -84,7 +85,7 @@ class FileOps(object):
         self._countpos = countpos  # Adds numerical index at position.
         self._regex = regex  # Use regular expressions instead of glob/fnmatch.
         self._exclude = exclude  # List of strings to exclude from targets.
-        self._accents = accents  # Normalize accents (ñé becomes ne).
+        self._symbolsaccents = symbolsaccents  # Normalize symbolsaccents (ñé becomes ne).
         self._lower = lower  # Convert target to lowercase.
         self._upper = upper  # Convert target to uppercase.
         self._ignorecase = ignorecase  # Case sensitivity.
@@ -335,7 +336,8 @@ class FileOps(object):
         if not self.removecheck:
             return s
         if self.accents:
-            s = "".join(c for c in normalize("NFD", s) if category(c) != "Mn")
+            allowed = string.ascii_letters + string.digits + " .-_+"  # []()
+            s = "".join(c for c in normalize("NFKD", s) if c in allowed)
         if self.remdups:
             s = re.sub(r"([-_ .])\1+", r"\1", s)
         if self.remnonwords:
@@ -493,12 +495,12 @@ class FileOps(object):
 
     @property
     def accents(self):
-        return self._accents
+        return self._symbolsaccents
 
     @accents.setter
     def accents(self, boolean):
         log.debug("accents: {}".format(boolean))
-        self._accents = boolean
+        self._symbolsaccents = boolean
 
     @property
     def exclude(self):

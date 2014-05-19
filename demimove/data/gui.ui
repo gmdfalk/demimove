@@ -139,6 +139,16 @@
                </property>
               </widget>
              </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="excludeedit">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Exclude&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Files and Directories to exclude. Comma separated.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
              <item row="4" column="0">
               <widget class="QCheckBox" name="casecheck">
                <property name="text">
@@ -425,32 +435,6 @@
               </widget>
              </item>
              <item row="11" column="1">
-              <widget class="QCheckBox" name="removeduplicatescheck">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Remove duplicate symbols&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Reduces multiple successive occurrences of space, dot, hyphen and other common symbols to a single occurrence.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>Duplicate symbols</string>
-               </property>
-              </widget>
-             </item>
-             <item row="12" column="1">
-              <widget class="QCheckBox" name="removenonwordscheck">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Remove non-word characters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This will only allow [A-Za-z0-9_.-].&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>Non-word characters</string>
-               </property>
-              </widget>
-             </item>
-             <item row="13" column="1">
               <widget class="QCheckBox" name="removeextensionscheck">
                <property name="enabled">
                 <bool>false</bool>
@@ -463,26 +447,42 @@
                </property>
               </widget>
              </item>
-             <item row="14" column="1">
-              <widget class="QCheckBox" name="normalizeaccentscheck">
+             <item row="12" column="1">
+              <widget class="QCheckBox" name="removeduplicatescheck">
                <property name="enabled">
                 <bool>false</bool>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Remove Accents&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This will replace e.g. &amp;quot;čáñů&amp;quot; with &amp;quot;canu&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Remove duplicate punctuation&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Reduces multiple successive occurrences of space, dot, hyphen and other common punctuation to a single occurrence.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="text">
-                <string>Normalize accents</string>
+                <string>Duplicate punctuation</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="1">
-              <widget class="QLineEdit" name="excludeedit">
+             <item row="13" column="1">
+              <widget class="QCheckBox" name="removesymbolscheck">
                <property name="enabled">
                 <bool>false</bool>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Exclude&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Files and Directories to exclude. Comma separated.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Remove Symbols and Accents&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This will &amp;quot;normalize&amp;quot; the target name by deleting most symbols and replacing accents with their ascii representation, i.e. &amp;quot;čáñů&amp;quot; will become &amp;quot;canu&amp;quot;.&lt;/p&gt;&lt;p&gt;Allowed chars are ascii_letters + digits + &amp;quot; _.-+&amp;quot;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Symbols and accents</string>
+               </property>
+              </widget>
+             </item>
+             <item row="14" column="1">
+              <widget class="QCheckBox" name="removenonwordscheck">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Remove non-word characters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The hardcore sanitation. This will only allow word characters: [A-Za-z0-9_.-].&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>All non-word characters</string>
                </property>
               </widget>
              </item>
@@ -1105,7 +1105,7 @@
   <connection>
    <sender>removecheck</sender>
    <signal>toggled(bool)</signal>
-   <receiver>normalizeaccentscheck</receiver>
+   <receiver>removesymbolscheck</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
