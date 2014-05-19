@@ -1,0 +1,1205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>demimoveui</class>
+ <widget class="QMainWindow" name="demimoveui">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>935</width>
+    <height>635</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>demimove-ui</string>
+  </property>
+  <widget class="QWidget" name="mainwidget">
+   <layout class="QHBoxLayout" name="mainlayout" stretch="0">
+    <property name="margin">
+     <number>4</number>
+    </property>
+    <item>
+     <widget class="QSplitter" name="mainsplitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QTabWidget" name="treewidget">
+       <property name="minimumSize">
+        <size>
+         <width>310</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="optionstab">
+        <attribute name="title">
+         <string>Options</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="optionstablayout">
+         <property name="margin">
+          <number>4</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" name="actionlayout" stretch="0">
+           <item>
+            <layout class="QFormLayout" name="actionforms">
+             <property name="fieldGrowthPolicy">
+              <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+             </property>
+             <item row="0" column="0">
+              <widget class="QCheckBox" name="matchcheck">
+               <property name="text">
+                <string>Match</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <layout class="QHBoxLayout" name="matchradios">
+               <item>
+                <widget class="QRadioButton" name="matchglob">
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Globbing&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Use globbing instead of regular expressions for pattern matching.&lt;/p&gt;&lt;p&gt;Example: asdf*  * (would remove asdf from all files/dirs that start with &amp;quot;asdf&amp;quot;)&lt;/p&gt;&lt;p&gt;Same with regex:  ^asdf    (empty)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string>Glob</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="matchregex">
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Regex&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Use regular expressions for replacement matching.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string>Regex</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="matchignorecase">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Ignore case&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Disables case sensitivity.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string>IC</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="1" column="1">
+              <layout class="QHBoxLayout" name="matchchecks">
+               <item>
+                <widget class="QCheckBox" name="matchreplace">
+                 <property name="text">
+                  <string>Replace</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="matchfilter">
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only use the matching pattern, not the replacement pattern.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string>Filter</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="matchexclude">
+                 <property name="text">
+                  <string>Exclude</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="matchfilteredit">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Filter&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Glob/Regex pattern to filter the targets by. &lt;/p&gt;&lt;p&gt;This defaults to &amp;quot;*&amp;quot; or &amp;quot;.*&amp;quot; respectively, to match all targets.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QCheckBox" name="capitalizecheck">
+               <property name="text">
+                <string>Cases</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QComboBox" name="capitalizebox">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string/>
+               </property>
+               <item>
+                <property name="text">
+                 <string>All lowercase</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>All uppercase</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>First letter of first word</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>First letter of each word</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QCheckBox" name="spacecheck">
+               <property name="text">
+                <string>Spaces</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QComboBox" name="spacebox">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Space to Underscore</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Space to Hyphen</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Space to Dot</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Dot to Space</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Hyphen to Space</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Underscore to Space</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string extracomment="Only underscore and hyphen.">Media</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="6" column="0">
+              <widget class="QCheckBox" name="insertcheck">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Insert a string at a fixed position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Insert</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="1">
+              <layout class="QHBoxLayout" name="insertlayout">
+               <item>
+                <widget class="QSpinBox" name="insertpos">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Insert index&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Position to insert the following string into. Choose -1 to append.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="minimum">
+                  <number>-1</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="insertedit">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Insert string&lt;/span&gt;&lt;/p&gt;&lt;p&gt;String to insert at the defined position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="7" column="0">
+              <widget class="QCheckBox" name="deletecheck">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete everything between fixed positions.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Delete</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="1">
+              <layout class="QHBoxLayout" name="deletelayout">
+               <item>
+                <widget class="QSpinBox" name="deletestart">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Delete Start Index&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Position to start deleting from.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Startindex&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="deleteend">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Delete End Index&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Position to stop deletion at.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stopindex&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="deletelabel">
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="8" column="0">
+              <widget class="QCheckBox" name="countcheck">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add an incrementing number at a fixed position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Count</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <layout class="QHBoxLayout" name="countlayout" stretch="0,0,0">
+               <item>
+                <widget class="QSpinBox" name="countpos">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Count index&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Position to insert the count at.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="countbase">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Count base&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This number will be used as a starting point to count from.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Count-Base&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="value">
+                  <number>1</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="countstep">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Count step&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Increment the base by this number per target.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Count-Step&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="9" column="1">
+              <layout class="QHBoxLayout" name="countstringlabel">
+               <item>
+                <widget class="QLineEdit" name="countpreedit">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Count Prefix&lt;/span&gt;&lt;/p&gt;&lt;p&gt;A string that will be prepended before the number.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Index-Prefix&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="countsufedit">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Count Suffix&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This string will be appended after the number.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Index-Suffix&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="10" column="1">
+              <widget class="QCheckBox" name="countfillcheck">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Autofill&lt;/span&gt;&lt;/p&gt;&lt;p&gt;If the count gains an order of magnitude, fill the previous numbers with a leading zero.&lt;/p&gt;&lt;p&gt;E.g. 8, 9, 10 will become 08, 09, 10, ...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Autofill with zeroes</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="0">
+              <widget class="QCheckBox" name="removecheck">
+               <property name="text">
+                <string>Remove</string>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="1">
+              <widget class="QCheckBox" name="removeduplicatescheck">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Remove duplicate symbols&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Reduces multiple successive occurrences of space, dot, hyphen and other common symbols to a single occurrence.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Duplicate symbols</string>
+               </property>
+              </widget>
+             </item>
+             <item row="12" column="1">
+              <widget class="QCheckBox" name="removenonwordscheck">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Remove non-word characters&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This will only allow [A-Za-z0-9_.-].&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Non-word characters</string>
+               </property>
+              </widget>
+             </item>
+             <item row="13" column="1">
+              <widget class="QCheckBox" name="removeextensionscheck">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Remove Symbols&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This will only allow ASCII-letters plus common ASCII-symbols like +_-...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Extensions</string>
+               </property>
+              </widget>
+             </item>
+             <item row="14" column="0">
+              <widget class="QCheckBox" name="varcheck">
+               <property name="text">
+                <string>Various</string>
+               </property>
+              </widget>
+             </item>
+             <item row="14" column="1">
+              <widget class="QCheckBox" name="varaccentscheck">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Remove Accents&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This will replace e.g. &amp;quot;čáñů&amp;quot; with &amp;quot;canu&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Normalize accents</string>
+               </property>
+              </widget>
+             </item>
+             <item row="15" column="1">
+              <widget class="QCheckBox" name="varmediacheck">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Media mode&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This mode uses my preferred settings to sanitize folder- and directory names. It includes:&lt;/p&gt;&lt;p&gt;* All lowercase.&lt;/p&gt;&lt;p&gt;* Spaces and dots to underscores.&lt;/p&gt;&lt;p&gt;* Keep extensions.&lt;/p&gt;&lt;p&gt;* Remove duplicate symbols.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Media mode</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="matchexcludeedit">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Exclude&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Files and Directories to exclude. Comma separated.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="optiongrid" rowstretch="0,0,0" columnstretch="0,0">
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="autopreviewcheck">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Automatic Preview&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Will automatically update the filename previews whenever an option is changed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Autopreview</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QCheckBox" name="mirrorcheck">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Mirror Manual Changes&lt;/span&gt;&lt;/p&gt;&lt;p&gt;When you manually change a file, MassRenamer will try to replace the same pattern in all files and/or directories.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Mirror manual</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QCheckBox" name="autostopcheck">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Stop On Error&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Halt the renaming process if an error occurs (e.g. a file cannot be renamed due to invalid characters).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Stop on error</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="extensioncheck">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Preserve Extensions&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Only the edit the basename of the file. Leave the extension untouched.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Keep filetype</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="historytab">
+        <attribute name="title">
+         <string>History</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="margin">
+          <number>4</number>
+         </property>
+         <item>
+          <widget class="QTreeView" name="historytree">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;History Tab (NYI)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="horizontalLayoutWidget_2">
+       <layout class="QVBoxLayout" name="rightlayout" stretch="1,0,0">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <layout class="QVBoxLayout" name="dirlayout" stretch="0">
+          <property name="margin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QTreeView" name="dirview"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="buttonlayout" stretch="1,1,3">
+          <item>
+           <widget class="QPushButton" name="commitbutton">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply the (previewed) changes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Commit</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="undobutton">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Undo last commit&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Undo</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="fileradiolayout">
+            <item>
+             <widget class="QCheckBox" name="hiddencheck">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Include Hidden&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Include hidden files and/or directories in the potential targets.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Hidden</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="recursivecheck">
+              <property name="text">
+               <string>Recursive</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="recursivedepth">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="dirsradio">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only edit dirs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Dirs</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="filesradio">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only edit files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Files</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="allradio">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Edit both files and directories.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Both</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="switchviewcheck">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Switch Filter&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This changes the filter on the current view corresponding to either Dirs only, Files only or Both.&lt;/p&gt;&lt;p&gt;Try it and see what happens ;)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Switch</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="editlayout">
+          <item>
+           <widget class="QLineEdit" name="matchedit">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Matching pattern&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="replaceedit">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Replacement pattern&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>insertcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>insertpos</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>42</x>
+     <y>252</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>129</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>insertcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>insertedit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>42</x>
+     <y>252</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>300</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>deletecheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>deletestart</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>45</x>
+     <y>287</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>158</x>
+     <y>290</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>deletecheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>deleteend</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>45</x>
+     <y>287</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>272</x>
+     <y>290</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>countcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>countbase</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>322</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>158</x>
+     <y>325</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>countcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>countstep</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>322</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>272</x>
+     <y>325</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>countcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>countpreedit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>322</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>360</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>countcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>countsufedit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>322</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>358</x>
+     <y>360</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>countcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>countfillcheck</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>322</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>272</x>
+     <y>392</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>capitalizecheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>capitalizebox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>272</x>
+     <y>57</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spacecheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spacebox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>46</x>
+     <y>89</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>272</x>
+     <y>92</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>varcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>varaccentscheck</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>451</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>274</x>
+     <y>284</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removecheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>removeduplicatescheck</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>50</x>
+     <y>442</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>219</x>
+     <y>442</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removecheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>removeextensionscheck</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>50</x>
+     <y>442</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>219</x>
+     <y>502</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removecheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>removenonwordscheck</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>50</x>
+     <y>442</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>219</x>
+     <y>472</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>countcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>countpos</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>261</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>144</x>
+     <y>264</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>matchignorecase</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>49</x>
+     <y>154</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>386</x>
+     <y>221</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>matchglob</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>49</x>
+     <y>154</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>272</x>
+     <y>221</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>matchregex</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>49</x>
+     <y>154</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>158</x>
+     <y>221</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>matchedit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>49</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>485</x>
+     <y>605</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>replaceedit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>49</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>774</x>
+     <y>605</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>varcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>varmediacheck</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>448</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>212</x>
+     <y>478</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>recursivecheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>recursivedepth</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>625</x>
+     <y>544</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>699</x>
+     <y>545</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchreplace</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>replaceedit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>123</x>
+     <y>87</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>739</x>
+     <y>563</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>matchreplace</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>130</x>
+     <y>87</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>matchfilter</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>200</x>
+     <y>87</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchcheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>matchexclude</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>270</x>
+     <y>87</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchreplace</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>matchedit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>130</x>
+     <y>87</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>472</x>
+     <y>591</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchfilter</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>matchfilteredit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>200</x>
+     <y>87</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>200</x>
+     <y>119</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>matchexclude</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>matchexcludeedit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>87</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>200</x>
+     <y>151</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
