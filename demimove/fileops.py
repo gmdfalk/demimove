@@ -58,7 +58,7 @@ class FileOps(object):
         # Initialize GUI options.
         self._excludeedit = "" if not exclude else exclude
         self._matchedit = "" if not matchpattern else matchpattern
-        self._replacedit = "" if not replacepattern else replacepattern
+        self._replaceedit = "" if not replacepattern else replacepattern
         self._autostop = False  # Automatically stop execution on rename error.
         self._countbase = 1  # Base to start counting from.
         self._countfill = True  # 9->10: 9 becomes 09. 99->100: 99 becomes 099.
@@ -166,10 +166,8 @@ class FileOps(object):
         self.remsymbols = True
 
     def commit(self, previews):
-        if self.simulate:
-            for p in previews:
-                print "{} to {}".format(p[1], p[2])
-        # clean up self.exclude
+        pass
+        # write commit to self.history
 
     def undo(self, action=None):
         if action is None:
@@ -298,33 +296,23 @@ class FileOps(object):
         return s
 
     def apply_replace(self, s):
-        return s
-        # TODO: Handle case sensitivity (re.IGNORECASE)
-        if not self.matchreplacecheck:
+        if not self.matchreplacecheck or not self.matchedit:
             return s
-        # matchpat, replacepat
         # Translate glob to regular expression.
-        if not self.regex:
-            matchpat = fnmatch.translate(matchpat)
-            replacepat = fnmatch.translate(replacepat)
-        match = re.search(matchpat, s)
-#         if match:
-#             log.debug("found src: {}.".format(match.group()))
-        if not match:
-            return s
-        if not self.matchreplacecheck:
-            result = match.group()
-        else:
-            replace = re.search(replacepat, s)
-            if replace:
-                log.debug("found dest: {}.".format(replace.group()))
-            log.debug("{}, {}, {}, {}".format(matchpat, replacepat,
-                                          match, replace))
-            result = replace.group()
 
-        # TODO: Two functions: one to convert a glob into a pattern
-        # and another to convert one into a replacement.
-        return result
+        if not self.regex:
+            matchpat = fnmatch.translate(self.matchedit)
+            replacepat = fnmatch.translate(self.replaceedit)
+        else:
+            matchpat = self.matchedit
+            replacepat = self.replaceedit
+
+        try:
+            s = re.sub(matchpat, replacepat, s)
+        except:
+            pass
+
+        return s
 
     @property
     def dirsonly(self):
