@@ -1,6 +1,4 @@
-import codecs
-
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtCore
 
 
 class TreeItem(object):
@@ -31,7 +29,7 @@ class TreeItem(object):
             return False
 
         for row in range(count):
-            data = [None for v in range(columns)]
+            data = [None for _ in range(columns)]
             item = TreeItem(data, self)
             self.childItems.insert(position, item)
 
@@ -84,13 +82,11 @@ class TreeItem(object):
 
 class HistoryTreeModel(QtCore.QAbstractItemModel):
 
-    def __init__(self, historyfile, parent=None):
+    def __init__(self, data, parent=None):
         super(HistoryTreeModel, self).__init__(parent)
         self.p = parent
 
         headers = ("Original", "Current")
-        with codecs.open(historyfile, encoding="utf-8") as f:
-            data = f.read()
 
         rootData = [header for header in headers]
         self.rootItem = TreeItem(rootData)

@@ -19,6 +19,7 @@ Options:
 # FIXME: Filesonly radio + switchview, bold font.
 # FIXME: Fix performance on many files (recursive)? Maybe threading?
 # TODO: Use QFileSystemModels listing instead of fileops.get_targets()
+# TODO: Save cwd, cwdidx and other information in config file, too?
 import logging
 import os
 import sys
@@ -27,8 +28,8 @@ from PyQt4 import Qt, QtGui, QtCore, uic
 
 import fileops
 import history
-from demimove import helpers
-from PyQt4.QtGui import QLineEdit
+import helpers
+import codecs
 
 
 log = logging.getLogger("gui")
@@ -88,19 +89,17 @@ class DirModel(QtGui.QFileSystemModel):
             except IndexError:
                 pass  # Fail silently.
 
-    def match_preview_depth(self, index, item):
-        """Currently unused."""
-        par, cidx = index.parent(), self.p.cwdidx
-        parents = [par]
-        # Create a list of n generations to specify path depth.
-        if self.p.fileops.recursive:
-            for _ in xrange(5):
-                par = par.parent()
-                parents.append(par)
-        if cidx in parents:
-            if item in self.p.nametargets:
-                idx = self.p.nametargets.index(item)
-                return self.p.previews[idx][1]
+    def delete_current_index(self):
+        index, path = self.p.get_current_fileinfo()
+        name = os.path.basename(path)
+
+        # TODO: Subclass MessageBox to center it on screen?
+        m = QtGui.QMessageBox(self)
+        reply = m.question(self, "Message", "Delete {}?".format(name),
+                           m.Yes | m.No, m.Yes)
+
+        if reply == QtGui.QMessageBox.Yes:
+            self.remove(index)
 
 
 class DemiMoveGUI(QtGui.QMainWindow):
@@ -110,73 +109,61 @@ class DemiMoveGUI(QtGui.QMainWindow):
         super(DemiMoveGUI, self).__init__(parent)
         self.fileops = fileops
         # Current working directory.
+        self.basedir = os.path.dirname(os.path.realpath(__file__))
         self._autopreview = True
         self._cwd = ""
         self._cwdidx = None
-        self.basedir = os.path.dirname(os.path.realpath(__file__))
-        self.guifile = os.path.join(self.basedir, "data/gui.ui")
-        self.iconfile = os.path.join(self.basedir, "data/icon.png")
         self.switchview = False
         self.targets, self.previews = [], []
         self.dualoptions1, self.dualoptions2 = {}, {}
-        uic.loadUi(self.guifile, self)
-        if self.fileops.configdir:
-            self.startoptions, self.defaultoptions = helpers.load_configfile(
-                                                     self.fileops.configdir)
-            self.set_options()
-        try:
-            self.histfile = os.path.join(self.fileops.configdir, "history.txt")
-        except (AttributeError, OSError):
-            self.histfile = os.path.join(self.basedir, "data/history.txt")
 
-        self.setWindowIcon(QtGui.QIcon(self.iconfile))
+        self.initialize_ui(startdir)
+
+    def initialize_ui(self, startdir):
+        guifile = os.path.join(self.basedir, "data/gui.ui")
+        iconfile = os.path.join(self.basedir, "data/icon.png")
+        uic.loadUi(guifile, self)
+        self.setWindowIcon(QtGui.QIcon(iconfile))
         self.mainsplitter.setStretchFactor(0, 2)
         self.mainsplitter.setStretchFactor(1, 3)
-
-        self.mediachecks = [self.casecheck, self.spacecheck, self.removecheck,
-                            self.removesymbolscheck, self.removeduplicatescheck,
-                            self.keepextensionscheck]
-        self.boxes = [self.casebox, self.spacebox]
-
         self.create_browser(startdir)
         self.create_historytab()
         self.connect_elements()
+
+        self.startoptions, self.defaultoptions = helpers.load_configfile(
+                                                 self.fileops.configdir)
+        self.set_options(self.startoptions)
+
         log.info("demimove-ui initialized.")
         self.statusbar.showMessage("Select a directory and press Enter.")
 
     def set_options(self, options=None, sanitize=False):
-        if options is None:
-            options = self.startoptions
+        if not options:
+            options = self.defaultoptions
 
         self.autopreview = False
 
-        if sanitize:
-            for k, v in options["checks"].items():
-                getattr(self, k).setChecked(False)
-            for k, v in options["combos"].items():
-                getattr(self, k).setCurrentIndex(0)
-            for k, v in options["edits"].items():
-                getattr(self, k).setText("")
-            for k, v in options["radios"].items():
-                getattr(self, k).setChecked(v)
-            for k, v in options["spins"].items():
-                getattr(self, k).setValue(v)
-        else:
-            for k, v in options["checks"].items():
-                getattr(self, k).setChecked(v)
-            for k, v in options["combos"].items():
-                getattr(self, k).setCurrentIndex(v)
-            for k, v in options["edits"].items():
-                getattr(self, k).setText(v)
-            for k, v in options["radios"].items():
-                getattr(self, k).setChecked(v)
-            for k, v in options["spins"].items():
-                getattr(self, k).setValue(v)
+        for k, v in options["checks"].items():
+            if sanitize:
+                v = False
+            getattr(self, k).setChecked(v)
+        for k, v in options["combos"].items():
+            if sanitize:
+                v = 0
+            getattr(self, k).setCurrentIndex(v)
+        for k, v in options["edits"].items():
+            if sanitize:
+                v = u""
+            getattr(self, k).setText(v)
+        for k, v in options["radios"].items():
+            getattr(self, k).setChecked(v)
+        for k, v in options["spins"].items():
+            getattr(self, k).setValue(v)
 
         self.autopreview = True
 
     def get_options(self):
-        options = self.startoptions
+        options = self.defaultoptions
         o = {}
         o["checks"] = {k:getattr(self, k).isChecked() for k in options["checks"].keys()}
         o["combos"] = {k:getattr(self, k).currentIndex() for k in options["combos"].keys()}
@@ -207,7 +194,17 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.dirview.setCurrentIndex(self.dirmodel.index(startdir))
 
     def create_historytab(self):
-        self.historymodel = history.HistoryTreeModel(self.histfile, self)
+        historyfile = os.path.join(self.fileops.configdir, "history.txt")
+
+        try:
+            with codecs.open(historyfile, encoding="utf-8") as f:
+                data = f.read()
+        except IOError:
+            historyfile = os.path.join(self.basedir, "data/history.txt")
+            with codecs.open(historyfile, encoding="utf-8") as f:
+                data = f.read()
+
+        self.historymodel = history.HistoryTreeModel(data, self)
         self.historytree.setModel(self.historymodel)
 
     def get_current_fileinfo(self):
@@ -236,18 +233,6 @@ class DemiMoveGUI(QtGui.QMainWindow):
         qr.moveCenter(cp)
         widget.move(qr.topLeft())
 
-    def delete_item(self):
-        index, path = self.get_current_fileinfo()
-        name = os.path.basename(path)
-
-        # TODO: Subclass MessageBox to center it on screen?
-        m = QtGui.QMessageBox(self)
-        reply = m.question(self, "Message", "Delete {}?".format(name),
-                           m.Yes | m.No, m.Yes)
-
-        if reply == QtGui.QMessageBox.Yes:
-            self.dirmodel.remove(index)
-
     def keyPressEvent(self, e):
         "Overloaded to connect return key to self.set_cwd()."
         # TODO: Move this to TreeView only.
@@ -256,7 +241,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_targets()
             self.update_preview()
         if e.key() == QtCore.Qt.Key_Delete:
-            self.delete_item()
+            self.dirmodel.delete_current_index()
 
     def update_targets(self):
         if self.cwd:
@@ -553,7 +538,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def save_mediaoptions(self):
         self.checksaves = {i: i.isChecked() for i in self.mediachecks}
-        self.combosaves = {i: i.currentIndex() for i in self.boxes}
+        self.combosaves = {i: i.currentIndex() for i in self.mediaboxes}
 
     def restore_mediaoptions(self):
         for k, v in self.checksaves.items():
