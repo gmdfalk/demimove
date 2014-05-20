@@ -299,8 +299,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.matchreplacecheck.toggled.connect(self.on_matchreplacecheck)
         self.matchexcludecheck.toggled.connect(self.on_matchexcludecheck)
         self.matchfiltercheck.toggled.connect(self.on_matchfiltercheck)
-        self.globradio.toggled.connect(self.on_matchglob)
-        self.regexradio.toggled.connect(self.on_matchregex)
+        self.globradio.toggled.connect(self.on_globradio)
+        self.regexradio.toggled.connect(self.on_regexradio)
         self.matchedit.textChanged.connect(self.on_matchedit)
         self.replaceedit.textChanged.connect(self.on_replaceedit)
         self.excludeedit.textChanged.connect(self.on_excludeedit)
@@ -459,14 +459,18 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if self.autopreview:
             self.update_previews()
 
-    def on_matchglob(self, checked):
+    def on_globradio(self, checked):
         self.fileops.regex = not checked
         if self.autopreview:
+            if self.fileops.matchfiltercheck or self.fileops.matchexcludecheck:
+                self.update_targets()
             self.update_previews()
 
-    def on_matchregex(self, checked):
+    def on_regexradio(self, checked):
         self.fileops.regex = checked
         if self.autopreview:
+            if self.fileops.matchfiltercheck or self.fileops.matchexcludecheck:
+                self.update_targets()
             self.update_previews()
 
     def on_insertcheck(self, checked):

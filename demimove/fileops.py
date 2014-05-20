@@ -111,20 +111,31 @@ class FileOps(object):
             return False
 
         if self.matchfiltercheck:
+            if not self.filteredit:
+                return True
             if self.regex:
-                if not re.search(self.filteredit, target):
-                    return False
+                try:
+                    if re.search(self.filteredit, target):
+                        return False
+                except:
+                    log.debug("bad regex filter")
+                    True
             else:
-                if not fnmatch.fnmatch(target, self.filteredit):
+                if fnmatch.fnmatch(target, self.filteredit):
                     return False
         if self.matchexcludecheck:
+            if not self.excludeedit:
+                return True
             if self.regex:
-                if re.search(self.excludeedit, target):
-                    return False
+                try:
+                    if re.search(self.excludeedit, target):
+                        return False
+                except:
+                    log.debug("bad regex exclude")
+                    return True
             else:
                 if fnmatch.fnmatch(target, self.excludeedit):
                     return False
-        print "target matched", target
         return True
 
     def get_targets(self, path=None):
