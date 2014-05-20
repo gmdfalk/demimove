@@ -85,7 +85,7 @@ class FileOps(object):
 
         self.configdir = helpers.get_configdir()
         # Create the logger.
-        helpers.configure_logger(verbosity, quiet)
+        helpers.configure_logger(verbosity, quiet, self.configdir)
         self.history = []  # History of commited operations, used to undo them.
 
     def get_options(self, *args):

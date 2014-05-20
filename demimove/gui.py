@@ -27,6 +27,7 @@ from PyQt4 import Qt, QtGui, QtCore, uic
 
 import fileops
 import history
+from demimove import helpers
 
 
 log = logging.getLogger("gui")
@@ -114,12 +115,16 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.basedir = os.path.dirname(os.path.realpath(__file__))
         self.guifile = os.path.join(self.basedir, "data/gui.ui")
         self.iconfile = os.path.join(self.basedir, "data/icon.png")
-        self.configdir = self.fileops.configdir
-        self.histfile = os.path.join(self.basedir, "data/history.txt")
         self.switchview = False
         self.previews = []
         self.targets = []
         uic.loadUi(self.guifile, self)
+        if self.fileops.configdir:
+            self.histfile = os.path.join(self.fileops.configdir, "history.txt")
+            self.apply_options()
+
+        else:
+            self.histfile = os.path.join(self.basedir, "data/history.txt")
 
         self.setWindowIcon(QtGui.QIcon(self.iconfile))
         self.mainsplitter.setStretchFactor(0, 2)
@@ -136,6 +141,16 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.connect_elements()
         log.info("demimove-ui initialized.")
         self.statusbar.showMessage("Select a directory and press Enter.")
+
+    def apply_options(self):
+        options = helpers.load_configfile(self.fileops.configdir)
+        print options
+        helpers.save_configfile(self.fileops.configdir, options)
+#         for k, v in options["combos"]:
+#         for k, v in options["edits"]:
+#         for k, v in options["radios"]:
+#         for k, v in options["spins"]:
+#             print k, v
 
     def create_browser(self, startdir):
         # TODO: With readOnly disabled we can use setData for file operations?

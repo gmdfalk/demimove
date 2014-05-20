@@ -4,7 +4,7 @@ import os
 import sys
 
 
-def configure_logger(loglevel=2, quiet=False):
+def configure_logger(loglevel=2, quiet=False, logdir=None):
     "Creates the logger instance and adds handlers and formatting."
     logger = logging.getLogger()
 
@@ -18,16 +18,25 @@ def configure_logger(loglevel=2, quiet=False):
 
     formatter = logging.Formatter(logformat, "%Y-%m-%d %H:%M:%S")
 
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-    if quiet:
-        logger.info("Quiet mode: logging disabled.")
-        logging.disable(logging.ERROR)
+    if not quiet:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+        logger.debug("Added logging console handler.")
+        logger.info("Loglevel is {}.".format(levels[loglevel]))
+    if logdir:
+        try:
+            logfile = os.path.abspath(logdir)
+            file_handler = logging.FileHandler(logfile)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+            logger.debug("Added logging file handler: {}.".format(logfile))
+        except IOError:
+            logger.error("Could not attach file handler.")
 
 
 def walklevels(path, levels=1):
+    """Replacement for os.walk."""
     path = path.rstrip(os.path.sep)
     assert os.path.isdir(path)
     num_sep = path.count(os.path.sep)
@@ -39,28 +48,40 @@ def walklevels(path, levels=1):
 
 
 def get_configdir():
-    "Determine the directory we read the configuration file from."
-    xdgdir = os.path.join(os.path.expanduser("~"), ".config/demimove")
-    if os.path.isdir(xdgdir):
-        configdir = xdgdir
-    else:
-        configdir = os.path.dirname(os.path.realpath(__file__))
-
-    return configdir
+    "Determine if an XDG_CONFIG_DIR for demimove exists and if so, use it."
+    configdir = os.path.join(os.path.expanduser("~"), ".config/demimove")
+    if os.path.isdir(configdir):
+        return configdir
 
 
-def parse_configfile(configdir):
+def load_configfile(configdir):
     config = ConfigParser()
-    configfile = "demimove.ini"
-    if not configdir.startswith("/home"):
-        configfile = "data/" + configfile
-    config.read(os.path.join(configdir, configfile))
+    config.read(os.path.join(configdir, "demimove.ini"))
+    print config, type(config)
     options = {}
-    for s in config.sections():
-        options[s] = {k:v for k, v in config.items(s)}
+    options["checks"] = {k:config.getboolean("checks", k)\
+                         for k, v in config.items("checks")}
+    options["combos"] = {k:config.getint("combos", k)\
+                         for k, v in config.items("combos")}
+    options["edits"] = {k:config.get("edits", k).decode("utf-8")\
+                        for k, v in config.items("edits")}
+    options["radios"] = {k:config.getboolean("radios", k)\
+                         for k, v in config.items("radios")}
+    options["spins"] = {k:config.getint("spins", k)\
+                        for k, v in config.items("spins")}
 
     return options
 
+def save_configfile(configdir, options):
+    configfile = os.path.join(configdir, "demimove.ini")
+    config = ConfigParser()
+    for k, v in options.items():
+        config.add_section(k)
+        for kk, vv in v.items():
+            config.set(k, kk, vv)
+
+    with open('example.ini', 'w') as f:
+        config.write(f)
 
 def get_opt(option, optiontype=str):
     "Parse an option from config.ini"
