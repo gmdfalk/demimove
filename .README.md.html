@@ -452,15 +452,15 @@ function setDocumentScrollTop(ypos)
 <h1> <a name="user-content-demimove" class="anchor" href="..md.html#demimove"><span class="octicon octicon-link"></span></a>demimove</h1> 
 <h4> <a name="user-content-a-file-browser-for-mass-renaming" class="anchor" href="..md.html#a-file-browser-for-mass-renaming"><span class="octicon octicon-link"></span></a>A file browser for mass renaming</h4> 
 <p><a href="https://camo.githubusercontent.com/54f23a6610dc1c6d952035d0e583147019eb4fd7/687474703a2f2f612e706f6d662e73652f7468716177762e706e67" target="_blank"><img src="https://camo.githubusercontent.com/54f23a6610dc1c6d952035d0e583147019eb4fd7/687474703a2f2f612e706f6d662e73652f7468716177762e706e67" alt="ScreenShot" data-canonical-src="http://a.pomf.se/thqawv.png" style="max-width:100%;" /></a></p> 
-<p>Demimove is a file browser written with python2.7 and PyQt4.<br /> A couple of features you might find interesting:</p> 
+<p>Demimove is a file browser written with python2.7 and PyQt4.<br /> A couple of features you might find interesting: </p> 
 <ul> 
  <li>Commit History: You can undo any commit, although currently only in order of last to first.<br /> </li> 
- <li>Automatic Previews: Demimove is very responsive and provides an immediate preview for any changes.</li> 
- <li>Config File: You can save and restore options to and from a file (~/.config/demimove/demimove.ini).</li> 
- <li>Recursive support: Demimove supports recursive lookups and renames. You can specify the depth of the recursion, too. </li> 
- <li>Performance: Demimove is fast and responsive, thanks to QT and its QFileSystemModel. Even thousands of files are no problem (although there's a ceiling, as always).</li> 
- <li>Regular expression and globbing pattern support, as you'd expect.</li> 
- <li> <p>Lots of more or less useful builtin options to experiment with.</p> <h4> <a name="user-content-installation" class="anchor" href="..md.html#installation"><span class="octicon octicon-link"></span></a>Installation</h4> <p>Install demimove as follows:</p> <pre><code>git clone https://github.com/mikar/demimove
+ <li>Automatic Previews: Demimove is very responsive and provides an immediate preview for any changes.<br /> </li> 
+ <li>Config File: You can save and restore options to and from a file (~/.config/demimove/demimove.ini).<br /> </li> 
+ <li>Recursive support: Demimove supports recursive lookups and renames. You can specify the depth of the recursion, too.<br /> </li> 
+ <li>Performance: Demimove is fast and responsive, thanks to QT and its QFileSystemModel. Even thousands of files are no problem (although there's a ceiling, as always).<br /> </li> 
+ <li>Regular expression and globbing pattern support, as you'd expect.<br /> </li> 
+ <li> <p>Lots of more or less useful builtin options to experiment with. </p> <h4> <a name="user-content-installation" class="anchor" href="..md.html#installation"><span class="octicon octicon-link"></span></a>Installation</h4> <p>Install demimove as follows:</p> <pre><code>git clone https://github.com/mikar/demimove
 cd demimove
 pip install .
 </code></pre> <p>There is a CLI version but its currently not really in a usable state. </p> <h4> <a name="user-content-usage" class="anchor" href="..md.html#usage"><span class="octicon octicon-link"></span></a>Usage</h4> <p>The screenshot is pretty self-explanatory but what might not be apparent is that you need to select a working directory before any previews or changes will be shown.<br /> You can do that by selecting a directory in the file browser and pressing Enter. Pressing Enter again on that same folder will unset the working directory.</p> <h4> <a name="user-content-todo" class="anchor" href="..md.html#todo"><span class="octicon octicon-link"></span></a>TODO</h4> <p>Features i'd like to include when i get time to work on this again: </p> </li> 
