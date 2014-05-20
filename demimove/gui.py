@@ -24,7 +24,7 @@ import logging
 import os
 import sys
 
-from PyQt4 import QtGui, QtCore, uic
+from PyQt4 import Qt, QtGui, QtCore, uic
 
 import fileops
 import history
@@ -52,9 +52,15 @@ class DirModel(QtGui.QFileSystemModel):
     def __init__(self, parent=None):
         super(DirModel, self).__init__(parent)
         self.p = parent
+        self.labels = ["Name", "Size", "Type", "Date Modified", "Preview"]
 
     def columnCount(self, parent=QtCore.QModelIndex()):
         return super(DirModel, self).columnCount() + 1
+
+    def headerData(self, col, orientation, role=Qt.Qt.DisplayRole):
+        if role == Qt.Qt.DisplayRole and orientation == Qt.Qt.Horizontal:
+            return self.labels[col]
+        return QtGui.QFileSystemModel.headerData(self, col, orientation, role)
 
     def data(self, index, role):
         if index.column() == self.columnCount() - 1:
@@ -64,6 +70,9 @@ class DirModel(QtGui.QFileSystemModel):
                 fileindex = self.index(index.row(), 0, index.parent())
                 item = str(self.data(fileindex, role).toString().toUtf8())
                 return self.match_preview(fileindex, item)
+#             if role == QtCore.Qt.
+#                 if self.parent().cwdidx == index:
+#                     option.font.setWeight(QtGui.QFont.Bold)
 
         return super(DirModel, self).data(index, role)
 
@@ -143,6 +152,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
                                     QtCore.QDir.Hidden)
 
         self.dirview.setModel(self.dirmodel)
+        self.dirmodel.setHeaderData(0, Qt.Qt.Orientation(0), "Folders")
         self.dirview.setColumnHidden(2, True)
         self.dirview.header().swapSections(4, 1)
         self.dirview.header().resizeSection(0, 300)
@@ -176,7 +186,9 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.cwdidx = None
         self.update_single_index(index)
 
-    def center(self, widget):
+    def center(self, widget=None):
+        if widget is None:
+            widget = self
         qr = widget.frameGeometry()
         cp = QtGui.QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
@@ -186,14 +198,13 @@ class DemiMoveGUI(QtGui.QMainWindow):
         index, path = self.get_current_fileinfo()
         name = os.path.basename(path)
 
+        # TODO: Subclass MessageBox to center it on screen?
         m = QtGui.QMessageBox(self)
         reply = m.question(self, "Message", "Really delete {}?".format(name),
                            m.Yes | m.No, m.Yes)
 
         if reply == QtGui.QMessageBox.Yes:
             self.dirmodel.remove(index)
-        else:
-            pass
 
     def keyPressEvent(self, e):
         "Overloaded to connect return key to self.set_cwd()."
@@ -341,6 +352,19 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_matchcheck(self, checked):
         self.fileops.matchcheck = checked
+        if not checked:
+            self.matchedit.setEnabled(False)
+            self.replaceedit.setEnabled(False)
+            self.filteredit.setEnabled(False)
+            self.excludeedit.setEnabled(False)
+        else:
+            if self.matchreplacecheck.isChecked():
+                self.matchedit.setEnabled(True)
+                self.replaceedit.setEnabled(True)
+            if self.matchfiltercheck.isChecked():
+                self.filteredit.setEnabled(True)
+            if self.matchexcludecheck.isChecked():
+                self.excludeedit.setEnabled(True)
         if self.autopreview:
             self.update_preview()
 
@@ -440,7 +464,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_preview()
 
     def on_removesymbols(self, checked):
-        self.fileops.accents = checked
+        self.fileops.symbolsaccents = checked
         if self.autopreview:
             self.update_preview()
 

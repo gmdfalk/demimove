@@ -2,7 +2,7 @@
 # TODO: Exclude option.
 # TODO: Fix count step and count base plus large listings (~i).
 # TODO: Reconcile keepext and not matchreplacecheck.
-# TODO: Fix normalize accents.
+# TODO: Fix normalize symbolsaccents.
 from copy import deepcopy
 from unicodedata import normalize
 import fnmatch
@@ -168,7 +168,7 @@ class FileOps(object):
         self.spacemode = 6
         self.remdups = True
         self.keepext = True
-        self.accents = True
+        self.symbolsaccents = True
 
     def commit(self, previews):
         if self.simulate:
@@ -303,13 +303,13 @@ class FileOps(object):
     def apply_remove(self, s):
         if not self.removecheck:
             return s
-        if self.accents:
+        if self.remnonwords:
+            s = re.sub("\W", "", s)
+        if self.symbolsaccents:
             allowed = string.ascii_letters + string.digits + " .-_+"  # []()
             s = "".join(c for c in normalize("NFKD", s) if c in allowed)
         if self.remdups:
             s = re.sub(r"([-_ .])\1+", r"\1", s)
-        if self.remnonwords:
-            s = re.sub("\W", "", s)
         return s
 
     def apply_match(self, s, matchpat, replacepat):
@@ -462,12 +462,12 @@ class FileOps(object):
         self._replacematch = boolean
 
     @property
-    def accents(self):
+    def symbolsaccents(self):
         return self._symbolsaccents
 
-    @accents.setter
-    def accents(self, boolean):
-        log.debug("accents: {}".format(boolean))
+    @symbolsaccents.setter
+    def symbolsaccents(self, boolean):
+        log.debug("symbolsaccents: {}".format(boolean))
         self._symbolsaccents = boolean
 
     @property

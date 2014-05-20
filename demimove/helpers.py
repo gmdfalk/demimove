@@ -66,8 +66,6 @@ def get_opt(option, optiontype=str):
     "Parse an option from config.ini"
     config, account = None, None
     section = account
-    if not config.has_section(section):
-        section = "DEFAULT"
     if optiontype == int:
         return config.getint(section, option)
     elif optiontype == float:
