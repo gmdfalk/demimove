@@ -1,4 +1,4 @@
-from ConfigParser import ConfigParser, NoOptionError
+from ConfigParser import ConfigParser
 import logging
 import os
 import sys
@@ -53,9 +53,12 @@ def walklevels(path, levels=1):
 def get_configdir():
     "Determine if an XDG_CONFIG_DIR for demimove exists and if so, use it."
     configdir = os.path.join(os.path.expanduser("~"), ".config/demimove")
-    if os.path.isdir(configdir):
-        log.debug("Config file found.")
-        return configdir
+
+    if not os.path.isdir(configdir):
+        log.debug("Creating config directory.")
+        os.makedirs(configdir)
+
+    return configdir
 
 
 def load_configfile(configdir):
@@ -66,31 +69,31 @@ def load_configfile(configdir):
                                  "countsufedit": u"",
                                  "replaceedit": u"",
                                  "filteredit": u"",
-                                 "excludeedit": u"",
+                                 "excludeedit": u"*demimove*",
                                  "matchedit": u""},
                       "combos": {"casebox": 0, "spacebox": 0},
                       "checks": {"countcheck": False,
                                  "switchviewcheck": False,
-                                 "keepextensionscheck": False,
+                                 "keepextensionscheck": True,
                                  "deletecheck": False,
-                                 "spacecheck": False,
+                                 "spacecheck": True,
                                  "matchexcludecheck": False,
                                  "autopreviewcheck": True,
-                                 "matchreplacecheck": False,
+                                 "matchreplacecheck": True,
                                  "hiddencheck": False,
-                                 "casecheck": False,
+                                 "casecheck": True,
                                  "insertcheck": False,
-                                 "matchfiltercheck": False,
+                                 "matchfiltercheck": True,
                                  "recursivecheck": False,
                                  "matchignorecase": False,
-                                 "removeduplicatescheck": False,
+                                 "removeduplicatescheck": True,
                                  "removesymbolscheck": False,
                                  "removeextensionscheck": False,
                                  "autostopcheck": False,
                                  "manualmirrorcheck": False,
-                                 "matchcheck": False,
+                                 "matchcheck": True,
                                  "removenonwordscheck": False,
-                                 "removecheck": False,
+                                 "removecheck": True,
                                  "countfillcheck": True},
                       "radios": {"dirsradio": False,
                                  "globradio": True,
@@ -118,9 +121,9 @@ def load_configfile(configdir):
                              for k, _ in config.items("radios")}
         options["spins"] = {k:config.getint("spins", k)\
                             for k, _ in config.items("spins")}
-    except NoOptionError as e:
+    except Exception as e:
         log.debug("Could not completely read config file: {}.".format(e))
-        log.debug("Using default (empty) configuration file.")
+        log.debug("Using configuration template.")
     else:
         log.debug("Configuration file loaded from {}.".format(configdir))
 

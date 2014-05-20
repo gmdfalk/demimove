@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>978</width>
-    <height>656</height>
+    <height>689</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,7 +42,7 @@
           <number>4</number>
          </property>
          <item>
-          <layout class="QVBoxLayout" name="actionlayout" stretch="0">
+          <layout class="QVBoxLayout" name="actionslayout" stretch="0">
            <item>
             <layout class="QFormLayout" name="actionforms">
              <property name="fieldGrowthPolicy">
@@ -497,7 +497,17 @@
           </layout>
          </item>
          <item>
-          <layout class="QGridLayout" name="optiongrid" rowstretch="0,0,0,0,0" columnstretch="0,0">
+          <layout class="QGridLayout" name="optionslayout" rowstretch="0,0,0,0,0" columnstretch="0,0">
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="mediamodecheck">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Media Mode&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Toggle between the current option state and a prepared &amp;quot;media mode&amp;quot;.&lt;/p&gt;&lt;p&gt;This mode uses my preferred settings to sanitize folder- and directory names. It consists of:&lt;/p&gt;&lt;p&gt;* All lowercase.&lt;/p&gt;&lt;p&gt;* Spaces and dots to underscores.&lt;/p&gt;&lt;p&gt;* Keep extensions.&lt;/p&gt;&lt;p&gt;* Remove symbols and accents.&lt;/p&gt;&lt;p&gt;* Remove duplicate symbols.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Media Mode</string>
+             </property>
+            </widget>
+           </item>
            <item row="2" column="0">
             <widget class="QCheckBox" name="autopreviewcheck">
              <property name="toolTip">
@@ -544,16 +554,6 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QCheckBox" name="mediamodecheck">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Media Mode&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Toggle between the current option state and a prepared &amp;quot;media mode&amp;quot;.&lt;/p&gt;&lt;p&gt;This mode uses my preferred settings to sanitize folder- and directory names. It consists of:&lt;/p&gt;&lt;p&gt;* All lowercase.&lt;/p&gt;&lt;p&gt;* Spaces and dots to underscores.&lt;/p&gt;&lt;p&gt;* Keep extensions.&lt;/p&gt;&lt;p&gt;* Remove symbols and accents.&lt;/p&gt;&lt;p&gt;* Remove duplicate symbols.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Media Mode</string>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="1">
             <widget class="QCheckBox" name="dualmodecheck">
              <property name="toolTip">
@@ -564,17 +564,34 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="optionbuttonlayout">
+           <item>
             <widget class="QPushButton" name="saveoptionsbutton">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Save Options&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Save current option state to the configuration file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="text">
-              <string>Save Options</string>
+              <string>Save</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item>
+            <widget class="QPushButton" name="restoreoptionsbutton">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Reset Options&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Set options to the state they were in when the application loaded.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Restore</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QPushButton" name="clearoptionsbutton">
              <property name="text">
-              <string>Clear Options</string>
+              <string>Clear</string>
              </property>
             </widget>
            </item>

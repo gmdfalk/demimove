@@ -301,6 +301,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.recursivecheck.toggled.connect(self.on_recursivecheck)
         self.recursivedepth.valueChanged.connect(self.on_recursivedepth)
         self.saveoptionsbutton.clicked.connect(self.on_saveoptionsbutton)
+        self.restoreoptionsbutton.clicked.connect(self.on_restoreoptionsbutton)
         self.clearoptionsbutton.clicked.connect(self.on_clearoptionsbutton)
 
         # Match options:
@@ -355,6 +356,10 @@ class DemiMoveGUI(QtGui.QMainWindow):
         helpers.save_configfile(self.fileops.configdir, self.get_options())
         self.statusbar.showMessage("Configuration file saved.")
 
+    def on_restoreoptionsbutton(self):
+        log.info("Clearing options.")
+        self.set_options(self.startoptions)
+
     def on_clearoptionsbutton(self):
         log.info("Clearing options.")
         self.set_options(sanitize=True)
@@ -362,13 +367,11 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def on_commitbutton(self):
         log.info("Committing previewed changes.")
         self.update_preview()
-        commit = self.fileops.commit(self.previews)
-#         self.history.append(commit)
+        self.fileops.commit(self.previews)
 
     def on_undobutton(self):
         log.info("Reverting last commit.")
-        print self.get_options()
-#         self.fileops.undo()
+        self.fileops.undo()
 
     def on_autopreviewcheck(self, checked):
         self.autopreview = checked
