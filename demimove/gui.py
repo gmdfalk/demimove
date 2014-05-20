@@ -28,7 +28,6 @@ from PyQt4 import Qt, QtGui, QtCore, uic
 
 import fileops
 import history
-import helpers
 
 
 log = logging.getLogger("gui")
@@ -265,21 +264,28 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.manualmirrorcheck.toggled.connect(self.on_mirrorcheck)
         self.recursivecheck.toggled.connect(self.on_recursivecheck)
         self.recursivedepth.valueChanged.connect(self.on_recursivedepth)
+        self.saveoptionsbutton.clicked.connect(self.on_saveoptionsbutton)
+        self.restoreoptionsbutton.clicked.connect(self.on_restoreptionsbutton)
 
         # Match options:
         self.matchcheck.toggled.connect(self.on_matchcheck)
         self.matchignorecase.toggled.connect(self.on_matchignorecase)
         self.matchreplacecheck.toggled.connect(self.on_matchreplacecheck)
+        self.matchexcludecheck.toggled.connect(self.on_matchexcludecheck)
+        self.matchfiltercheck.toggled.connect(self.on_matchfiltercheck)
         self.globradio.toggled.connect(self.on_matchglob)
         self.regexradio.toggled.connect(self.on_matchregex)
         self.matchedit.textChanged.connect(self.on_matchedit)
         self.replaceedit.textChanged.connect(self.on_replaceedit)
+        self.excludeedit.textChanged.connect(self.on_excludeedit)
+        self.filteredit.textChanged.connect(self.on_filteredit)
 
         # Insert options:
         self.insertcheck.toggled.connect(self.on_insertcheck)
         self.insertpos.valueChanged.connect(self.on_insertpos)
         self.insertedit.textChanged.connect(self.on_insertedit)
 
+        # Delete options:
         self.deletecheck.toggled.connect(self.on_deletecheck)
         self.deletestart.valueChanged.connect(self.on_deletestart)
         self.deleteend.valueChanged.connect(self.on_deleteend)
@@ -298,8 +304,6 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.removeduplicatescheck.toggled.connect(self.on_removeduplicates)
         self.removeextensionscheck.toggled.connect(self.on_removeextensions)
         self.removenonwordscheck.toggled.connect(self.on_removenonwords)
-
-        # Various options:
         self.removesymbolscheck.toggled.connect(self.on_removesymbols)
 
         self.casecheck.toggled.connect(self.on_casecheck)
@@ -307,8 +311,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.spacecheck.toggled.connect(self.on_spacecheck)
         self.spacebox.currentIndexChanged[int].connect(self.on_spacebox)
 
-        self.mediaoptionscheck.toggled.connect(self.on_mediaoptions)
-        self.defaultoptionscheck.toggled.connect(self.on_defaultoptions)
+        self.mediamodecheck.toggled.connect(self.on_mediamodecheck)
+        self.dualmodecheck.toggled.connect(self.on_dualmodecheck)
 
     def on_commitbutton(self):
         self.update_preview()
@@ -507,12 +511,12 @@ class DemiMoveGUI(QtGui.QMainWindow):
         else:
             self.restore_options()
 
-    def on_defaultoptions(self, checked):
+    def on_dualmodecheck(self, checked):
         self.toggle_options(checked, mode=1)
         if self.autopreview:
             self.update_preview()
 
-    def on_mediaoptions(self, checked):
+    def on_mediamodecheck(self, checked):
         self.toggle_options(checked, mode=0)
         if self.autopreview:
             self.update_preview()
@@ -627,15 +631,6 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self._cwdidx = index
 
     @property
-    def mediamode(self):
-        return self._mediamode
-
-    @mediamode.setter
-    def mediamode(self, boolean):
-        self._mediamode = boolean
-        log.debug("mediamode: {}".format(boolean))
-
-    @property
     def autopreview(self):
         return self._autopreview
 
@@ -666,13 +661,11 @@ class DemiMoveGUI(QtGui.QMainWindow):
 def main():
     "Main entry point for demimove-ui."
     startdir = os.getcwd()
-    configdir = helpers.get_configdir()
     try:
         args = docopt(__doc__, version="0.1")
         args["-v"] = 3  # Force debug mode, for now.
         fileop = fileops.FileOps(verbosity=args["-v"],
-                                 quiet=args["--quiet"],
-                                 configdir=configdir)
+                                 quiet=args["--quiet"])
         if args["--dir"]:
             startdir = args["--dir"]
     except NameError:

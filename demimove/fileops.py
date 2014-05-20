@@ -2,7 +2,7 @@
 # TODO: Exclude option.
 # TODO: Fix count step and count base plus large listings (~i).
 # TODO: Reconcile keepext and not matchreplacecheck.
-# TODO: Fix normalize symbolsaccents.
+# TODO: Fix normalize remsymbols.
 from copy import deepcopy
 from unicodedata import normalize
 import fnmatch
@@ -19,71 +19,55 @@ log = logging.getLogger("fileops")
 
 class FileOps(object):
 
-    def __init__(self, quiet=False, verbosity=1, configdir=None,
-                 dirsonly=False, filesonly=False, recursive=False,
-                 hidden=False, simulate=False, interactive=False, prompt=False,
-                 noclobber=False, keepext=False, regex=False, exclude=None,
-                 mediamode=False, symbolsaccents=False, lower=False, upper=False,
-                 remdups=False, remext=False, remnonwords=False,
-                 ignorecase=False, countpos=0):
-        # List of available options.
-        self.opts = ("quiet", "verbosity",
-                     "dirsonly", "filesonly", "recursive", "hidden",
-                     "simulate", "interactive", "prompt", "noclobber",
-                     "keepext", "regex", "exclude", "media", "symbolsaccents",
-                     "lower", "upper", "remdups", "remext", "remnonwords",
-                     "ignorecase", "countpos",
-                     "autostop", "mirror", "spacecheck", "spacemode",
-                     "casecheck", "casemode",
-                     "insertcheck", "insertpos", "insertedit",
-                     "countcheck", "countfill", "countbase", "countpreedit",
-                     "countsufedit", "deletecheck", "deletestart", "deleteend",
-                     "matchcheck")
+    def __init__(self, casemode=0, countpos=0, dirsonly=False, exclude="",
+                 filesonly=False, hidden=False, ignorecase=False,
+                 interactive=False, keepext=False, mediamode=False,
+                 noclobber=False, recursive=False, regex=False, remdups=False,
+                 remext=False, remnonwords=False, remsymbols=False,
+                 simulate=False, spacemode=0, quiet=False, verbosity=1):
         # Universal options:
-        self.configdir = configdir
-        self._dirsonly = dirsonly  # Only edit directory names.
-        self._filesonly = False if dirsonly else filesonly  # Only file names.
-        self._recursive = recursive  # Look for files recursively
-        self._hidden = hidden  # Look at hidden files and directories, too.
-        self._simulate = simulate  # Simulate renaming and dump result to stdout.
-        self._interactive = interactive  # Confirm before overwriting.
-        self._prompt = prompt  # Confirm all rename actions.
-        self._noclobber = noclobber  # Don't overwrite anything.
-        self._keepext = keepext  # Don't modify remext.
         self._countpos = countpos  # Adds numerical index at position.
-        self._regex = regex  # Use regular expressions instead of glob/fnmatch.
+        self._casemode = casemode  # 0=lc, 1=uc, 2=flfw, 3=flew
+        self._dirsonly = dirsonly  # Only edit directory names.
         self._exclude = exclude  # List of strings to exclude from targets.
-        self._symbolsaccents = symbolsaccents  # Normalize symbolsaccents (ñé becomes ne).
-        self._lower = lower  # Convert target to lowercase.
-        self._upper = upper  # Convert target to uppercase.
+        self._filesonly = False if dirsonly else filesonly  # Only file names.
+        self._hidden = hidden  # Look at hidden files and directories, too.
         self._ignorecase = ignorecase  # Case sensitivity.
+        self._interactive = interactive  # Confirm before overwriting.
+        self._keepext = keepext  # Don't modify remext.
         self._mediamode = mediamode  # Mode to sanitize NTFS-filenames/dirnames.
-        self._remdups = remdups  # Remove remdups.
-        self._remnonwords = remnonwords  # Only allow wordchars (\w)
+        self._noclobber = noclobber  # Don't overwrite anything.
+        self._recursive = recursive  # Look for files recursively
+        self._regex = regex  # Use regular expressions instead of glob/fnmatch.
         self._remext = remext  # Remove all remext.
+        self._remdups = remdups  # Remove remdups.
+        self._remsymbols = remsymbols  # Normalize remsymbols (ñé becomes ne).
+        self._remnonwords = remnonwords  # Only allow wordchars (\w)
+        self._simulate = simulate  # Simulate renaming and dump result to stdout.
+        self._spacemode = spacemode  # 0=su, 1=sh, 2=sd, 3=ds, 4=hs, 5=us
         # Initialize GUI options.
         self._autostop = False  # Automatically stop execution on rename error.
-        self._mirror = False  # Mirror manual rename to all targets.
         self._casecheck = False  # Whether to apply the casemode.
-        self._casemode = 0  # 0=lc, 1=uc, 2=flfw, 3=flew
-        self._spacecheck = False  # Whether to apply the spacemode.
-        self._spacemode = 0  # 0=su, 1=sh, 2=sd, 3=ds, 4=hs, 5=us
         self._countcheck = False  # Whether to add a counter to the targets.
         self._countbase = 1  # Base to start counting from.
-        self._countstep = 1
         self._countfill = True  # 9->10: 9 becomes 09. 99->100: 99 becomes 099.
         self._countpreedit = ""  # String that is prepended to the counter.
+        self._countstep = 1
         self._countsufedit = ""  # String that is appended to the counter.
-        self._insertcheck = False  # Whether to apply an insertion.
-        self._insertpos = 0  # Position/Index to insert at.
-        self._insertedit = ""  # The inserted text/string.
         self._deletecheck = False  # Whether to delete a specified range.
-        self._deletestart = 0  # Start index of deletion sequence.
         self._deleteend = 1  # End index of deletion sequence.
+        self._deletestart = 0  # Start index of deletion sequence.
+        self._excludeedit = ""
+        self._filteredit = ""
+        self._insertcheck = False  # Whether to apply an insertion.
+        self._insertedit = ""  # The inserted text/string.
+        self._insertpos = 0  # Position/Index to insert at.
+        self._manualmirror = False  # Mirror manual rename to all targets.
         self._matchcheck = True  # Whether to apply source/target patterns.
         self._matchreplacecheck = True
-        self._removecheck = False
         self._recursivedepth = 1
+        self._removecheck = False
+        self._spacecheck = False  # Whether to apply the spacemode.
 
         # Create the logger.
         helpers.configure_logger(verbosity, quiet)
@@ -168,7 +152,7 @@ class FileOps(object):
         self.spacemode = 6
         self.remdups = True
         self.keepext = True
-        self.symbolsaccents = True
+        self.remsymbols = True
 
     def commit(self, previews):
         if self.simulate:
@@ -305,7 +289,7 @@ class FileOps(object):
             return s
         if self.remnonwords:
             s = re.sub("\W", "", s)
-        if self.symbolsaccents:
+        if self.remsymbols:
             allowed = string.ascii_letters + string.digits + " .-_+"  # []()
             s = "".join(c for c in normalize("NFKD", s) if c in allowed)
         if self.remdups:
@@ -462,13 +446,13 @@ class FileOps(object):
         self._replacematch = boolean
 
     @property
-    def symbolsaccents(self):
-        return self._symbolsaccents
+    def remsymbols(self):
+        return self._remsymbols
 
-    @symbolsaccents.setter
-    def symbolsaccents(self, boolean):
-        log.debug("symbolsaccents: {}".format(boolean))
-        self._symbolsaccents = boolean
+    @remsymbols.setter
+    def remsymbols(self, boolean):
+        log.debug("remsymbols: {}".format(boolean))
+        self._remsymbols = boolean
 
     @property
     def exclude(self):
@@ -490,12 +474,12 @@ class FileOps(object):
 
     @property
     def mirror(self):
-        return self._mirror
+        return self._manualmirror
 
     @mirror.setter
     def mirror(self, boolean):
         log.debug("mirror: {}".format(boolean))
-        self._mirror = boolean
+        self._manualmirror = boolean
 
     @property
     def removecheck(self):
