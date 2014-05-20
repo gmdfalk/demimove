@@ -13,7 +13,8 @@ Options:
     --version            Show the current demimove-ui version.
 """
 # TODO: History tab.
-# TODO: Statustab with Errors/Warnings, Summaries etc
+# TODO: Statustab with Errors/Warnings, Summaries etc.
+# TODO: Threading for get_previews/get_targets and statusbar progress.
 # TODO: Custom ContextMenu for Filebrowser
 # FIXME: Filesonly radio + switchview, bold font.
 # FIXME: Fix performance on many files (recursive)? Maybe threading?
@@ -132,13 +133,13 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
         self.create_browser(startdir)
         self.create_historytab()
-        self.connect_buttons()
+        self.connect_elements()
         log.info("demimove-ui initialized.")
         self.statusbar.showMessage("Select a directory and press Enter.")
 
     def create_browser(self, startdir):
+        # TODO: With readOnly disabled we can use setData for file operations?
         self.dirmodel = DirModel(self)
-        # TODO: With readOnly disabled we can use setData for renaming.
         self.dirmodel.setReadOnly(False)
         self.dirmodel.setRootPath("/")
         self.dirmodel.setFilter(QtCore.QDir.Dirs | QtCore.QDir.Files |
@@ -146,7 +147,6 @@ class DemiMoveGUI(QtGui.QMainWindow):
                                     QtCore.QDir.Hidden)
 
         self.dirview.setModel(self.dirmodel)
-        self.dirmodel.setHeaderData(0, Qt.Qt.Orientation(0), "Folders")
         self.dirview.setColumnHidden(2, True)
         self.dirview.header().swapSections(4, 1)
         self.dirview.header().resizeSection(0, 300)
@@ -154,12 +154,10 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.dirview.header().resizeSection(3, 120)
         self.dirview.setEditTriggers(QtGui.QAbstractItemView.EditKeyPressed)
         self.dirview.setItemDelegate(BoldDelegate(self))
-
-        index = self.dirmodel.index(startdir)
-        self.dirview.setCurrentIndex(index)
+        self.dirview.setCurrentIndex(self.dirmodel.index(startdir))
 
     def create_historytab(self):
-        self.historymodel = history.HistoryTreeModel(self.histfile, parent=self)
+        self.historymodel = history.HistoryTreeModel(self.histfile, self)
         self.historytree.setModel(self.historymodel)
 
     def get_current_fileinfo(self):
@@ -170,7 +168,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def set_cwd(self, force=False):
         "Set the current working directory for renaming actions."
         index, path = self.get_current_fileinfo()
-        if force or  path != self.cwd and os.path.isdir(path):
+        if force or path != self.cwd and os.path.isdir(path):
             self.cwd = path
             self.cwdidx = index
             self.dirview.setExpanded(self.cwdidx, True)
@@ -188,13 +186,13 @@ class DemiMoveGUI(QtGui.QMainWindow):
         qr.moveCenter(cp)
         widget.move(qr.topLeft())
 
-    def confirm_file_deletion(self):
+    def delete_item(self):
         index, path = self.get_current_fileinfo()
         name = os.path.basename(path)
 
         # TODO: Subclass MessageBox to center it on screen?
         m = QtGui.QMessageBox(self)
-        reply = m.question(self, "Message", "Really delete {}?".format(name),
+        reply = m.question(self, "Message", "Delete {}?".format(name),
                            m.Yes | m.No, m.Yes)
 
         if reply == QtGui.QMessageBox.Yes:
@@ -208,7 +206,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_targets()
             self.update_preview()
         if e.key() == QtCore.Qt.Key_Delete:
-            self.confirm_file_deletion()
+            self.delete_item()
 
     def update_targets(self):
         if self.cwd:
@@ -235,7 +233,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         m = self.dirmodel
         m.dataChanged.emit(index, m.index(index.row(), m.columnCount()))
 
-    def connect_buttons(self):
+    def connect_elements(self):
         # Main buttons:
         self.commitbutton.clicked.connect(self.on_commitbutton)
         self.undobutton.clicked.connect(self.on_undobutton)
@@ -303,17 +301,21 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.dualmodecheck.toggled.connect(self.on_dualmodecheck)
 
     def on_saveoptionsbutton(self):
+        log.info("Saving options.")
         self.update_preview()
 
     def on_resetoptionsbutton(self):
+        log.info("Resetting options.")
         self.update_preview()
 
     def on_commitbutton(self):
+        log.info("Committing previewed changes.")
         self.update_preview()
         commit = self.fileops.commit(self.previews)
 #         self.history.append(commit)
 
     def on_undobutton(self):
+        log.info("Reverting last commit.")
         self.fileops.undo()
 
     def on_autopreviewcheck(self, checked):
