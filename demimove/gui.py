@@ -94,18 +94,6 @@ class DirModel(QtGui.QFileSystemModel):
             except IndexError:
                 pass  # Fail silently.
 
-    def delete_current_index(self):
-        index, path = self.p.get_current_fileinfo()
-        name = os.path.basename(path)
-
-        # TODO: Subclass MessageBox to center it on screen?
-        m = QtGui.QMessageBox(self)
-        reply = m.question(self, "Message", "Delete {}?".format(name),
-                           m.Yes | m.No, m.Yes)
-
-        if reply == QtGui.QMessageBox.Yes:
-            self.remove(index)
-
 
 class DemiMoveGUI(QtGui.QMainWindow):
 
@@ -242,6 +230,18 @@ class DemiMoveGUI(QtGui.QMainWindow):
         qr.moveCenter(cp)
         widget.move(qr.topLeft())
 
+    def delete_current_index(self):
+        index, path = self.get_current_fileinfo()
+        name = os.path.basename(path)
+
+        # TODO: Subclass MessageBox to center it on screen?
+        m = QtGui.QMessageBox(self)
+        reply = m.question(self, "Message", "Delete {}?".format(name),
+                           m.Yes | m.No, m.Yes)
+
+        if reply == QtGui.QMessageBox.Yes:
+            self.dirmodel.remove(index)
+
     def keyPressEvent(self, e):
         "Overloaded to connect return key to self.set_cwd()."
         # TODO: Move this to TreeView only.
@@ -250,7 +250,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_targets()
             self.update_previews()
         if e.key() == QtCore.Qt.Key_Delete:
-            self.dirmodel.delete_current_index()
+            self.delete_current_index()
 
     def update_targets(self):
         if self.cwd:
