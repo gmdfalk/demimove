@@ -121,10 +121,12 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.dualoptions1, self.dualoptions2 = {}, {}
         uic.loadUi(self.guifile, self)
         if self.fileops.configdir:
-            self.histfile = os.path.join(self.fileops.configdir, "history.txt")
-            self.startoptions = helpers.load_configfile(self.fileops.configdir)
+            self.startoptions, self.defaultoptions = helpers.load_configfile(
+                                                     self.fileops.configdir)
             self.set_options()
-        else:
+        try:
+            self.histfile = os.path.join(self.fileops.configdir, "history.txt")
+        except (AttributeError, OSError):
             self.histfile = os.path.join(self.basedir, "data/history.txt")
 
         self.setWindowIcon(QtGui.QIcon(self.iconfile))
@@ -299,7 +301,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.recursivecheck.toggled.connect(self.on_recursivecheck)
         self.recursivedepth.valueChanged.connect(self.on_recursivedepth)
         self.saveoptionsbutton.clicked.connect(self.on_saveoptionsbutton)
-        self.resetoptionsbutton.clicked.connect(self.on_resetoptionsbutton)
+        self.clearoptionsbutton.clicked.connect(self.on_clearoptionsbutton)
 
         # Match options:
         self.matchcheck.toggled.connect(self.on_matchcheck)
@@ -353,8 +355,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         helpers.save_configfile(self.fileops.configdir, self.get_options())
         self.statusbar.showMessage("Configuration file saved.")
 
-    def on_resetoptionsbutton(self):
-        log.info("Resetting options.")
+    def on_clearoptionsbutton(self):
+        log.info("Clearing options.")
         self.set_options(sanitize=True)
 
     def on_commitbutton(self):

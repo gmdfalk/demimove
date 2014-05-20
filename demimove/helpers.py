@@ -1,4 +1,4 @@
-from ConfigParser import ConfigParser
+from ConfigParser import ConfigParser, NoOptionError
 import logging
 import os
 import sys
@@ -61,21 +61,70 @@ def get_configdir():
 def load_configfile(configdir):
     config = ConfigParser()
     config.read(os.path.join(configdir, "demimove.ini"))
+    defaultoptions = {"edits":  {"insertedit": u"",
+                                 "countpreedit": u"",
+                                 "countsufedit": u"",
+                                 "replaceedit": u"",
+                                 "filteredit": u"",
+                                 "excludeedit": u"",
+                                 "matchedit": u""},
+                      "combos": {"casebox": 0, "spacebox": 0},
+                      "checks": {"countcheck": False,
+                                 "switchviewcheck": False,
+                                 "keepextensionscheck": False,
+                                 "deletecheck": False,
+                                 "spacecheck": False,
+                                 "matchexcludecheck": False,
+                                 "autopreviewcheck": True,
+                                 "matchreplacecheck": False,
+                                 "hiddencheck": False,
+                                 "casecheck": False,
+                                 "insertcheck": False,
+                                 "matchfiltercheck": False,
+                                 "recursivecheck": False,
+                                 "matchignorecase": False,
+                                 "removeduplicatescheck": False,
+                                 "removesymbolscheck": False,
+                                 "removeextensionscheck": False,
+                                 "autostopcheck": False,
+                                 "manualmirrorcheck": False,
+                                 "matchcheck": False,
+                                 "removenonwordscheck": False,
+                                 "removecheck": False,
+                                 "countfillcheck": True},
+                      "radios": {"dirsradio": False,
+                                 "globradio": True,
+                                 "filesradio": False,
+                                 "regexradio": False,
+                                 "bothradio": True},
+                      "spins":  {"deleteend": 1,
+                                 "countpos": 0,
+                                 "countbase": 1,
+                                 "countstep": 1,
+                                 "deletestart": 0,
+                                 "insertpos": 0,
+                                 "recursivedepth": 1}
+                        }
     options = {}
-    excluded = ["mediamodecheck", "dualmodecheck"]
-    options["checks"] = {k:config.getboolean("checks", k) for k, _\
-                         in config.items("checks") if k not in excluded}
-    options["combos"] = {k:config.getint("combos", k)\
-                         for k, _ in config.items("combos")}
-    options["edits"] = {k:config.get("edits", k).decode("utf-8")\
-                        for k, _ in config.items("edits")}
-    options["radios"] = {k:config.getboolean("radios", k)\
-                         for k, _ in config.items("radios")}
-    options["spins"] = {k:config.getint("spins", k)\
-                        for k, _ in config.items("spins")}
+    try:
+        excluded = ["mediamodecheck", "dualmodecheck"]
+        options["checks"] = {k:config.getboolean("checks", k) for k, _\
+                             in config.items("checks") if k not in excluded}
+        options["combos"] = {k:config.getint("combos", k)\
+                             for k, _ in config.items("combos")}
+        options["edits"] = {k:config.get("edits", k).decode("utf-8")\
+                            for k, _ in config.items("edits")}
+        options["radios"] = {k:config.getboolean("radios", k)\
+                             for k, _ in config.items("radios")}
+        options["spins"] = {k:config.getint("spins", k)\
+                            for k, _ in config.items("spins")}
+    except NoOptionError as e:
+        log.debug("Could not completely read config file: {}.".format(e))
+        log.debug("Using default (empty) configuration file.")
+    else:
+        log.debug("Configuration file loaded from {}.".format(configdir))
 
-    log.debug("Configuration file loaded from {}.".format(configdir))
-    return options
+    return options, defaultoptions
 
 
 def save_configfile(configdir, options):
