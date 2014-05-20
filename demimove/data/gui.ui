@@ -491,7 +491,7 @@
           </layout>
          </item>
          <item>
-          <layout class="QGridLayout" name="optiongrid" rowstretch="0,0,0,0" columnstretch="0,0">
+          <layout class="QGridLayout" name="optiongrid" rowstretch="0,0,0,0,0" columnstretch="0,0">
            <item row="2" column="0">
             <widget class="QCheckBox" name="autopreviewcheck">
              <property name="toolTip">
@@ -538,20 +538,34 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QCheckBox" name="minimaloptionscheck">
-             <property name="text">
-              <string>Toggle minimal</string>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="0">
             <widget class="QCheckBox" name="mediaoptionscheck">
              <property name="toolTip">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Media mode&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This mode uses my preferred settings to sanitize folder- and directory names. It includes:&lt;/p&gt;&lt;p&gt;* All lowercase.&lt;/p&gt;&lt;p&gt;* Spaces and dots to underscores.&lt;/p&gt;&lt;p&gt;* Keep extensions.&lt;/p&gt;&lt;p&gt;* Remove duplicate symbols.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="text">
-              <string>Toggle media</string>
+              <string>Media mode</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="defaultoptionscheck">
+             <property name="text">
+              <string>Dual mode</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QPushButton" name="saveoptionsbutton">
+             <property name="text">
+              <string>Save Options</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QPushButton" name="resetoptionsbutton">
+             <property name="text">
+              <string>Reset Options</string>
              </property>
             </widget>
            </item>
@@ -1153,7 +1167,7 @@
   <connection>
    <sender>mediaoptionscheck</sender>
    <signal>toggled(bool)</signal>
-   <receiver>minimaloptionscheck</receiver>
+   <receiver>defaultoptionscheck</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1167,7 +1181,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>minimaloptionscheck</sender>
+   <sender>defaultoptionscheck</sender>
    <signal>toggled(bool)</signal>
    <receiver>mediaoptionscheck</receiver>
    <slot>setDisabled(bool)</slot>

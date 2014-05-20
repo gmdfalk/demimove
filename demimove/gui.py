@@ -58,7 +58,7 @@ class DirModel(QtGui.QFileSystemModel):
         return super(DirModel, self).columnCount() + 1
 
     def headerData(self, col, orientation, role=Qt.Qt.DisplayRole):
-        if role == Qt.Qt.DisplayRole and orientation == Qt.Qt.Horizontal:
+        if role == QtCore.Qt.DisplayRole and orientation == QtCore.Qt.Horizontal:
             return self.labels[col]
         return QtGui.QFileSystemModel.headerData(self, col, orientation, role)
 
@@ -70,9 +70,15 @@ class DirModel(QtGui.QFileSystemModel):
                 fileindex = self.index(index.row(), 0, index.parent())
                 item = str(self.data(fileindex, role).toString().toUtf8())
                 return self.match_preview(fileindex, item)
-#             if role == QtCore.Qt.
-#                 if self.parent().cwdidx == index:
-#                     option.font.setWeight(QtGui.QFont.Bold)
+            # TODO: Find a way to set font on a whole row here.
+#         if self.p.cwdidx == index:
+#             if role == QtCore.Qt.FontRole:
+#                 font = QtGui.QFont()
+#                 font.setBold(True)
+#                 return font
+#                 row = index.row()
+#                 for i in range(4):
+#                     self.item(row, i).setFont(font)
 
         return super(DirModel, self).data(index, role)
 
@@ -302,7 +308,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.spacebox.currentIndexChanged[int].connect(self.on_spacebox)
 
         self.mediaoptionscheck.toggled.connect(self.on_mediaoptions)
-        self.minimaloptionscheck.toggled.connect(self.on_minimaloptions)
+        self.defaultoptionscheck.toggled.connect(self.on_defaultoptions)
 
     def on_commitbutton(self):
         self.update_preview()
@@ -478,7 +484,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         for k, v in self.combosaves.items():
             k.setCurrentIndex(v)
 
-    def set_minimaloptions(self):
+    def set_defaultoptions(self):
         for i in self.checks:
             i.setChecked(False)
         self.autopreviewcheck.setChecked(True)
@@ -497,11 +503,11 @@ class DemiMoveGUI(QtGui.QMainWindow):
             if mode == 0:
                 self.set_mediaoptions()
             elif mode == 1:
-                self.set_minimaloptions()
+                self.set_defaultoptions()
         else:
             self.restore_options()
 
-    def on_minimaloptions(self, checked):
+    def on_defaultoptions(self, checked):
         self.toggle_options(checked, mode=1)
         if self.autopreview:
             self.update_preview()
