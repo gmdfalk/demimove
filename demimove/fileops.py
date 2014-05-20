@@ -97,7 +97,7 @@ class FileOps(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def restore_options(self):
+    def restore_mediaoptions(self):
         self.set_options(**self.defaultopts)
 
 

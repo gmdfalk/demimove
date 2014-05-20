@@ -117,8 +117,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.guifile = os.path.join(self.basedir, "data/gui.ui")
         self.iconfile = os.path.join(self.basedir, "data/icon.png")
         self.switchview = False
-        self.previews = []
-        self.targets = []
+        self.targets, self.previews = [], []
         self.dualoptions1, self.dualoptions2 = {}, {}
         uic.loadUi(self.guifile, self)
         if self.fileops.configdir:
@@ -132,10 +131,9 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.mainsplitter.setStretchFactor(0, 2)
         self.mainsplitter.setStretchFactor(1, 3)
 
-        self.checks = [self.casecheck, self.spacecheck, self.removecheck,
-                       self.removesymbolscheck, self.removeduplicatescheck,
-                       self.autopreviewcheck, self.keepextensionscheck,
-                       self.removenonwordscheck, self.removeextensionscheck]
+        self.mediachecks = [self.casecheck, self.spacecheck, self.removecheck,
+                            self.removesymbolscheck, self.removeduplicatescheck,
+                            self.keepextensionscheck]
         self.boxes = [self.casebox, self.spacebox]
 
         self.create_browser(startdir)
@@ -352,7 +350,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_saveoptionsbutton(self):
         log.info("Saving options.")
-        helpers.save_configfile(self.fileops.configdir, self.configoptions)
+        helpers.save_configfile(self.fileops.configdir, self.get_options())
         self.statusbar.showMessage("Configuration file saved.")
 
     def on_resetoptionsbutton(self):
@@ -548,49 +546,18 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if self.autopreview:
             self.update_preview()
 
-    def save_options(self):
-        self.checksaves = {i: i.isChecked() for i in self.checks}
+    def save_mediaoptions(self):
+        self.checksaves = {i: i.isChecked() for i in self.mediachecks}
         self.combosaves = {i: i.currentIndex() for i in self.boxes}
 
-    def restore_options(self):
+    def restore_mediaoptions(self):
         for k, v in self.checksaves.items():
             k.setChecked(v)
         for k, v in self.combosaves.items():
             k.setCurrentIndex(v)
 
-    def set_defaultoptions(self):
-        for i in self.checks:
-            i.setChecked(False)
-        self.autopreviewcheck.setChecked(True)
-        self.spacebox.setCurrentIndex(0)
-        self.casebox.setCurrentIndex(0)
-
-    def set_mediaoptions(self):
-        self.fileops.keepext = True
-        for i in self.checks[:-2]:
-            i.setChecked(True)
-        self.spacebox.setCurrentIndex(6)
-        self.casebox.setCurrentIndex(0)
-
-    def toggle_options(self, boolean, mode=0):
-        self.autopreview = False
-        if boolean:
-            self.save_options()
-            if mode == 0:
-                self.set_mediaoptions()
-            elif mode == 1:
-                self.set_defaultoptions()
-        else:
-            self.restore_options()
-        self.autopreview = True
-
     def on_dualmodecheck(self, checked):
-        if not checked:
-#             self.dualoptions2 = self.get_options()
-#             if not self.dualoptions1:
-#                 self.set_options(sanitize=True)
-#             else:
-#                 self.set_options(self.dualoptions1)
+        if checked:
             self.dualoptions1 = self.get_options()
             if not self.dualoptions2:
                 self.set_options(sanitize=True)
@@ -606,7 +573,22 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_preview()
 
     def on_mediamodecheck(self, checked):
-        self.toggle_options(checked, mode=0)
+
+        self.autopreviewcheck.setChecked(False)
+
+        if checked:
+            self.save_mediaoptions()
+            self.fileops.keepext = True
+            for i in self.mediachecks:
+                i.setChecked(True)
+            self.spacebox.setCurrentIndex(6)
+        else:
+            for i in self.mediachecks:
+                i.setChecked(False)
+            self.spacebox.setCurrentIndex(0)
+        self.autopreviewcheck.setChecked(True)
+        self.casebox.setCurrentIndex(0)
+
         if self.autopreview:
             self.update_preview()
 

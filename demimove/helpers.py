@@ -62,8 +62,9 @@ def load_configfile(configdir):
     config = ConfigParser()
     config.read(os.path.join(configdir, "demimove.ini"))
     options = {}
-    options["checks"] = {k:config.getboolean("checks", k)\
-                         for k, _ in config.items("checks")}
+    excluded = ["mediamodecheck", "dualmodecheck"]
+    options["checks"] = {k:config.getboolean("checks", k) for k, _\
+                         in config.items("checks") if k not in excluded}
     options["combos"] = {k:config.getint("combos", k)\
                          for k, _ in config.items("combos")}
     options["edits"] = {k:config.get("edits", k).decode("utf-8")\
