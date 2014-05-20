@@ -17,7 +17,7 @@ _license = "MIT"
 
 setup(
     name=_name,
-    description="A filebrowser for mass renaming.",
+    description="A file browser for mass renaming.",
     long_description=read("README.md"),
     version="0.1",
     license=_license,
