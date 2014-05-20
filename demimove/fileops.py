@@ -80,6 +80,8 @@ class FileOps(object):
         removelist = [remdups, remext, remnonwords, remsymbols]
         self._removecheck = True if any(removelist) else False
         self._spacecheck = True if isinstance(spacemode, str) else False
+
+        self.configdir = helpers.get_configdir()
         # Create the logger.
         helpers.configure_logger(verbosity, quiet)
         self.history = []  # History of commited operations, used to undo them.
@@ -101,11 +103,9 @@ class FileOps(object):
         if not self.matchfiltercheck:
             return True
 
-
     def match_exclude(self, name):
         if not self.matchexcludecheck:
             return False
-
 
     def get_targets(self, path=None):
         """Return a list of files and/or dirs in path."""

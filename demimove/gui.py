@@ -60,6 +60,11 @@ class DirModel(QtGui.QFileSystemModel):
         return QtGui.QFileSystemModel.headerData(self, col, orientation, role)
 
     def data(self, index, role):
+        if self.p.cwdidx == index:
+#             if role == QtCore.Qt.FontRole:
+            font = QtGui.QFont()
+            font.setBold(True)
+            return font
         if index.column() == self.columnCount() - 1:
             if role == QtCore.Qt.DisplayRole:
                 if not self.p.autopreview:
@@ -69,14 +74,7 @@ class DirModel(QtGui.QFileSystemModel):
 #                 item = str(item).decode("utf-8")
                 return self.match_preview(fileindex)
             # TODO: Find a way to set font on a whole row here.
-#         if self.p.cwdidx == index:
-#             if role == QtCore.Qt.FontRole:
-#                 font = QtGui.QFont()
-#                 font.setBold(True)
-#                 return font
-#                 row = index.row()
-#                 for i in range(4):
-#                     self.item(row, i).setFont(font)
+
 
         return super(DirModel, self).data(index, role)
 
@@ -261,7 +259,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.recursivecheck.toggled.connect(self.on_recursivecheck)
         self.recursivedepth.valueChanged.connect(self.on_recursivedepth)
         self.saveoptionsbutton.clicked.connect(self.on_saveoptionsbutton)
-        self.restoreoptionsbutton.clicked.connect(self.on_restoreptionsbutton)
+        self.resetoptionsbutton.clicked.connect(self.on_resetoptionsbutton)
 
         # Match options:
         self.matchcheck.toggled.connect(self.on_matchcheck)
@@ -309,6 +307,12 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
         self.mediamodecheck.toggled.connect(self.on_mediamodecheck)
         self.dualmodecheck.toggled.connect(self.on_dualmodecheck)
+
+    def on_saveoptionsbutton(self):
+        self.update_preview()
+
+    def on_resetoptionsbutton(self):
+        self.update_preview()
 
     def on_commitbutton(self):
         self.update_preview()
@@ -376,6 +380,28 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_matchignorecase(self, checked):
         self.fileops.ignorecase = checked
+        if self.autopreview:
+            self.update_preview()
+
+    def on_filteredit(self, text):
+        text = str(text.toUtf8()).decode("utf-8")
+        self.fileops.filteredit = text
+        if self.autopreview:
+            self.update_preview()
+
+    def on_excludeedit(self, text):
+        text = str(text.toUtf8()).decode("utf-8")
+        self.fileops.excludeedit = text
+        if self.autopreview:
+            self.update_preview()
+
+    def on_matchfiltercheck(self, checked):
+        self.fileops.matchexcludecheck = checked
+        if self.autopreview:
+            self.update_preview()
+
+    def on_matchexcludecheck(self, checked):
+        self.fileops.matchexcludecheck = checked
         if self.autopreview:
             self.update_preview()
 
