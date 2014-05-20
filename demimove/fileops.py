@@ -90,7 +90,7 @@ class FileOps(object):
         self.history = []  # History of commited operations, used to undo them.
 
     def match_filter(self, name):
-        return True
+        pass
 #         if not self.matchfiltercheck:
 #             return True
 #         if not self.matchexcludecheck:
@@ -99,14 +99,33 @@ class FileOps(object):
 #         dirs = [d.decode("utf-8") for d in dirs if self.match_filter(d)]
 #         files = [f.decode("utf-8") for f in files if self.match_filter(f)]
 #         # Exclude targets, if necessary.
-#         if not self.hidden:
-#             dirs = (i for i in dirs if not i.startswith("."))
-#             files = [i for i in files if not i.startswith(".")]
 #         if self.excludeedit:
 #             dirs = [i for i in dirs if not self.match_exclude(i)]
 #             files = [i for i in files if not self.match_exclude(i)]
 #
 #         dirs = [[root, i] for i in dirs]
+
+    def match(self, target):
+        """Searches target for pattern and returns a bool."""
+        if not self.hidden and target.startswith("."):
+            return False
+
+        if self.matchfiltercheck:
+            if self.regex:
+                if not re.search(self.filteredit, target):
+                    return False
+            else:
+                if not fnmatch.fnmatch(target, self.filteredit):
+                    return False
+        if self.matchexcludecheck:
+            if self.regex:
+                if re.search(self.excludeedit, target):
+                    return False
+            else:
+                if fnmatch.fnmatch(target, self.excludeedit):
+                    return False
+        print "target matched", target
+        return True
 
     def get_targets(self, path=None):
         """Return a list of files and/or dirs in path."""
@@ -123,9 +142,9 @@ class FileOps(object):
             # To unicode.
             root = root.decode("utf-8") + "/"
             d = sorted(((root, d.decode("utf-8")) for d in
-                        dirs if self.match_filter(d)), key=itemgetter(1))
+                        dirs if self.match(d)), key=itemgetter(1))
             f = sorted(((root,) + os.path.splitext(f.decode("utf-8")) for f in
-                        files if self.match_filter(f)), key=itemgetter(1))
+                        files if self.match(f)), key=itemgetter(1))
 
             if self.dirsonly:
                 target = d
@@ -168,16 +187,6 @@ class FileOps(object):
         if action is None:
             action = self.history.pop()
 
-    def match(self, matchpat, target):
-        """Searches target for pattern and returns a bool."""
-        if self.regex:
-            if re.search(matchpat, target):
-                return True
-        else:
-            if fnmatch.fnmatch(target, matchpat):
-                return True
-        return False
-
     def modify_previews(self, previews):
         if self.countcheck:
             lenp, base, step = len(previews), self.countbase, self.countstep
@@ -196,7 +205,6 @@ class FileOps(object):
                     name += preview[2]
                 except IndexError:
                     pass
-#             print name
             if self.matchcheck:
                 name = self.apply_replace(name)
             if self.casecheck:
@@ -226,9 +234,7 @@ class FileOps(object):
             preview = (preview, name)
             modified.append(preview)
 
-        print modified
         return modified
-
 
     def apply_space(self, s):
         if not self.spacecheck:

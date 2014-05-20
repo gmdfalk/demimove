@@ -85,7 +85,6 @@ class DirModel(QtGui.QFileSystemModel):
         if self.p.cwd in itempath and itempath in self.p.joinedtargets:
             idx = self.p.joinedtargets.index(itempath)
             try:
-                print self.p.previews
                 return self.p.previews[idx][1]
             except IndexError:
                 pass  # Fail silently.
@@ -433,22 +432,26 @@ class DemiMoveGUI(QtGui.QMainWindow):
         text = str(text.toUtf8())
         self.fileops.filteredit = text
         if self.autopreview:
+            self.update_targets()
             self.update_previews()
 
     def on_excludeedit(self, text):
         text = str(text.toUtf8())
         self.fileops.excludeedit = text
         if self.autopreview:
+            self.update_targets()
             self.update_previews()
 
     def on_matchfiltercheck(self, checked):
         self.fileops.matchexcludecheck = checked
         if self.autopreview:
+            self.update_targets()
             self.update_previews()
 
     def on_matchexcludecheck(self, checked):
         self.fileops.matchexcludecheck = checked
         if self.autopreview:
+            self.update_targets()
             self.update_previews()
 
     def on_matchreplacecheck(self, checked):
