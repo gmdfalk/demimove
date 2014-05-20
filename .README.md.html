@@ -463,7 +463,13 @@ function setDocumentScrollTop(ypos)
  <li> <p>Lots of more or less useful builtin options to experiment with.</p> <h4> <a name="user-content-installation" class="anchor" href="..md.html#installation"><span class="octicon octicon-link"></span></a>Installation</h4> <p>Install demimove as follows:</p> <pre><code>git clone https://github.com/mikar/demimove
 cd demimove
 pip install .
-</code></pre> <p>There is a CLI version but its currently not really in a usable state. </p> </li> 
+</code></pre> <p>There is a CLI version but its currently not really in a usable state. </p> <h4> <a name="user-content-usage" class="anchor" href="..md.html#usage"><span class="octicon octicon-link"></span></a>Usage</h4> <p>The screenshot is pretty self-explanatory but what might not be apparent is that you need to select a working directory before any previews or changes will be shown.<br /> You can do that by selecting a directory in the file browser and pressing Enter. Pressing Enter again on that same folder will unset the working directory.</p> <h4> <a name="user-content-todo" class="anchor" href="..md.html#todo"><span class="octicon octicon-link"></span></a>TODO</h4> <p>Features i'd like to include when i get time to work on this again: </p> </li> 
+ <li>A status tab that shows errors, warnings and general status information.</li> 
+ <li>A history tab that stores and displays all commited rename operations and allows reversing them.</li> 
+ <li>Threading to avoid possible lag for a high amount of targets (&gt;10k).</li> 
+ <li> <p>A custom contextmenu for the QFileSystemModel/QTreeView with typical file browser actions (Rename, Delete, Toggle show/hidden etc)</p> <p>There are also some defunct features, currently:</p> </li> 
+ <li>The ignorecase check is not hooked to anything.</li> 
+ <li>The same goes for &quot;Mirror manual&quot; and &quot;Stop on error&quot; although these three would all be trivial to implement and may come soon.</li> 
 </ul>
 </body>
 </html>

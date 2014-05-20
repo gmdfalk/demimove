@@ -25,4 +25,17 @@ A couple of features you might find interesting:
 
  There is a CLI version but its currently not really in a usable state.  
  
+ #### Usage
+ The screenshot is pretty self-explanatory but what might not be apparent is that you need to select a working directory before any previews or changes will be shown.  
+ You can do that by selecting a directory in the file browser and pressing Enter. Pressing Enter again on that same folder will unset the working directory.
  
+ #### TODO
+ Features i'd like to include when i get time to work on this again:  
+ * A status tab that shows errors, warnings and general status information.
+ * A history tab that stores and displays all commited rename operations and allows reversing them.
+ * Threading to avoid possible lag for a high amount of targets (>10k).
+ * A custom contextmenu for the QFileSystemModel/QTreeView with typical file browser actions (Rename, Delete, Toggle show/hidden etc)
+ 
+ There are also some defunct features, currently:
+ * The ignorecase check is not hooked to anything.
+ * The same goes for "Mirror manual" and "Stop on error" although these three would all be trivial to implement and may come soon.

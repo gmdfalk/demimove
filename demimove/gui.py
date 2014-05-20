@@ -353,7 +353,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_restoreoptionsbutton(self):
         """Restore options to start point."""
-        log.info("Clearing options.")
+        log.info("Restoring options.")
         self.set_options(self.startoptions)
 
     def on_clearoptionsbutton(self):
@@ -738,7 +738,6 @@ def main():
     startdir = os.getcwd()
     try:
         args = docopt(__doc__, version="0.1")
-        args["-v"] = 3  # Force debug mode, for now.
         fileop = fileops.FileOps(verbosity=args["-v"],
                                  quiet=args["--quiet"])
         if args["--dir"]:

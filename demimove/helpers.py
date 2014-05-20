@@ -91,7 +91,7 @@ def get_configdir():
     configdir = os.path.join(os.path.expanduser("~"), ".config/demimove")
 
     if not os.path.isdir(configdir):
-        log.debug("Creating config directory.")
+        log.info("Creating config directory.")
         os.makedirs(configdir)
 
     return configdir
@@ -158,10 +158,10 @@ def load_configfile(configdir):
         options["spins"] = {k:config.getint("spins", k)\
                             for k, _ in config.items("spins")}
     except Exception as e:
-        log.debug("Could not completely read config file: {}.".format(e))
-        log.debug("Using configuration template.")
+        log.error("Could not completely read config file: {}.".format(e))
+        log.info("Using configuration template.")
     else:
-        log.debug("Configuration file loaded from {}.".format(configdir))
+        log.info("Configuration file loaded from {}.".format(configdir))
 
     return options, defaultoptions
 

@@ -24,7 +24,7 @@ setup(
     url="https://github.com/mikar/{}".format(_name),
     author="Max Demian",
     author_email="mikar@gmx.de",
-    packages=[_name],
+    packages=[_name, _name + "/data"],
     package_data={_name + "/data": ["icon.png", "history.txt", "demimove.ini", "gui.ui"]},
     install_package_data=True,
     entry_points={
