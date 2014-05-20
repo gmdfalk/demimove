@@ -143,9 +143,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.statusbar.showMessage("Select a directory and press Enter.")
 
     def apply_options(self):
-        options = helpers.load_configfile(self.fileops.configdir)
-        print options
-        helpers.save_configfile(self.fileops.configdir, options)
+        self.configoptions = helpers.load_configfile(self.fileops.configdir)
+
 #         for k, v in options["combos"]:
 #         for k, v in options["edits"]:
 #         for k, v in options["radios"]:
@@ -317,7 +316,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_saveoptionsbutton(self):
         log.info("Saving options.")
-        self.update_preview()
+        helpers.save_configfile(self.fileops.configdir, self.configoptions)
+        self.statusbar.showMessage("Configuration file saved.")
 
     def on_resetoptionsbutton(self):
         log.info("Resetting options.")

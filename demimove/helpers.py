@@ -4,15 +4,18 @@ import os
 import sys
 
 
+log = logging.getLogger("helpers")
+
+
 def configure_logger(loglevel=2, quiet=False, logdir=None):
-    "Creates the logger instance and adds handlers and formatting."
-    logger = logging.getLogger()
+    "Creates the logger instance and adds handlers plus formatting."
+#     logger = logging.getLogger()
 
     # Set the loglevel.
     if loglevel > 3:
         loglevel = 3  # Cap at 3 to avoid index errors.
     levels = [logging.ERROR, logging.WARN, logging.INFO, logging.DEBUG]
-    logger.setLevel(levels[loglevel])
+    log.setLevel(levels[loglevel])
 
     logformat = "%(asctime)-14s %(levelname)-8s %(name)-8s %(message)s"
 
@@ -21,18 +24,18 @@ def configure_logger(loglevel=2, quiet=False, logdir=None):
     if not quiet:
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-        logger.debug("Added logging console handler.")
-        logger.info("Loglevel is {}.".format(levels[loglevel]))
+        log.addHandler(console_handler)
+        log.debug("Added logging console handler.")
+        log.info("Loglevel is {}.".format(levels[loglevel]))
     if logdir:
         try:
             logfile = os.path.abspath(logdir)
             file_handler = logging.FileHandler(logfile)
             file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
-            logger.debug("Added logging file handler: {}.".format(logfile))
+            log.addHandler(file_handler)
+            log.debug("Added logging file handler: {}.".format(logfile))
         except IOError:
-            logger.error("Could not attach file handler.")
+            log.error("Could not attach file handler.")
 
 
 def walklevels(path, levels=1):
@@ -51,47 +54,38 @@ def get_configdir():
     "Determine if an XDG_CONFIG_DIR for demimove exists and if so, use it."
     configdir = os.path.join(os.path.expanduser("~"), ".config/demimove")
     if os.path.isdir(configdir):
+        log.debug("Config file found.")
         return configdir
 
 
 def load_configfile(configdir):
+    log.debug("Loading config file from {}".format(configdir))
     config = ConfigParser()
     config.read(os.path.join(configdir, "demimove.ini"))
-    print config, type(config)
     options = {}
     options["checks"] = {k:config.getboolean("checks", k)\
-                         for k, v in config.items("checks")}
+                         for k, _ in config.items("checks")}
     options["combos"] = {k:config.getint("combos", k)\
-                         for k, v in config.items("combos")}
+                         for k, _ in config.items("combos")}
     options["edits"] = {k:config.get("edits", k).decode("utf-8")\
-                        for k, v in config.items("edits")}
+                        for k, _ in config.items("edits")}
     options["radios"] = {k:config.getboolean("radios", k)\
-                         for k, v in config.items("radios")}
+                         for k, _ in config.items("radios")}
     options["spins"] = {k:config.getint("spins", k)\
-                        for k, v in config.items("spins")}
+                        for k, _ in config.items("spins")}
 
     return options
+
 
 def save_configfile(configdir, options):
     configfile = os.path.join(configdir, "demimove.ini")
     config = ConfigParser()
-    for k, v in options.items():
-        config.add_section(k)
-        for kk, vv in v.items():
-            config.set(k, kk, vv)
+    for section, sectiondict in options.items():
+        config.add_section(section)
+        for key, value in sectiondict.items():
+            config.set(section, key, value)
 
-    with open('example.ini', 'w') as f:
+    with open(configfile, "w") as f:
         config.write(f)
 
-def get_opt(option, optiontype=str):
-    "Parse an option from config.ini"
-    config, account = None, None
-    section = account
-    if optiontype == int:
-        return config.getint(section, option)
-    elif optiontype == float:
-        return config.getfloat(section, option)
-    elif optiontype == bool:
-        return config.getboolean(section, option)
-    elif optiontype == str:
-        return config.get(section, option)
+    log.info("Configuration file written to {}.".format(configfile))
