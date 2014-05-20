@@ -25,14 +25,14 @@ Options:
     -p, --path=<path>      Specify the path to start in. Otherwise cwd is used.
     -r, --recursive        Apply changes recursively.
     -s, --simulate         Do a test run and dump the results to console.
-    -C, --casemode         0 = All lowercase, 1 = uppercase, 2 = capitalize.
+    -C, --casemode=<n>     0 = All lowercase, 1 = uppercase, 2 = capitalize.
     -D, --remduplicates    Remove duplicate symbols.
     -E, --remextensions    Remove filetype extensions.
     -I, --ignorecase       Disable case sensitivity.
     -M, --media            Option bundle: All lowercase, remove duplicate symbols,
                            Spaces and dots to underscore, keep extensions...
     -R, --regex            Use regex matching instead of globbing.
-    -S, --spacemode        0 = to underscore, 1 = to hyphen, 2 = to dot,
+    -S, --spacemode=<n>    0 = to underscore, 1 = to hyphen, 2 = to dot,
                            3-5 = reversed(0-2), 6 = space and dot to underscore.
     -S, --remsymbols       Remove most symbols and normalize accents.
     -W, --no-wordchars     Remove wordchars
@@ -80,9 +80,10 @@ def main():
                       simulate=args["--simulate"],
                       spacemode=args["--spacemode"],
                       quiet=args["--quiet"],
-                      verbosity=args["-v"])
-    targets = fileops.get_targets(args["--path"])
-    fileops.get_previews(targets, args["<match>"], args["<replace>"])
+                      verbosity=args["-v"],
+                      matchpattern=args["<matchpattern>"],
+                      replacepattern=args["<replacepattern>"])
+    fileops.get_previews(fileops.get_targets(args["--path"]))
 
 
 if __name__ == "__main__":

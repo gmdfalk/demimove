@@ -24,12 +24,22 @@ class FileOps(object):
                  interactive=False, keepext=False, mediamode=False,
                  noclobber=False, recursive=False, regex=False, remdups=False,
                  remext=False, remnonwords=False, remsymbols=False,
-                 simulate=False, spacemode=0, quiet=False, verbosity=1):
+                 simulate=False, spacemode=0, quiet=False, verbosity=1,
+                 matchpattern="", replacepattern=""):
         # Universal options:
-        self._casemode = casemode  # 0=lc, 1=uc, 2=flfw, 3=flew
-        self._countpos = countpos  # Adds numerical index at position.
+        try:
+            self._casemode = int(casemode)  # 0=lc, 1=uc, 2=flfw, 3=flew
+        except TypeError:
+            self._casemode = 0
+        try:
+            self._countpos = int(countpos)  # Adds numerical index at position.
+        except TypeError:
+            self._countpos = 0
+        try:
+            self._spacemode = int(spacemode)  # 0=su, 1=sh, 2=sd, 3=ds, 4=hs, 5=us
+        except TypeError:
+            self.spacemode = 0
         self._dirsonly = dirsonly  # Only edit directory names.
-        self._exclude = exclude  # List of strings to exclude from targets.
         self._filesonly = False if dirsonly else filesonly  # Only file names.
         self._hidden = hidden  # Look at hidden files and directories, too.
         self._ignorecase = ignorecase  # Case sensitivity.
@@ -44,20 +54,19 @@ class FileOps(object):
         self._remnonwords = remnonwords  # Only allow wordchars (\w)
         self._remsymbols = remsymbols  # Normalize remsymbols (ñé becomes ne).
         self._simulate = simulate  # Simulate renaming and dump result to stdout.
-        self._spacemode = spacemode  # 0=su, 1=sh, 2=sd, 3=ds, 4=hs, 5=us
         # Initialize GUI options.
+        self._excludeedit = "" if not exclude else exclude
+        self._matchedit = matchpattern  # Pattern to search for in files/dirs.
+        self._replacedit = replacepattern  # Pattern to replace matches with.
         self._autostop = False  # Automatically stop execution on rename error.
-        self._casecheck = False  # Whether to apply the casemode.
-        self._countcheck = False  # Whether to add a counter to the targets.
         self._countbase = 1  # Base to start counting from.
         self._countfill = True  # 9->10: 9 becomes 09. 99->100: 99 becomes 099.
         self._countpreedit = ""  # String that is prepended to the counter.
-        self._countstep = 1
+        self._countstep = 1  # Increment per count iteration.
         self._countsufedit = ""  # String that is appended to the counter.
         self._deletecheck = False  # Whether to delete a specified range.
         self._deleteend = 1  # End index of deletion sequence.
         self._deletestart = 0  # Start index of deletion sequence.
-        self._excludeedit = ""
         self._filteredit = ""
         self._insertcheck = False  # Whether to apply an insertion.
         self._insertedit = ""  # The inserted text/string.
@@ -65,15 +74,15 @@ class FileOps(object):
         self._manualmirror = False  # Mirror manual rename to all targets.
         self._matchcheck = True  # Whether to apply source/target patterns.
         self._matchreplacecheck = True
-        self._matchedit = ""  # Pattern to search for in files/dirs.
-        self._replacedit = ""  # Pattern to replace above found matches with.
         self._recursivedepth = 1
-        self._removecheck = False
-        self._spacecheck = False  # Whether to apply the spacemode.
-
+        self._casecheck = True if isinstance(casemode, str) else False
+        self._countcheck = True if isinstance(countpos, str) else False
+        removelist = [remdups, remext, remnonwords, remsymbols]
+        self._removecheck = True if any(removelist) else False
+        self._spacecheck = True if isinstance(spacemode, str) else False
         # Create the logger.
         helpers.configure_logger(verbosity, quiet)
-        self.history = []  # History of commited operations, useful to undo.
+        self.history = []  # History of commited operations, used to undo them.
 
     def get_options(self, *args):
         if args:
@@ -86,6 +95,17 @@ class FileOps(object):
 
     def restore_options(self):
         self.set_options(**self.defaultopts)
+
+
+    def match_filter(self, name):
+        if not self.matchfiltercheck:
+            return True
+
+
+    def match_exclude(self, name):
+        if not self.matchexcludecheck:
+            return False
+
 
     def get_targets(self, path=None):
         """Return a list of files and/or dirs in path."""
@@ -101,15 +121,15 @@ class FileOps(object):
         for root, dirs, files in helpers.walklevels(path, levels):
             # To unicode.
             root = root.decode("utf-8") + "/"
-            dirs = [d.decode("utf-8") for d in dirs]
-            files = [f.decode("utf-8") for f in files]
+            dirs = [d.decode("utf-8") for d in dirs if d in self.match_filter(d)]
+            files = [f.decode("utf-8") for f in files if f in self.match_filter(f)]
             # Exclude targets, if necessary.
             if not self.hidden:
                 dirs = [i for i in dirs if not i.startswith(".")]
                 files = [i for i in files if not i.startswith(".")]
-            if self.exclude:
-                dirs = [i for i in dirs if i not in self.exclude]
-                files = [i for i in files if i not in self.exclude]
+            if self.excludeedit:
+                dirs = [i for i in dirs if not self.match_exclude(i)]
+                files = [i for i in files if not self.match_exclude(i)]
 
             dirs.sort()
             files.sort()
@@ -456,13 +476,22 @@ class FileOps(object):
         self._remsymbols = boolean
 
     @property
-    def exclude(self):
-        return self._exclude
+    def excludeedit(self):
+        return self._excludeedit
 
-    @exclude.setter
-    def exclude(self, names):
-        log.debug("Excluding {}.".format(names))
-        self._exclude = names
+    @excludeedit.setter
+    def excludeedit(self, text):
+        log.debug("excludeedit: ".format(text))
+        self._excludeedit = text
+
+    @property
+    def filteredit(self):
+        return self._filteredit
+
+    @filteredit.setter
+    def filteredit(self, text):
+        log.debug("filteredit: ".format(text))
+        self._filteredit = text
 
     @property
     def autostop(self):
@@ -474,12 +503,12 @@ class FileOps(object):
         self._autostop = boolean
 
     @property
-    def mirror(self):
+    def manualmirror(self):
         return self._manualmirror
 
-    @mirror.setter
-    def mirror(self, boolean):
-        log.debug("mirror: {}".format(boolean))
+    @manualmirror.setter
+    def manualmirror(self, boolean):
+        log.debug("manualmirror: {}".format(boolean))
         self._manualmirror = boolean
 
     @property
@@ -492,13 +521,13 @@ class FileOps(object):
         self._removecheck = boolean
 
     @property
-    def remnonwords(self):
-        return self._remnonwords
+    def remdups(self):
+        return self._remdups
 
-    @remnonwords.setter
-    def remnonwords(self, boolean):
-        log.debug("remnonwords: {}".format(boolean))
-        self._remnonwords = boolean
+    @remdups.setter
+    def remdups(self, boolean):
+        log.debug("remdups: {}".format(boolean))
+        self._remdups = boolean
 
     @property
     def remext(self):
@@ -510,31 +539,13 @@ class FileOps(object):
         self._remext = boolean
 
     @property
-    def remdups(self):
-        return self._remdups
+    def remnonwords(self):
+        return self._remnonwords
 
-    @remdups.setter
-    def remdups(self, boolean):
-        log.debug("remdups: {}".format(boolean))
-        self._remdups = boolean
-
-    @property
-    def lower(self):
-        return self._lower
-
-    @lower.setter
-    def lower(self, boolean):
-        log.debug("lower: {}".format(boolean))
-        self._lower = boolean
-
-    @property
-    def upper(self):
-        return self._upper
-
-    @upper.setter
-    def upper(self, boolean):
-        log.debug("upper: {}".format(boolean))
-        self._upper = boolean
+    @remnonwords.setter
+    def remnonwords(self, boolean):
+        log.debug("remnonwords: {}".format(boolean))
+        self._remnonwords = boolean
 
     @property
     def ignorecase(self):
@@ -544,15 +555,6 @@ class FileOps(object):
     def ignorecase(self, boolean):
         log.debug("ignorecase: {}".format(boolean))
         self._ignorecase = boolean
-
-    @property
-    def nowords(self):
-        return self._nowords
-
-    @nowords.setter
-    def nowords(self, boolean):
-        log.debug("nowords: {}".format(boolean))
-        self._nowords = boolean
 
     @property
     def mediamode(self):
@@ -615,7 +617,7 @@ class FileOps(object):
     @countpreedit.setter
     def countpreedit(self, text):
         log.debug("countpreedit: {}".format(text))
-        self._countpreedit = text.decode("utf-8")
+        self._countpreedit = text
 
     @property
     def countsufedit(self):
@@ -624,7 +626,7 @@ class FileOps(object):
     @countsufedit.setter
     def countsufedit(self, text):
         log.debug("countsufedit: {}".format(text))
-        self._countsufedit = text.decode("utf-8")
+        self._countsufedit = text
 
     @property
     def insertcheck(self):
@@ -651,7 +653,7 @@ class FileOps(object):
     @insertedit.setter
     def insertedit(self, text):
         log.debug("insertedit: {}.".format(text))
-        self._insertedit = text.decode("utf-8")
+        self._insertedit = text
 
     @property
     def deletecheck(self):
@@ -736,7 +738,6 @@ class FileOps(object):
 
 
 if __name__ == "__main__":
-    fileops = FileOps(hidden=True, recursive=False, keepext=False, regex=False)
-    targets = fileops.get_targets()
-    fileops.get_previews(targets, "*", "asdf")
+    fileops = FileOps(hidden=True, recursive=True)
+    fileops.get_previews(fileops.get_targets(), "*", "asdf")
 

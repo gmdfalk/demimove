@@ -405,7 +405,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_preview()
 
     def on_insertedit(self, text):
-        text = str(text.toUtf8())
+        text = str(text.toUtf8()).decode("utf-8")
         self.fileops.insertedit = text
         if self.autopreview:
             self.update_preview()
@@ -431,13 +431,13 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_preview()
 
     def on_countpreedit(self, text):
-        text = str(text.toUtf8())
+        text = str(text.toUtf8()).decode("utf-8")
         self.fileops.countpreedit = text
         if self.autopreview:
             self.update_preview()
 
     def on_countsufedit(self, text):
-        text = str(text.toUtf8())
+        text = str(text.toUtf8()).decode("utf-8")
         self.fileops.countsufedit = text
         if self.autopreview:
             self.update_preview()
@@ -566,15 +566,14 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_preview()
 
     def on_matchedit(self, text):
-        text = str(text.toUtf8())
-        self.fileops._matchedit = text
+        text = str(text.toUtf8()).decode("utf-8")
+        self.fileops.matchedit = text
         if self.autopreview:
-            self.update_targets()
             self.update_preview()
 
     def on_replaceedit(self, text):
-        text = str(text.toUtf8())
-        self.replacepat = text
+        text = str(text.toUtf8()).decode("utf-8")
+        self.fileops.replaceedit = text
         if self.autopreview:
             self.update_preview()
 
