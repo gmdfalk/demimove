@@ -170,23 +170,34 @@ class FileOps(object):
             actionlist.append(action)
 
         for i in actionlist:
+            if self.simulate:
+                log.debug("{} -> {}.".format(i[0], i[1]))
+                continue
             try:
                 os.rename(i[0], i[1])
-            except OSError as e:
-                log.error("{}: {}".format(e, i))
+            except Exception as e:
+                log.debug("Rename Error: {} -> {} ({}).".format(i[0], i[1], e))
 
         self.history.append(actionlist)
         log.info("Targets renamed successfully.")
 
     def undo(self, actionlist=None):
         if actionlist is None:
-            actionlist = self.history.pop()
+            try:
+                actionlist = self.history[-1]
+            except IndexError:
+                log.debug("History list is empty.")
+                return
+            # pop it instead
 
         for i in actionlist:
+            if self.simulate:
+                log.debug("{} -> {}.".format(i[1], i[0]))
+                continue
             try:
                 os.rename(i[1], i[0])
-            except OSError as e:
-                log.error("{}: {}".format(e, i))
+            except Exception as e:
+                log.debug("Rename Error: {} -> {} ({}).".format(i[1], i[0], e))
 
         log.info("Reversed last commit!")
 
