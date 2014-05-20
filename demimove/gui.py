@@ -60,11 +60,7 @@ class DirModel(QtGui.QFileSystemModel):
         return QtGui.QFileSystemModel.headerData(self, col, orientation, role)
 
     def data(self, index, role):
-        if self.p.cwdidx == index:
-#             if role == QtCore.Qt.FontRole:
-            font = QtGui.QFont()
-            font.setBold(True)
-            return font
+
         if index.column() == self.columnCount() - 1:
             if role == QtCore.Qt.DisplayRole:
                 if not self.p.autopreview:
@@ -73,8 +69,6 @@ class DirModel(QtGui.QFileSystemModel):
 #                 item = self.data(fileindex, role).toString().toUtf8()
 #                 item = str(item).decode("utf-8")
                 return self.match_preview(fileindex)
-            # TODO: Find a way to set font on a whole row here.
-
 
         return super(DirModel, self).data(index, role)
 
@@ -255,7 +249,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.autostopcheck.toggled.connect(self.on_autostopcheck)
         self.keepextensionscheck.toggled.connect(self.on_extensioncheck)
         self.hiddencheck.toggled.connect(self.on_hiddencheck)
-        self.manualmirrorcheck.toggled.connect(self.on_mirrorcheck)
+        self.manualmirrorcheck.toggled.connect(self.on_manualmirrorcheck)
         self.recursivecheck.toggled.connect(self.on_recursivecheck)
         self.recursivedepth.valueChanged.connect(self.on_recursivedepth)
         self.saveoptionsbutton.clicked.connect(self.on_saveoptionsbutton)
@@ -340,8 +334,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_targets()
             self.update_preview()
 
-    def on_mirrorcheck(self, checked):
-        self.fileops.mirror = checked
+    def on_manualmirrorcheck(self, checked):
+        self.fileops.manualmirror = checked
         if self.autopreview:
             self.update_preview()
 
@@ -384,13 +378,13 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_preview()
 
     def on_filteredit(self, text):
-        text = str(text.toUtf8()).decode("utf-8")
+        text = str(text.toUtf8())
         self.fileops.filteredit = text
         if self.autopreview:
             self.update_preview()
 
     def on_excludeedit(self, text):
-        text = str(text.toUtf8()).decode("utf-8")
+        text = str(text.toUtf8())
         self.fileops.excludeedit = text
         if self.autopreview:
             self.update_preview()
@@ -431,7 +425,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_preview()
 
     def on_insertedit(self, text):
-        text = str(text.toUtf8()).decode("utf-8")
+        text = str(text.toUtf8())
         self.fileops.insertedit = text
         if self.autopreview:
             self.update_preview()
@@ -457,13 +451,13 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_preview()
 
     def on_countpreedit(self, text):
-        text = str(text.toUtf8()).decode("utf-8")
+        text = str(text.toUtf8())
         self.fileops.countpreedit = text
         if self.autopreview:
             self.update_preview()
 
     def on_countsufedit(self, text):
-        text = str(text.toUtf8()).decode("utf-8")
+        text = str(text.toUtf8())
         self.fileops.countsufedit = text
         if self.autopreview:
             self.update_preview()
@@ -496,7 +490,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_preview()
 
     def on_removesymbols(self, checked):
-        self.fileops.symbolsaccents = checked
+        self.fileops.remsymbols = checked
         if self.autopreview:
             self.update_preview()
 
@@ -545,6 +539,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_switchviewcheck(self, checked):
         self.switchview = checked
+        log.debug("switchview: {}".format(checked))
         if self.filesradio.isChecked():
             self.on_filesradio(True)
         elif self.dirsradio.isChecked():
@@ -592,13 +587,13 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_preview()
 
     def on_matchedit(self, text):
-        text = str(text.toUtf8()).decode("utf-8")
+        text = str(text.toUtf8())
         self.fileops.matchedit = text
         if self.autopreview:
             self.update_preview()
 
     def on_replaceedit(self, text):
-        text = str(text.toUtf8()).decode("utf-8")
+        text = str(text.toUtf8())
         self.fileops.replaceedit = text
         if self.autopreview:
             self.update_preview()
