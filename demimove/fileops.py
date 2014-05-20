@@ -113,31 +113,38 @@ class FileOps(object):
                     return False
         return True
 
+    def sort_dirs(self, root, dirs):
+        """Sort, match and decode a list of dirs."""
+        return sorted(((root, d.decode("utf-8")) for d in dirs if self.match(d)),
+                      key=itemgetter(1))
+
+    def sort_files(self, root, files):
+        """Sort, match and decode a list of files."""
+        return sorted(((root,) + os.path.splitext(f.decode("utf-8")) for f in
+                       files if self.match(f)), key=itemgetter(1))
+
     def get_targets(self, path=None):
         """Return a list of files and/or dirs in path."""
         if not path:
             path = os.getcwd()
 
-        targets = []
-
         # Determine recursion depth.
         levels = 0
         if self.recursive:
             levels = self.recursivedepth
+
+        targets = []
         for root, dirs, files in helpers.walklevels(path, levels):
             # To unicode.
             root = root.decode("utf-8") + "/"
-            d = sorted(((root, d.decode("utf-8")) for d in
-                        dirs if self.match(d)), key=itemgetter(1))
-            f = sorted(((root,) + os.path.splitext(f.decode("utf-8")) for f in
-                        files if self.match(f)), key=itemgetter(1))
 
             if self.dirsonly:
-                target = d
+                target = self.sort_dirs(root, dirs)
             elif self.filesonly:
-                target = f
+                target = self.sort_files(root, files)
             else:
-                target = d + f
+                target = self.sort_dirs(root, dirs) + self.sort_files(root, files)
+
             targets.extend(target)
 
         return targets
