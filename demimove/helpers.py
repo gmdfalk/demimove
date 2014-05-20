@@ -59,7 +59,6 @@ def get_configdir():
 
 
 def load_configfile(configdir):
-    log.debug("Loading config file from {}".format(configdir))
     config = ConfigParser()
     config.read(os.path.join(configdir, "demimove.ini"))
     options = {}
@@ -74,7 +73,7 @@ def load_configfile(configdir):
     options["spins"] = {k:config.getint("spins", k)\
                         for k, _ in config.items("spins")}
 
-    print options
+    log.debug("Configuration file loaded from {}.".format(configdir))
     return options
 
 

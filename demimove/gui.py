@@ -119,6 +119,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.switchview = False
         self.previews = []
         self.targets = []
+        self.dualoptions1, self.dualoptions2 = {}, {}
         uic.loadUi(self.guifile, self)
         if self.fileops.configdir:
             self.histfile = os.path.join(self.fileops.configdir, "history.txt")
@@ -294,7 +295,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         # Main options:
         self.autopreviewcheck.toggled.connect(self.on_autopreviewcheck)
         self.autostopcheck.toggled.connect(self.on_autostopcheck)
-        self.keepextensionscheck.toggled.connect(self.on_extensioncheck)
+        self.keepextensionscheck.toggled.connect(self.on_keepextensioncheck)
         self.hiddencheck.toggled.connect(self.on_hiddencheck)
         self.manualmirrorcheck.toggled.connect(self.on_manualmirrorcheck)
         self.recursivecheck.toggled.connect(self.on_recursivecheck)
@@ -374,7 +375,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if checked:
             self.update_preview()
 
-    def on_extensioncheck(self, checked):
+    def on_keepextensioncheck(self, checked):
         self.fileops.keepext = checked
         if checked:
             self.removeextensionscheck.setChecked(False)
@@ -565,12 +566,14 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.casebox.setCurrentIndex(0)
 
     def set_mediaoptions(self):
+        self.fileops.keepext = True
         for i in self.checks[:-2]:
             i.setChecked(True)
         self.spacebox.setCurrentIndex(6)
         self.casebox.setCurrentIndex(0)
 
     def toggle_options(self, boolean, mode=0):
+        self.autopreview = False
         if boolean:
             self.save_options()
             if mode == 0:
@@ -579,9 +582,26 @@ class DemiMoveGUI(QtGui.QMainWindow):
                 self.set_defaultoptions()
         else:
             self.restore_options()
+        self.autopreview = True
 
     def on_dualmodecheck(self, checked):
-        self.toggle_options(checked, mode=1)
+        if not checked:
+#             self.dualoptions2 = self.get_options()
+#             if not self.dualoptions1:
+#                 self.set_options(sanitize=True)
+#             else:
+#                 self.set_options(self.dualoptions1)
+            self.dualoptions1 = self.get_options()
+            if not self.dualoptions2:
+                self.set_options(sanitize=True)
+            else:
+                self.set_options(self.dualoptions2)
+        else:
+            self.dualoptions2 = self.get_options()
+            if not self.dualoptions1:
+                self.set_options(sanitize=True)
+            else:
+                self.set_options(self.dualoptions1)
         if self.autopreview:
             self.update_preview()
 
