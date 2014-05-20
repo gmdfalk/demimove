@@ -85,6 +85,7 @@ class DirModel(QtGui.QFileSystemModel):
         if self.p.cwd in itempath and itempath in self.p.joinedtargets:
             idx = self.p.joinedtargets.index(itempath)
             try:
+                print self.p.previews
                 return self.p.previews[idx][1]
             except IndexError:
                 pass  # Fail silently.

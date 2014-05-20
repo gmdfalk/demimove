@@ -89,19 +89,6 @@ class FileOps(object):
         helpers.configure_logger(verbosity, quiet, self.configdir)
         self.history = []  # History of commited operations, used to undo them.
 
-    def get_options(self, *args):
-        if args:
-            return {i: getattr(self, i, None) for i in args}
-        return {i: getattr(self, i, None) for i in self.opts}
-
-    def set_options(self, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-    def restore_premediaoptions(self):
-        self.set_options(**self.defaultopts)
-
-
     def match_filter(self, name):
         return True
 #         if not self.matchfiltercheck:
@@ -148,7 +135,6 @@ class FileOps(object):
                 target = d + f
             targets.extend(target)
 
-        print targets
         return targets
 
     def get_previews(self, targets, matchpat=None, replacepat=None):
@@ -160,7 +146,7 @@ class FileOps(object):
         if self.mediamode:
             self.set_mediaoptions()
 
-        return self.modify_previews(copy.deepcopy(targets))
+        return self.modify_previews(targets)
 
     def set_mediaoptions(self):
         self.casecheck = True
@@ -196,7 +182,7 @@ class FileOps(object):
         if self.countcheck:
             lenp, base, step = len(previews), self.countbase, self.countstep
             countlen = len(str(lenp))
-            countrange = range(base, lenp * step + 1, step)
+            countrange = xrange(base, lenp * step + 1, step)
             if self.countfill:
                 count = (str(i).rjust(countlen, "0") for i in countrange)
             else:
@@ -235,11 +221,14 @@ class FileOps(object):
                 except IndexError:
                     pass
 
-            modified.append(name)
+            if len(preview) > 2:
+                preview = (preview[0], preview[1] + preview[2])
+            preview = (preview, name)
+            modified.append(preview)
 
-        previews = [[i[0], i[1] + i[2]] if len(i) > 2 else i for i in previews]
+        print modified
+        return modified
 
-        return zip(previews, modified)
 
     def apply_space(self, s):
         if not self.spacecheck:
@@ -754,6 +743,6 @@ class FileOps(object):
 
 
 if __name__ == "__main__":
-    fileops = FileOps(hidden=True, recursive=True)
+    fileops = FileOps(hidden=True, recursive=True, casemode="1")
     fileops.get_previews(fileops.get_targets(), "*", "asdf")
 
