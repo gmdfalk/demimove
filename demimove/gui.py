@@ -12,6 +12,7 @@ Options:
     -h,  --help          Show this help text and exit.
     --version            Show the current demimove-ui version.
 """
+# GUI:
 # TODO: History tab.
 # TODO: Statustab with Errors/Warnings, Summaries etc.
 # TODO: Threading for get_previews/get_targets and statusbar progress.
@@ -20,6 +21,10 @@ Options:
 # FIXME: Fix performance on many files (recursive)? Maybe threading?
 # TODO: Use QFileSystemModels listing instead of fileops.get_targets()
 # TODO: Save cwd, cwdidx and other information in config file, too?
+# Fileops:
+# TODO: Exclude & ignorecase option.
+# TODO: Fix count step and count base plus large listings (~i).
+# TODO: Reconcile keepext and not matchreplacecheck.
 import logging
 import os
 import sys
@@ -359,7 +364,6 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def on_commitbutton(self):
         """Perform the currently previewed rename actions."""
         log.info("Committing previewed changes.")
-        self.update_previews()
         self.fileops.commit(self.previews)
 
     def on_undobutton(self):

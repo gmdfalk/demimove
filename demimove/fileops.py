@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-# TODO: Exclude option.
-# TODO: Fix count step and count base plus large listings (~i).
-# TODO: Reconcile keepext and not matchreplacecheck.
-# TODO: Fix normalize remsymbols.
 from operator import itemgetter
 from unicodedata import normalize
 import copy
@@ -93,16 +89,6 @@ class FileOps(object):
         """Searches target for pattern and returns a bool."""
         if not self.hidden and target.startswith("."):
             return False
-        if self.matchfiltercheck:
-            if self.regex:
-                try:
-                    if not re.search(self.filteredit, target):
-                        return False
-                except:
-                    pass
-            else:
-                if not fnmatch.fnmatch(target, self.filteredit):
-                    return False
         if self.matchexcludecheck:
             if self.regex:
                 try:
@@ -112,6 +98,18 @@ class FileOps(object):
                     pass
             else:
                 if fnmatch.fnmatch(target, self.excludeedit):
+                    return False
+        if self.matchfiltercheck:
+            if not self.filteredit:
+                return True
+            if self.regex:
+                try:
+                    if not re.search(self.filteredit, target):
+                        return False
+                except:
+                    pass
+            else:
+                if not fnmatch.fnmatch(target, self.filteredit):
                     return False
         return True
 
@@ -166,12 +164,31 @@ class FileOps(object):
         self.remsymbols = True
 
     def commit(self, previews):
-        pass
-        # write commit to self.history
+        actionlist = []
+        for i in previews:
+            action = ("".join(i[0]), i[0][0] + i[1])
+            actionlist.append(action)
 
-    def undo(self, action=None):
-        if action is None:
-            action = self.history.pop()
+        for i in actionlist:
+            try:
+                os.rename(i[0], i[1])
+            except OSError as e:
+                log.error("{}: {}".format(e, i))
+
+        self.history.append(actionlist)
+        log.info("Targets renamed successfully.")
+
+    def undo(self, actionlist=None):
+        if actionlist is None:
+            actionlist = self.history.pop()
+
+        for i in actionlist:
+            try:
+                os.rename(i[1], i[0])
+            except OSError as e:
+                log.error("{}: {}".format(e, i))
+
+        log.info("Reversed last commit!")
 
     def modify_previews(self, previews):
         if self.countcheck:
@@ -191,8 +208,6 @@ class FileOps(object):
                     name += preview[2]
                 except IndexError:
                     pass
-            if self.matchcheck:
-                name = self.apply_replace(name)
             if self.casecheck:
                 name = self.apply_case(name)
             if self.spacecheck:
@@ -203,6 +218,8 @@ class FileOps(object):
                 name = self.apply_remove(name)
             if self.insertcheck:
                 name = self.apply_insert(name)
+            if self.matchcheck:
+                name = self.apply_replace(name)
             if self.countcheck:
                 try:
                     name = self.apply_count(name, count.next())
@@ -301,11 +318,15 @@ class FileOps(object):
         # Translate glob to regular expression.
 
         if not self.regex:
-            matchpat = fnmatch.translate(self.matchedit)
-            replacepat = fnmatch.translate(self.replaceedit)
+            matchpat = helpers.translate(self.matchedit)
+            replacepat = helpers.translate(self.replaceedit)
         else:
             matchpat = self.matchedit
             replacepat = self.replaceedit
+
+        match = re.search(matchpat, s)
+        if not match:
+            return s
 
         try:
             s = re.sub(matchpat, replacepat, s)
