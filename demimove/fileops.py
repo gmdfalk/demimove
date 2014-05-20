@@ -3,8 +3,8 @@
 # TODO: Fix count step and count base plus large listings (~i).
 # TODO: Reconcile keepext and not matchreplacecheck.
 # TODO: Fix normalize remsymbols.
-from copy import deepcopy
 from unicodedata import normalize
+import copy
 import fnmatch
 import logging
 import os
@@ -56,8 +56,8 @@ class FileOps(object):
         self._simulate = simulate  # Simulate renaming and dump result to stdout.
         # Initialize GUI options.
         self._excludeedit = "" if not exclude else exclude
-        self._matchedit = matchpattern  # Pattern to search for in files/dirs.
-        self._replacedit = replacepattern  # Pattern to replace matches with.
+        self._matchedit = "" if not matchpattern else matchpattern
+        self._replacedit = "" if not replacepattern else replacepattern
         self._autostop = False  # Automatically stop execution on rename error.
         self._countbase = 1  # Base to start counting from.
         self._countfill = True  # 9->10: 9 becomes 09. 99->100: 99 becomes 099.
@@ -73,6 +73,8 @@ class FileOps(object):
         self._insertpos = 0  # Position/Index to insert at.
         self._manualmirror = False  # Mirror manual rename to all targets.
         self._matchcheck = True  # Whether to apply source/target patterns.
+        self._matchexcludecheck = False
+        self._matchfiltercheck = False
         self._matchreplacecheck = True
         self._recursivedepth = 1
         self._casecheck = True if isinstance(casemode, str) else False
@@ -121,8 +123,8 @@ class FileOps(object):
         for root, dirs, files in helpers.walklevels(path, levels):
             # To unicode.
             root = root.decode("utf-8") + "/"
-            dirs = [d.decode("utf-8") for d in dirs if d in self.match_filter(d)]
-            files = [f.decode("utf-8") for f in files if f in self.match_filter(f)]
+            dirs = [d.decode("utf-8") for d in dirs if self.match_filter(d)]
+            files = [f.decode("utf-8") for f in files if self.match_filter(f)]
             # Exclude targets, if necessary.
             if not self.hidden:
                 dirs = [i for i in dirs if not i.startswith(".")]
@@ -148,22 +150,19 @@ class FileOps(object):
                 target = dirs + newfiles
             targets.extend(target)
 
+        print targets
         return targets
 
     def get_previews(self, targets, matchpat=None, replacepat=None):
         """Simulate rename operation on targets and return results as list."""
-        if not matchpat:
-            matchpat = "*"
-            if self.regex:
-                matchpat = ".*"
-        if replacepat is None:
-            replacepat = "*"
-            if self.regex:
-                replacepat = ".*"
+        if matchpat:
+            self.matchedit = matchpat
+        if replacepat:
+            self.replaceedit = replacepat
         if self.mediamode:
             self.set_mediaoptions()
 
-        return self.modify_previews(deepcopy(targets), matchpat, replacepat)
+        return self.modify_previews(copy.deepcopy(targets))
 
     def set_mediaoptions(self):
         self.casecheck = True
@@ -195,7 +194,7 @@ class FileOps(object):
                 return True
         return False
 
-    def modify_previews(self, previews, matchpat, replacepat):
+    def modify_previews(self, previews):
         if self.countcheck:
             lenp, base, step = len(previews), self.countbase, self.countstep
             countlen = len(str(lenp))
@@ -215,7 +214,7 @@ class FileOps(object):
                     pass
 #             print name
             if self.matchcheck:
-                name = self.apply_match(name, matchpat, replacepat)
+                name = self.apply_replace(name)
             if self.casecheck:
                 name = self.apply_case(name)
             if self.spacecheck:
@@ -317,11 +316,12 @@ class FileOps(object):
             s = re.sub(r"([-_ .])\1+", r"\1", s)
         return s
 
-    def apply_match(self, s, matchpat, replacepat):
+    def apply_replace(self, s):
         return s
         # TODO: Handle case sensitivity (re.IGNORECASE)
-        if not self.matchcheck:
+        if not self.matchreplacecheck:
             return s
+        # matchpat, replacepat
         # Translate glob to regular expression.
         if not self.regex:
             matchpat = fnmatch.translate(matchpat)
@@ -413,15 +413,6 @@ class FileOps(object):
         self._interactive = boolean
 
     @property
-    def prompt(self):
-        return self._prompt
-
-    @prompt.setter
-    def prompt(self, boolean):
-        log.debug("simulate: {}".format(boolean))
-        self._prompt = boolean
-
-    @property
     def noclobber(self):
         return self._noclobber
 
@@ -458,13 +449,76 @@ class FileOps(object):
         self._varcheck = boolean
 
     @property
-    def replacematch(self):
-        return self._replacematch
+    def matchcheck(self):
+        return self._matchcheck
 
-    @replacematch.setter
-    def replacematch(self, boolean):
-        log.debug("replacematch: {}".format(boolean))
-        self._replacematch = boolean
+    @matchcheck.setter
+    def matchcheck(self, boolean):
+        log.debug("matchcheck: {}".format(boolean))
+        self._matchcheck = boolean
+
+    @property
+    def matchexcludecheck(self):
+        return self._matchexcludecheck
+
+    @matchexcludecheck.setter
+    def matchexcludecheck(self, boolean):
+        log.debug("matchexcludecheck: {}".format(boolean))
+        self._matchexcludecheck = boolean
+
+    @property
+    def matchfiltercheck(self):
+        return self._matchfiltercheck
+
+    @matchfiltercheck.setter
+    def matchfiltercheck(self, boolean):
+        log.debug("matchfiltercheck: {}".format(boolean))
+        self._matchfiltercheck = boolean
+
+    @property
+    def matchreplacecheck(self):
+        return self._matchreplacecheck
+
+    @matchreplacecheck.setter
+    def matchreplacecheck(self, boolean):
+        log.debug("matchreplacecheck: {}".format(boolean))
+        self._matchreplacecheck = boolean
+
+    @property
+    def matchedit(self):
+        return self._matchedit
+
+    @matchedit.setter
+    def matchedit(self, text):
+        log.debug("matchedit: {}.".format(text))
+        self._matchedit = text.decode("utf-8")
+
+    @property
+    def replaceedit(self):
+        return self._replaceedit
+
+    @replaceedit.setter
+    def replaceedit(self, text):
+        log.debug("replaceedit: {}.".format(text))
+        self._replaceedit = text.decode("utf-8")
+
+    @property
+    def filteredit(self):
+        return self._replaceedit
+
+    @filteredit.setter
+    def filteredit(self, text):
+        log.debug("filteredit: {}.".format(text))
+        self._filteredit = text.decode("utf-8")
+
+    @property
+    def excludeedit(self):
+        return self._excludeedit
+
+    @excludeedit.setter
+    def excludeedit(self, text):
+        log.debug("excludeedit: {}.".format(text))
+        self._excludeedit = text.decode("utf-8")
 
     @property
     def remsymbols(self):
@@ -474,24 +528,6 @@ class FileOps(object):
     def remsymbols(self, boolean):
         log.debug("remsymbols: {}".format(boolean))
         self._remsymbols = boolean
-
-    @property
-    def excludeedit(self):
-        return self._excludeedit
-
-    @excludeedit.setter
-    def excludeedit(self, text):
-        log.debug("excludeedit: ".format(text))
-        self._excludeedit = text
-
-    @property
-    def filteredit(self):
-        return self._filteredit
-
-    @filteredit.setter
-    def filteredit(self, text):
-        log.debug("filteredit: ".format(text))
-        self._filteredit = text
 
     @property
     def autostop(self):
@@ -617,7 +653,7 @@ class FileOps(object):
     @countpreedit.setter
     def countpreedit(self, text):
         log.debug("countpreedit: {}".format(text))
-        self._countpreedit = text
+        self._countpreedit = text.decode("utf-8")
 
     @property
     def countsufedit(self):
@@ -626,7 +662,7 @@ class FileOps(object):
     @countsufedit.setter
     def countsufedit(self, text):
         log.debug("countsufedit: {}".format(text))
-        self._countsufedit = text
+        self._countsufedit = text.decode("utf-8")
 
     @property
     def insertcheck(self):
@@ -653,7 +689,7 @@ class FileOps(object):
     @insertedit.setter
     def insertedit(self, text):
         log.debug("insertedit: {}.".format(text))
-        self._insertedit = text
+        self._insertedit = text.decode("utf-8")
 
     @property
     def deletecheck(self):
@@ -681,24 +717,6 @@ class FileOps(object):
     def deleteend(self, index):
         log.debug("deleteend: {}".format(index))
         self._deleteend = index
-
-    @property
-    def matchcheck(self):
-        return self._matchcheck
-
-    @matchcheck.setter
-    def matchcheck(self, boolean):
-        log.debug("matchcheck: {}".format(boolean))
-        self._matchcheck = boolean
-
-    @property
-    def matchreplacecheck(self):
-        return self._matchreplacecheck
-
-    @matchreplacecheck.setter
-    def matchreplacecheck(self, boolean):
-        log.debug("matchreplacecheck: {}".format(boolean))
-        self._matchreplacecheck = boolean
 
     @property
     def casecheck(self):
