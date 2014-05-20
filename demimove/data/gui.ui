@@ -557,7 +557,7 @@
            <item row="1" column="1">
             <widget class="QCheckBox" name="dualmodecheck">
              <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Dual Mode&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Toggle between two sets of option states. When first checked, it saves the current options and enters a blank state where you can set new options and then toggle between those two optionsets.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Dual Mode&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Toggle between two sets of option states. When first checked, it copies the current options to a new state where you can set new options and then toggle between those two optionsets.&lt;/p&gt;&lt;p&gt;I don't know man, i was looking for things to do.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="text">
               <string>Dual Mode</string>

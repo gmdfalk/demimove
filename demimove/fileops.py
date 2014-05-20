@@ -97,7 +97,7 @@ class FileOps(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def restore_mediaoptions(self):
+    def restore_premediaoptions(self):
         self.set_options(**self.defaultopts)
 
 
@@ -273,9 +273,9 @@ class FileOps(object):
         elif self.casemode == 1:
             s = s.upper()
         elif self.casemode == 2:
-            s = s.case()
+            s = s.capitalize()
         elif self.casemode == 3:
-            s = " ".join([c.case() for c in s.split()])
+            s = " ".join([c.capitalize() for c in s.split()])
 
         return s
 
