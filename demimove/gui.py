@@ -443,7 +443,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.update_previews()
 
     def on_matchfiltercheck(self, checked):
-        self.fileops.matchexcludecheck = checked
+        self.fileops.matchfiltercheck = checked
         if self.autopreview:
             self.update_targets()
             self.update_previews()

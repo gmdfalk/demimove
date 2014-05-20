@@ -89,50 +89,27 @@ class FileOps(object):
         helpers.configure_logger(verbosity, quiet, self.configdir)
         self.history = []  # History of commited operations, used to undo them.
 
-    def match_filter(self, name):
-        pass
-#         if not self.matchfiltercheck:
-#             return True
-#         if not self.matchexcludecheck:
-#             return False
-#
-#         dirs = [d.decode("utf-8") for d in dirs if self.match_filter(d)]
-#         files = [f.decode("utf-8") for f in files if self.match_filter(f)]
-#         # Exclude targets, if necessary.
-#         if self.excludeedit:
-#             dirs = [i for i in dirs if not self.match_exclude(i)]
-#             files = [i for i in files if not self.match_exclude(i)]
-#
-#         dirs = [[root, i] for i in dirs]
-
     def match(self, target):
         """Searches target for pattern and returns a bool."""
         if not self.hidden and target.startswith("."):
             return False
-
         if self.matchfiltercheck:
-            if not self.filteredit:
-                return True
             if self.regex:
                 try:
-                    if re.search(self.filteredit, target):
+                    if not re.search(self.filteredit, target):
                         return False
                 except:
-                    log.debug("bad regex filter")
-                    True
+                    pass
             else:
-                if fnmatch.fnmatch(target, self.filteredit):
+                if not fnmatch.fnmatch(target, self.filteredit):
                     return False
         if self.matchexcludecheck:
-            if not self.excludeedit:
-                return True
             if self.regex:
                 try:
                     if re.search(self.excludeedit, target):
                         return False
                 except:
-                    log.debug("bad regex exclude")
-                    return True
+                    pass
             else:
                 if fnmatch.fnmatch(target, self.excludeedit):
                     return False
@@ -508,7 +485,7 @@ class FileOps(object):
 
     @property
     def filteredit(self):
-        return self._replaceedit
+        return self._filteredit
 
     @filteredit.setter
     def filteredit(self, text):
