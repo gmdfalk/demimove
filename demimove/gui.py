@@ -28,6 +28,7 @@ from PyQt4 import Qt, QtGui, QtCore, uic
 import fileops
 import history
 from demimove import helpers
+from PyQt4.QtGui import QLineEdit
 
 
 log = logging.getLogger("gui")
@@ -121,8 +122,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         uic.loadUi(self.guifile, self)
         if self.fileops.configdir:
             self.histfile = os.path.join(self.fileops.configdir, "history.txt")
-            self.apply_options()
-
+            self.startoptions = helpers.load_configfile(self.fileops.configdir)
+            self.set_options()
         else:
             self.histfile = os.path.join(self.basedir, "data/history.txt")
 
@@ -142,14 +143,48 @@ class DemiMoveGUI(QtGui.QMainWindow):
         log.info("demimove-ui initialized.")
         self.statusbar.showMessage("Select a directory and press Enter.")
 
-    def apply_options(self):
-        self.configoptions = helpers.load_configfile(self.fileops.configdir)
+    def set_options(self, options=None, sanitize=False):
+        if options is None:
+            options = self.startoptions
 
-#         for k, v in options["combos"]:
-#         for k, v in options["edits"]:
-#         for k, v in options["radios"]:
-#         for k, v in options["spins"]:
-#             print k, v
+        self.autopreview = False
+
+        if sanitize:
+            for k, v in options["checks"].items():
+                getattr(self, k).setChecked(False)
+            for k, v in options["combos"].items():
+                getattr(self, k).setCurrentIndex(0)
+            for k, v in options["edits"].items():
+                getattr(self, k).setText("")
+            for k, v in options["radios"].items():
+                getattr(self, k).setChecked(v)
+            for k, v in options["spins"].items():
+                getattr(self, k).setValue(v)
+        else:
+            for k, v in options["checks"].items():
+                getattr(self, k).setChecked(v)
+            for k, v in options["combos"].items():
+                getattr(self, k).setCurrentIndex(v)
+            for k, v in options["edits"].items():
+                getattr(self, k).setText(v)
+            for k, v in options["radios"].items():
+                getattr(self, k).setChecked(v)
+            for k, v in options["spins"].items():
+                getattr(self, k).setValue(v)
+
+        self.autopreview = True
+
+    def get_options(self):
+        options = self.startoptions
+        o = {}
+        o["checks"] = {k:getattr(self, k).isChecked() for k in options["checks"].keys()}
+        o["combos"] = {k:getattr(self, k).currentIndex() for k in options["combos"].keys()}
+        o["edits"] = {k:str(getattr(self, k).text().toUtf8()).decode("utf-8")\
+                      for k in options["edits"].keys()}
+        o["radios"] = {k:getattr(self, k).isChecked() for k in options["radios"].keys()}
+        o["spins"] = {k:getattr(self, k).value() for k in options["spins"].keys()}
+
+        return o
 
     def create_browser(self, startdir):
         # TODO: With readOnly disabled we can use setData for file operations?
@@ -321,7 +356,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_resetoptionsbutton(self):
         log.info("Resetting options.")
-        self.update_preview()
+        self.set_options(sanitize=True)
 
     def on_commitbutton(self):
         log.info("Committing previewed changes.")
@@ -331,7 +366,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_undobutton(self):
         log.info("Reverting last commit.")
-        self.fileops.undo()
+        print self.get_options()
+#         self.fileops.undo()
 
     def on_autopreviewcheck(self, checked):
         self.autopreview = checked

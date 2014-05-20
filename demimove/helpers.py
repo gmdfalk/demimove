@@ -9,13 +9,13 @@ log = logging.getLogger("helpers")
 
 def configure_logger(loglevel=2, quiet=False, logdir=None):
     "Creates the logger instance and adds handlers plus formatting."
-#     logger = logging.getLogger()
+    logger = logging.getLogger()
 
     # Set the loglevel.
     if loglevel > 3:
         loglevel = 3  # Cap at 3 to avoid index errors.
     levels = [logging.ERROR, logging.WARN, logging.INFO, logging.DEBUG]
-    log.setLevel(levels[loglevel])
+    logger.setLevel(levels[loglevel])
 
     logformat = "%(asctime)-14s %(levelname)-8s %(name)-8s %(message)s"
 
@@ -24,18 +24,18 @@ def configure_logger(loglevel=2, quiet=False, logdir=None):
     if not quiet:
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setFormatter(formatter)
-        log.addHandler(console_handler)
-        log.debug("Added logging console handler.")
-        log.info("Loglevel is {}.".format(levels[loglevel]))
+        logger.addHandler(console_handler)
+        logger.debug("Added logging console handler.")
+        logger.info("Loglevel is {}.".format(levels[loglevel]))
     if logdir:
         try:
-            logfile = os.path.abspath(logdir)
+            logfile = os.path.join(logdir, "demimove.log")
             file_handler = logging.FileHandler(logfile)
             file_handler.setFormatter(formatter)
-            log.addHandler(file_handler)
-            log.debug("Added logging file handler: {}.".format(logfile))
+            logger.addHandler(file_handler)
+            logger.debug("Added logging file handler: {}.".format(logfile))
         except IOError:
-            log.error("Could not attach file handler.")
+            logger.error("Could not attach file handler.")
 
 
 def walklevels(path, levels=1):
@@ -74,6 +74,7 @@ def load_configfile(configdir):
     options["spins"] = {k:config.getint("spins", k)\
                         for k, _ in config.items("spins")}
 
+    print options
     return options
 
 
