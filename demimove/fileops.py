@@ -26,8 +26,8 @@ class FileOps(object):
                  remext=False, remnonwords=False, remsymbols=False,
                  simulate=False, spacemode=0, quiet=False, verbosity=1):
         # Universal options:
-        self._countpos = countpos  # Adds numerical index at position.
         self._casemode = casemode  # 0=lc, 1=uc, 2=flfw, 3=flew
+        self._countpos = countpos  # Adds numerical index at position.
         self._dirsonly = dirsonly  # Only edit directory names.
         self._exclude = exclude  # List of strings to exclude from targets.
         self._filesonly = False if dirsonly else filesonly  # Only file names.
@@ -39,10 +39,10 @@ class FileOps(object):
         self._noclobber = noclobber  # Don't overwrite anything.
         self._recursive = recursive  # Look for files recursively
         self._regex = regex  # Use regular expressions instead of glob/fnmatch.
-        self._remext = remext  # Remove all remext.
         self._remdups = remdups  # Remove remdups.
-        self._remsymbols = remsymbols  # Normalize remsymbols (ñé becomes ne).
+        self._remext = remext  # Remove all remext.
         self._remnonwords = remnonwords  # Only allow wordchars (\w)
+        self._remsymbols = remsymbols  # Normalize remsymbols (ñé becomes ne).
         self._simulate = simulate  # Simulate renaming and dump result to stdout.
         self._spacemode = spacemode  # 0=su, 1=sh, 2=sd, 3=ds, 4=hs, 5=us
         # Initialize GUI options.
@@ -65,6 +65,8 @@ class FileOps(object):
         self._manualmirror = False  # Mirror manual rename to all targets.
         self._matchcheck = True  # Whether to apply source/target patterns.
         self._matchreplacecheck = True
+        self._matchedit = ""  # Pattern to search for in files/dirs.
+        self._replacedit = ""  # Pattern to replace above found matches with.
         self._recursivedepth = 1
         self._removecheck = False
         self._spacecheck = False  # Whether to apply the spacemode.
@@ -72,7 +74,6 @@ class FileOps(object):
         # Create the logger.
         helpers.configure_logger(verbosity, quiet)
         self.history = []  # History of commited operations, useful to undo.
-        self.defaultopts = {i:getattr(self, "_" + i, None) for i in self.opts}
 
     def get_options(self, *args):
         if args:

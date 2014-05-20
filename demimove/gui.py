@@ -12,14 +12,12 @@ Options:
     -h,  --help          Show this help text and exit.
     --version            Show the current demimove-ui version.
 """
-# TODO: ConfigParser
+# TODO: History tab.
 # TODO: Statustab with Errors/Warnings, Summaries etc
 # TODO: Custom ContextMenu for Filebrowser
-# FIXME: Switching between dirs/files/both destroys CWD marker.
-# FIXME: Filesonly radio + switchview: bold font doesn't show.
+# FIXME: Filesonly radio + switchview, bold font.
 # FIXME: Fix performance on many files (recursive)? Maybe threading?
 # TODO: Use QFileSystemModels listing instead of fileops.get_targets()
-# TODO: "Clear all options"-option
 import logging
 import os
 import sys
@@ -67,8 +65,9 @@ class DirModel(QtGui.QFileSystemModel):
                 if not self.p.autopreview:
                     return
                 fileindex = self.index(index.row(), 0, index.parent())
-                item = str(self.data(fileindex, role).toString().toUtf8())
-                return self.match_preview(fileindex, item)
+#                 item = self.data(fileindex, role).toString().toUtf8()
+#                 item = str(item).decode("utf-8")
+                return self.match_preview(fileindex)
             # TODO: Find a way to set font on a whole row here.
 #         if self.p.cwdidx == index:
 #             if role == QtCore.Qt.FontRole:
@@ -114,21 +113,19 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def __init__(self, startdir, fileops, parent=None):
 
         super(DemiMoveGUI, self).__init__(parent)
+        self.fileops = fileops
         # Current working directory.
         self._autopreview = True
         self._cwd = ""
         self._cwdidx = None
-        self._matchpat = ""  # Pattern to search for in files/dirs.
-        self._replacepat = ""  # Pattern to replace above found matches with.
         self.basedir = os.path.dirname(os.path.realpath(__file__))
         self.guifile = os.path.join(self.basedir, "data/gui.ui")
         self.iconfile = os.path.join(self.basedir, "data/icon.png")
+        self.configdir = self.fileops.configdir
         self.histfile = os.path.join(self.basedir, "data/history.txt")
         self.switchview = False
         self.previews = []
         self.targets = []
-        self.history = []
-        self.fileops = fileops
         uic.loadUi(self.guifile, self)
 
         self.setWindowIcon(QtGui.QIcon(self.iconfile))
@@ -232,8 +229,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def update_preview(self):
         if self.cwd:
-            self.previews = self.fileops.get_previews(self.targets, self.matchpat,
-                                                     self.replacepat)
+            self.previews = self.fileops.get_previews(self.targets)
         else:
             self.previews = []
         self.update_view()
@@ -317,7 +313,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def on_commitbutton(self):
         self.update_preview()
         commit = self.fileops.commit(self.previews)
-        self.history.append(commit)
+#         self.history.append(commit)
 
     def on_undobutton(self):
         self.fileops.undo()
@@ -571,7 +567,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_matchedit(self, text):
         text = str(text.toUtf8())
-        self.matchpat = text
+        self.fileops._matchedit = text
         if self.autopreview:
             self.update_targets()
             self.update_preview()

@@ -2,8 +2,7 @@
 """demimove
 
 Usage:
-    demimove [<matchpattern> [<replacepattern>]] [-d|-f] [-e <names>]
-             [-v|-vv|-vvv] [options]
+    demimove [<matchpattern> [<replacepattern>]] [-d|-f] [-v|-vv|-vvv] [options]
 
 Arguments:
     matchpattern    (Optional) Pattern to identify targets by.
@@ -61,29 +60,29 @@ except ImportError:
 
 def main():
     args = docopt(__doc__, version="0.1")
-    fileops = FileOps(quiet=args["--quiet"],
+    fileops = FileOps(casemode=args["--casemode"],
+                      countpos=args["--count"],
                       dirsonly=args["--dirsonly"],
+                      exclude=args["--exclude"],
                       filesonly=args["--filesonly"],
-                      simulate=args["--simulate"],
-                      interactive=args["--interactive"],
-                      noclobber=args["--no-clobber"],
-                      remnonwords=args["--no-wordchars"],
-                      ignorecase=args["--ignorecase"],
-                      recursive=args["--recursive"],
-                      keepext=args["--keep-extension"],
-                      regex=args["--regex"],
                       hidden=args["--all"],
+                      ignorecase=args["--ignorecase"],
+                      interactive=args["--interactive"],
+                      keepext=args["--keep-extension"],
                       mediamode=args["--media"],
-                      remsymbols=args["--remsymbols"],
+                      noclobber=args["--no-clobber"],
+                      recursive=args["--recursive"],
+                      regex=args["--regex"],
                       remdups=args["--remduplicates"],
                       remext=args["--remextensions"],
-                      exclude=args["--exclude"],
+                      remnonwords=args["--no-wordchars"],
+                      remsymbols=args["--remsymbols"],
+                      simulate=args["--simulate"],
                       spacemode=args["--spacemode"],
-                      casemode=args["--casemode"],
-                      countpos=args["--count"],
+                      quiet=args["--quiet"],
                       verbosity=args["-v"])
-    replaces = fileops.get_replaces(args["--path"])
-    fileops.get_previews(replaces, args["<match>"], args["<replace>"])
+    targets = fileops.get_targets(args["--path"])
+    fileops.get_previews(targets, args["<match>"], args["<replace>"])
 
 
 if __name__ == "__main__":
