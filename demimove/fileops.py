@@ -3,6 +3,7 @@
 # TODO: Fix count step and count base plus large listings (~i).
 # TODO: Reconcile keepext and not matchreplacecheck.
 # TODO: Fix normalize remsymbols.
+from operator import itemgetter
 from unicodedata import normalize
 import copy
 import fnmatch
@@ -102,12 +103,23 @@ class FileOps(object):
 
 
     def match_filter(self, name):
-        if not self.matchfiltercheck:
-            return True
-
-    def match_exclude(self, name):
-        if not self.matchexcludecheck:
-            return False
+        return True
+#         if not self.matchfiltercheck:
+#             return True
+#         if not self.matchexcludecheck:
+#             return False
+#
+#         dirs = [d.decode("utf-8") for d in dirs if self.match_filter(d)]
+#         files = [f.decode("utf-8") for f in files if self.match_filter(f)]
+#         # Exclude targets, if necessary.
+#         if not self.hidden:
+#             dirs = (i for i in dirs if not i.startswith("."))
+#             files = [i for i in files if not i.startswith(".")]
+#         if self.excludeedit:
+#             dirs = [i for i in dirs if not self.match_exclude(i)]
+#             files = [i for i in files if not self.match_exclude(i)]
+#
+#         dirs = [[root, i] for i in dirs]
 
     def get_targets(self, path=None):
         """Return a list of files and/or dirs in path."""
@@ -123,31 +135,17 @@ class FileOps(object):
         for root, dirs, files in helpers.walklevels(path, levels):
             # To unicode.
             root = root.decode("utf-8") + "/"
-            dirs = [d.decode("utf-8") for d in dirs if self.match_filter(d)]
-            files = [f.decode("utf-8") for f in files if self.match_filter(f)]
-            # Exclude targets, if necessary.
-            if not self.hidden:
-                dirs = [i for i in dirs if not i.startswith(".")]
-                files = [i for i in files if not i.startswith(".")]
-            if self.excludeedit:
-                dirs = [i for i in dirs if not self.match_exclude(i)]
-                files = [i for i in files if not self.match_exclude(i)]
-
-            dirs.sort()
-            files.sort()
-            dirs = [[root, i] for i in dirs]
-
-            newfiles = []
-            for i in files:
-                fname, ext = os.path.splitext(i)
-                newfiles.append([root, fname, ext])
+            d = sorted(((root, d.decode("utf-8")) for d in
+                        dirs if self.match_filter(d)), key=itemgetter(1))
+            f = sorted(((root,) + os.path.splitext(f.decode("utf-8")) for f in
+                        files if self.match_filter(f)), key=itemgetter(1))
 
             if self.dirsonly:
-                target = dirs
+                target = d
             elif self.filesonly:
-                target = newfiles
+                target = f
             else:
-                target = dirs + newfiles
+                target = d + f
             targets.extend(target)
 
         print targets
