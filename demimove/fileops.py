@@ -84,34 +84,58 @@ class FileOps(object):
         # Create the logger.
         helpers.configure_logger(verbosity, quiet, self.configdir)
         self.history = []  # History of commited operations, used to undo them.
+        self.bracerx = re.compile("(?<=\{)(.*?)(?=\})")
+
+    def match_filter(self, target):
+        if "/" in self.filteredit:
+            patterns = self.filteredit.split("/")
+        else:
+            patterns = [self.filteredit]
+        print patterns
+        if self.regex:
+            for pattern in patterns:
+                try:
+                    if re.search(pattern, target):
+                        return True
+                except:
+                    pass
+        else:
+            for pattern in patterns:
+                if fnmatch.fnmatch(target, pattern):
+                    return True
+        return False
+
+    def match_exclude(self, target):
+        if "/" in self.excludeedit:
+            patterns = self.excludeedit.split("/")
+        else:
+            patterns = [self.excludeedit]
+        if self.regex:
+            for pattern in patterns:
+                try:
+                    if re.search(pattern, target):
+                        return False
+                except:
+                    pass
+        else:
+            for pattern in patterns:
+                if fnmatch.fnmatch(target, pattern):
+                    return False
 
     def match(self, target):
         """Searches target for pattern and returns a bool."""
         if not self.hidden and target.startswith("."):
             return False
         if self.matchexcludecheck:
-            if self.regex:
-                try:
-                    if re.search(self.excludeedit, target):
-                        return False
-                except:
-                    pass
-            else:
-                if fnmatch.fnmatch(target, self.excludeedit):
-                    return False
+            if self.match_exclude(target) is False:
+                return False
         if self.matchfiltercheck:
             if not self.filteredit:
                 return True
-            if self.regex:
-                try:
-                    if not re.search(self.filteredit, target):
-                        return False
-                except:
-                    pass
-            else:
-                if not fnmatch.fnmatch(target, self.filteredit):
-                    return False
+            if self.match_filter(target) is False:
+                return False
         return True
+
 
     def sort_dirs(self, root, dirs):
         """Sort, match and decode a list of dirs."""
