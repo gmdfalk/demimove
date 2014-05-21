@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>978</width>
-    <height>689</height>
+    <width>985</width>
+    <height>691</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,9 +45,6 @@
           <layout class="QVBoxLayout" name="actionslayout" stretch="0">
            <item>
             <layout class="QFormLayout" name="actionforms">
-             <property name="fieldGrowthPolicy">
-              <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-             </property>
              <item row="0" column="0">
               <widget class="QCheckBox" name="matchcheck">
                <property name="text">
@@ -339,7 +336,7 @@
               </widget>
              </item>
              <item row="8" column="1">
-              <layout class="QHBoxLayout" name="countlayout" stretch="0,0,0">
+              <layout class="QHBoxLayout" name="countlayout">
                <item>
                 <widget class="QSpinBox" name="countpos">
                  <property name="enabled">
@@ -497,7 +494,7 @@
           </layout>
          </item>
          <item>
-          <layout class="QGridLayout" name="optionslayout" rowstretch="0,0,0,0,0" columnstretch="0,0">
+          <layout class="QGridLayout" name="optionslayout" rowstretch="0,0,0,0" columnstretch="0,0">
            <item row="1" column="0">
             <widget class="QCheckBox" name="mediamodecheck">
              <property name="toolTip">
@@ -623,7 +620,7 @@
          <number>0</number>
         </property>
         <item>
-         <layout class="QVBoxLayout" name="dirlayout" stretch="0">
+         <layout class="QVBoxLayout" name="dirlayout">
           <property name="margin">
            <number>0</number>
           </property>

@@ -42,7 +42,7 @@ log = logging.getLogger("gui")
 try:
     from docopt import docopt
 except ImportError:
-    print "ImportError: Please install docopt to use the CLI."
+    print("ImportError: Please install docopt to use the CLI.")
 
 
 class BoldDelegate(QtGui.QStyledItemDelegate):
@@ -92,7 +92,7 @@ class DirModel(QtGui.QFileSystemModel):
             try:
                 return self.p.previews[idx][1]
             except IndexError:
-                pass  # Fail silently.
+                return "{err}"  # Fail silently.
 
 
 class DemiMoveGUI(QtGui.QMainWindow):
@@ -107,7 +107,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self._cwd = ""
         self._cwdidx = None
         self.switchview = False
-        self.targets, self.previews = [], []
+        self.targets, self.joinedtargets, self.previews = [], [], []
         self.dualoptions1, self.dualoptions2 = {}, {}
 
         self.initialize_ui(startdir)
@@ -185,7 +185,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.dirview.header().swapSections(4, 1)
         self.dirview.header().resizeSection(0, 300)
         self.dirview.header().resizeSection(4, 220)
-        self.dirview.header().resizeSection(3, 120)
+        self.dirview.header().resizeSection(3, 124)
         self.dirview.setEditTriggers(QtGui.QAbstractItemView.EditKeyPressed)
         self.dirview.setItemDelegate(BoldDelegate(self))
         self.dirview.setCurrentIndex(self.dirmodel.index(startdir))

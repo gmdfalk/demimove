@@ -54,7 +54,7 @@ from fileops import FileOps
 try:
     from docopt import docopt
 except ImportError:
-    print "Please install docopt first."
+    print("Please install docopt first.")
     sys.exit()
 
 

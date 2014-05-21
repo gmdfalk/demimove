@@ -192,10 +192,10 @@ class FileOps(object):
         if actionlist is None:
             try:
                 actionlist = self.history[-1]
+                # TODO: Pop here instead.
             except IndexError:
                 log.debug("History list is empty.")
                 return
-            # pop it instead
 
         for i in actionlist:
             if self.simulate:
