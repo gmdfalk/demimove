@@ -389,7 +389,9 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.fileops.hidden = checked
         # TODO: Delegate gets overriden by filter here?
         if checked:
-            self.dirmodel.setFilter(QtCore.QDir.Hidden)
+            self.dirmodel.setFilter(QtCore.QDir.Dirs | QtCore.QDir.Files |
+                                    QtCore.QDir.NoDotAndDotDot |
+                                    QtCore.QDir.Hidden)
         else:
             self.dirmodel.setFilter(QtCore.QDir.Dirs | QtCore.QDir.Files |
                                         QtCore.QDir.NoDotAndDotDot)
