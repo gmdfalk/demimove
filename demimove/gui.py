@@ -131,8 +131,11 @@ class DemiMoveGUI(QtGui.QMainWindow):
                             self.removeduplicatescheck, self.spacecheck]
         self.mediaboxes = [self.casebox, self.spacebox]
 
+        idx, _ = self.get_current_fileinfo()
+        self.dirview.setExpanded(idx, True)
         log.info("demimove-ui initialized.")
         self.statusbar.showMessage("Select a directory and press Enter.")
+
 
     def set_options(self, options=None, sanitize=False):
         if not options:
@@ -449,13 +452,15 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def on_matchfiltercheck(self, checked):
         self.fileops.matchfiltercheck = checked
         if self.autopreview:
-            self.update_targets()
+            if self.fileops.filteredit:
+                self.update_targets()
             self.update_previews()
 
     def on_matchexcludecheck(self, checked):
         self.fileops.matchexcludecheck = checked
         if self.autopreview:
-            self.update_targets()
+            if self.fileops.excludeedit:
+                self.update_targets()
             self.update_previews()
 
     def on_matchreplacecheck(self, checked):
