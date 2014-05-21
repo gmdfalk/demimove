@@ -85,12 +85,16 @@ def walklevels(path, levels=1):
         if num_sep + levels <= num_sep_this:
             del dirs[:]
 
+splitreg = re.compile("(^(?:\w\:)?\/.*\/)(.*?)(\..*)?$")
 
-def splitpath(regex, path):
+def splitpath(path):
     try:
-        return regex.match(path).groups()
+        match = splitreg.match(path).groups()
+        if match[-1] is None:
+            match = match[:-1] + ("",)
+        return match
     except AttributeError:
-        return tuple()
+        pass
 
 
 def get_configdir():

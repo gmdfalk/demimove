@@ -89,9 +89,9 @@ class DirModel(QtGui.QFileSystemModel):
         if not self.p.fileops.recursive and index.parent() != self.p.cwdidx:
             return
         path = self.p.get_path(index)
-        target = (os.path.dirname(path) + "/",) + os.path.splitext(os.path.basename(path))
+#         target = (os.path.dirname(path) + "/",) + os.path.splitext(os.path.basename(path))
+        target = helpers.splitpath(path)
         print target
-        print self.p.cwd
         if self.p.cwd + "/" in target[0] and target in self.p.targets:
             idx = self.p.targets.index(target)
             try:
@@ -262,7 +262,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def menuhandler(self, action, index):
         if action == "Toggle Include":
             path = self.get_path(index)
-            target = helpers.splitpath(self.fileops.pathrx, path)
+            target = helpers.splitpath(path)
             try:
                 self.targets.remove(target)
                 self.fixedtargets.remove(target)

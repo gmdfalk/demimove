@@ -143,7 +143,7 @@ class FileOps(object):
         """Sort, match and decode a list of dirs."""
 #         return sorted(((root, d.decode("utf-8")) for d in dirs if self.match(d)),
 #                       key=itemgetter(1))
-        return [(root, d.decode("utf-8"), "") for d in dirs if self.match(d)]
+        return [(root, d.decode("utf-8"), u"") for d in dirs if self.match(d)]
 
     def sort_files(self, root, files):
         """Sort, match and decode a list of files."""
