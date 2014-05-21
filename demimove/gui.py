@@ -16,15 +16,16 @@ Options:
 # TODO: History tab.
 # TODO: Statustab with Errors/Warnings, Summaries etc.
 # TODO: Threading for get_previews/get_targets and statusbar progress.
-# TODO: Custom ContextMenu for Filebrowser
 # FIXME: Filesonly radio + switchview, bold font.
 # FIXME: Fix performance on many files (recursive)? Maybe threading?
 # TODO: Use QFileSystemModels listing instead of fileops.get_targets()
 # TODO: Save cwd, cwdidx and other information in config file, too?
+# TODO: Properly lock the preview until options are set.
 # Fileops:
 # TODO: Exclude & ignorecase option.
 # TODO: Fix count step and count base plus large listings (~i).
 # TODO: Reconcile keepext and not matchreplacecheck.
+
 import logging
 import os
 import sys
@@ -107,8 +108,10 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self._cwd = ""
         self._cwdidx = None
         self.switchview = False
-        self.targets, self.joinedtargets, self.previews = [], [], []
+        # Initialize empty containers for option states and targets.
         self.dualoptions1, self.dualoptions2 = {}, {}
+        self.targets, self.joinedtargets, self.fixedtargets = [], [], []
+        self.previews = []
 
         self.initialize_ui(startdir)
 
@@ -130,11 +133,44 @@ class DemiMoveGUI(QtGui.QMainWindow):
                             self.removeduplicatescheck, self.spacecheck]
         self.mediaboxes = [self.casebox, self.spacebox]
 
-        idx, _ = self.get_current_fileinfo()
-        self.dirview.setExpanded(idx, True)
+        self.dirview.setExpanded(self.get_index(), True)
         log.info("demimove-ui initialized.")
         self.statusbar.showMessage("Select a directory and press Enter.")
 
+    def create_browser(self, startdir):
+        # TODO: With readOnly disabled we can use setData for file operations?
+        self.dirmodel = DirModel(self)
+        self.dirmodel.setReadOnly(False)
+        self.dirmodel.setRootPath("/")
+        self.dirmodel.setFilter(QtCore.QDir.Dirs | QtCore.QDir.Files |
+                                    QtCore.QDir.NoDotAndDotDot)
+
+        self.dirview.setModel(self.dirmodel)
+        self.menu = QtGui.QMenu(self)
+        self.dirview.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.dirview.customContextMenuRequested.connect(self.on_popmenu)
+        self.dirview.setColumnHidden(2, True)
+        self.dirview.header().swapSections(4, 1)
+        self.dirview.header().resizeSection(0, 300)
+        self.dirview.header().resizeSection(4, 220)
+        self.dirview.header().resizeSection(3, 124)
+        self.dirview.setEditTriggers(QtGui.QAbstractItemView.EditKeyPressed)
+        self.dirview.setItemDelegate(BoldDelegate(self))
+        self.dirview.setCurrentIndex(self.dirmodel.index(startdir))
+
+    def create_historytab(self):
+        historyfile = os.path.join(self.fileops.configdir, "history.txt")
+
+        try:
+            with codecs.open(historyfile, encoding="utf-8") as f:
+                data = f.read()
+        except IOError:
+            historyfile = os.path.join(self.basedir, "data/history.txt")
+            with codecs.open(historyfile, encoding="utf-8") as f:
+                data = f.read()
+
+        self.historymodel = history.HistoryTreeModel(data, self)
+        self.historytree.setModel(self.historymodel)
 
     def set_options(self, options=None, sanitize=False):
         if not options:
@@ -173,46 +209,17 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
         return o
 
-    def create_browser(self, startdir):
-        # TODO: With readOnly disabled we can use setData for file operations?
-        self.dirmodel = DirModel(self)
-        self.dirmodel.setReadOnly(False)
-        self.dirmodel.setRootPath("/")
-        self.dirmodel.setFilter(QtCore.QDir.Dirs | QtCore.QDir.Files |
-                                    QtCore.QDir.NoDotAndDotDot)
+    def get_path(self, index):
+        return str(self.dirmodel.filePath(index).toUtf8()).decode("utf-8")
 
-        self.dirview.setModel(self.dirmodel)
-        self.dirview.setColumnHidden(2, True)
-        self.dirview.header().swapSections(4, 1)
-        self.dirview.header().resizeSection(0, 300)
-        self.dirview.header().resizeSection(4, 220)
-        self.dirview.header().resizeSection(3, 124)
-        self.dirview.setEditTriggers(QtGui.QAbstractItemView.EditKeyPressed)
-        self.dirview.setItemDelegate(BoldDelegate(self))
-        self.dirview.setCurrentIndex(self.dirmodel.index(startdir))
+    def get_index(self):
+        return self.dirview.currentIndex()
 
-    def create_historytab(self):
-        historyfile = os.path.join(self.fileops.configdir, "history.txt")
-
-        try:
-            with codecs.open(historyfile, encoding="utf-8") as f:
-                data = f.read()
-        except IOError:
-            historyfile = os.path.join(self.basedir, "data/history.txt")
-            with codecs.open(historyfile, encoding="utf-8") as f:
-                data = f.read()
-
-        self.historymodel = history.HistoryTreeModel(data, self)
-        self.historytree.setModel(self.historymodel)
-
-    def get_current_fileinfo(self):
-        index = self.dirview.currentIndex()
-        path = str(self.dirmodel.filePath(index).toUtf8()).decode("utf-8")
-        return index, path
-
-    def set_cwd(self, force=False):
+    def set_cwd(self, index=None, force=False):
         "Set the current working directory for renaming actions."
-        index, path = self.get_current_fileinfo()
+        if not index:
+            index = self.get_index()
+        path = self.get_path(index)
         if force or path != self.cwd and os.path.isdir(path):
             self.cwd = path
             self.cwdidx = index
@@ -221,18 +228,14 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.dirview.setExpanded(self.cwdidx, False)
             self.cwd = ""
             self.cwdidx = None
-        self.update_single_index(index)
+        self.update_targets()
+        self.update_previews()
+#         self.update_single_index(index)
 
-    def center(self, widget=None):
-        if widget is None:
-            widget = self
-        qr = widget.frameGeometry()
-        cp = QtGui.QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        widget.move(qr.topLeft())
-
-    def delete_current_index(self):
-        index, path = self.get_current_fileinfo()
+    def delete_index(self, index=None):
+        if not index:
+            index = self.get_index()
+        path = self.get_path(index)
         name = os.path.basename(path)
 
         # TODO: Subclass MessageBox to center it on screen?
@@ -243,19 +246,45 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if reply == QtGui.QMessageBox.Yes:
             self.dirmodel.remove(index)
 
+    def on_popmenu(self, position):
+        self.menu.clear()
+        index = self.dirview.indexAt(position)
+
+        items = ["Toggle Include", "Toggle CWD", "Edit", "Delete"]
+        for item in items:
+            action = self.menu.addAction(item)
+            action.triggered[()].connect(lambda i=item: self.menuhandler(i, index))
+        self.menu.exec_(self.dirview.mapToGlobal(position))
+
+    def menuhandler(self, action, index):
+        if action == "Toggle Include":
+            path = self.get_path(index)
+            target = (os.path.dirname(path),) + os.path.splitext(os.path.basename(path))
+            try:
+                self.targets.remove(target)
+                self.fixedtargets.remove(target)
+            except ValueError:
+                self.targets.append(target)
+                self.fixedtargets.append(target)
+        elif action == "Toggle CWD":
+            self.set_cwd(index)
+        elif action == "Edit":
+            self.dirview.edit(index)
+        elif action == "Delete":
+            self.delete_index(index)
+
     def keyPressEvent(self, e):
         "Overloaded to connect return key to self.set_cwd()."
         # TODO: Move this to TreeView only.
         if e.key() == QtCore.Qt.Key_Return:
             self.set_cwd()
-            self.update_targets()
-            self.update_previews()
         if e.key() == QtCore.Qt.Key_Delete:
-            self.delete_current_index()
+            self.delete_index()
 
     def update_targets(self):
         if self.cwd:
-            self.targets = self.fileops.get_targets(self.cwd)
+            self.targets = self.fileops.get_targets(self.cwd) + self.fixedtargets
+            print self.targets
             self.joinedtargets = ["".join(i) for i in self.targets]
             self.statusbar.showMessage("Found {} targets in {}."
                                        .format(len(self.targets), self.cwd))

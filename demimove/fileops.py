@@ -84,7 +84,10 @@ class FileOps(object):
         # Create the logger.
         helpers.configure_logger(verbosity, quiet, self.configdir)
         self.history = []  # History of commited operations, used to undo them.
+        # Match everything inside one set ofbraces:
         self.bracerx = re.compile("(?<=\{)(.*?)(?=\})")
+        # Split path into components.
+        self.pathrx = re.compile("(^\/.*\/)(.*)(?=\.)(.*)")
 
     def match_filter(self, target):
         if "/" in self.filteredit:
