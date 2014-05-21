@@ -120,7 +120,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.mainsplitter.setStretchFactor(0, 2)
         self.mainsplitter.setStretchFactor(1, 3)
         self.create_browser(startdir)
-        self.create_historytab()
+#         self.create_historytab()
         self.connect_elements()
 
         self.startoptions, self.defaultoptions = helpers.load_configfile(
@@ -180,8 +180,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.dirmodel.setReadOnly(False)
         self.dirmodel.setRootPath("/")
         self.dirmodel.setFilter(QtCore.QDir.Dirs | QtCore.QDir.Files |
-                                    QtCore.QDir.NoDotAndDotDot |
-                                    QtCore.QDir.Hidden)
+                                    QtCore.QDir.NoDotAndDotDot)
 
         self.dirview.setModel(self.dirmodel)
         self.dirview.setColumnHidden(2, True)
@@ -388,6 +387,12 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_hiddencheck(self, checked):
         self.fileops.hidden = checked
+        # TODO: Delegate gets overriden by filter here?
+        if checked:
+            self.dirmodel.setFilter(QtCore.QDir.Hidden)
+        else:
+            self.dirmodel.setFilter(QtCore.QDir.Dirs | QtCore.QDir.Files |
+                                        QtCore.QDir.NoDotAndDotDot)
         if self.autopreview:
             self.update_targets()
             self.update_previews()
