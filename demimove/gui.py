@@ -26,6 +26,8 @@ Options:
 # TODO: Fix count step and count base plus large listings (~i).
 # TODO: Reconcile keepext and not matchreplacecheck.
 
+from operator import itemgetter
+import codecs
 import logging
 import os
 import sys
@@ -33,9 +35,8 @@ import sys
 from PyQt4 import Qt, QtGui, QtCore, uic
 
 import fileops
-import history
 import helpers
-import codecs
+import history
 
 
 log = logging.getLogger("gui")
@@ -87,9 +88,12 @@ class DirModel(QtGui.QFileSystemModel):
             return
         if not self.p.fileops.recursive and index.parent() != self.p.cwdidx:
             return
-        itempath = str(self.filePath(index).toUtf8()).decode("utf-8")
-        if self.p.cwd in itempath and itempath in self.p.joinedtargets:
-            idx = self.p.joinedtargets.index(itempath)
+        path = self.p.get_path(index)
+        target = (os.path.dirname(path) + "/",) + os.path.splitext(os.path.basename(path))
+        print target
+        print self.p.cwd
+        if self.p.cwd + "/" in target[0] and target in self.p.targets:
+            idx = self.p.targets.index(target)
             try:
                 return self.p.previews[idx][1]
             except IndexError:
@@ -230,7 +234,6 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.cwdidx = None
         self.update_targets()
         self.update_previews()
-#         self.update_single_index(index)
 
     def delete_index(self, index=None):
         if not index:
@@ -259,13 +262,16 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def menuhandler(self, action, index):
         if action == "Toggle Include":
             path = self.get_path(index)
-            target = (os.path.dirname(path),) + os.path.splitext(os.path.basename(path))
+            target = helpers.splitpath(self.fileops.pathrx, path)
             try:
                 self.targets.remove(target)
                 self.fixedtargets.remove(target)
+                print target, "removed"
             except ValueError:
                 self.targets.append(target)
                 self.fixedtargets.append(target)
+                print target, "added"
+            self.update_previews()
         elif action == "Toggle CWD":
             self.set_cwd(index)
         elif action == "Edit":
@@ -283,13 +289,12 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def update_targets(self):
         if self.cwd:
-            self.targets = self.fileops.get_targets(self.cwd) + self.fixedtargets
-            print self.targets
-            self.joinedtargets = ["".join(i) for i in self.targets]
+            self.targets = sorted(self.fileops.get_targets(self.cwd)
+                                  + self.fixedtargets, key=itemgetter(1))
             self.statusbar.showMessage("Found {} targets in {}."
                                        .format(len(self.targets), self.cwd))
         else:
-            self.targets, self.joinedtargets = [], []
+            self.targets = []
 
     def update_previews(self):
         if self.cwd:
@@ -303,7 +308,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         r = v.rect()
         m.dataChanged.emit(v.indexAt(r.topLeft()), v.indexAt(r.bottomRight()))
 
-    def update_single_index(self, index):
+    def update_indexview(self, index):
         m = self.dirmodel
         m.dataChanged.emit(index, m.index(index.row(), m.columnCount()))
 

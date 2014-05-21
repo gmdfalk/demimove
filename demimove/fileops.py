@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from operator import itemgetter
 from unicodedata import normalize
-import copy
 import fnmatch
 import logging
 import os
@@ -142,13 +141,14 @@ class FileOps(object):
 
     def sort_dirs(self, root, dirs):
         """Sort, match and decode a list of dirs."""
-        return sorted(((root, d.decode("utf-8")) for d in dirs if self.match(d)),
-                      key=itemgetter(1))
+#         return sorted(((root, d.decode("utf-8")) for d in dirs if self.match(d)),
+#                       key=itemgetter(1))
+        return [(root, d.decode("utf-8"), "") for d in dirs if self.match(d)]
 
     def sort_files(self, root, files):
         """Sort, match and decode a list of files."""
-        return sorted(((root,) + os.path.splitext(f.decode("utf-8")) for f in
-                       files if self.match(f)), key=itemgetter(1))
+        return [(root,) + os.path.splitext(f.decode("utf-8")) for f in files if
+                self.match(f)]
 
     def get_targets(self, path=None):
         """Return a list of files and/or dirs in path."""

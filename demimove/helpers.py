@@ -86,6 +86,13 @@ def walklevels(path, levels=1):
             del dirs[:]
 
 
+def splitpath(regex, path):
+    try:
+        return regex.match(path).groups()
+    except AttributeError:
+        return tuple()
+
+
 def get_configdir():
     "Determine if an XDG_CONFIG_DIR for demimove exists and if so, use it."
     configdir = os.path.join(os.path.expanduser("~"), ".config/demimove")
