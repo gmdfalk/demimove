@@ -92,7 +92,7 @@
                   <bool>true</bool>
                  </property>
                  <property name="toolTip">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Ignore case&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Disables case sensitivity.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Ignore case&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Disables case sensitivity (regular expressions only).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="text">
                   <string>IC</string>

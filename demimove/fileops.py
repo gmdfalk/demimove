@@ -213,7 +213,7 @@ class FileOps(object):
                 log.debug("Rename Error: {} -> {} ({}).".format(i[0], i[1], e))
 
         self.history.append(actionlist)
-        log.info("Targets renamed successfully.")
+        log.info("Renaming completed.")
 
     def undo(self, actionlist=None):
         if actionlist is None:
@@ -249,10 +249,7 @@ class FileOps(object):
         for preview in previews:
             name = preview[1]
             if not self.remext and not self.keepext:
-                try:
-                    name += preview[2]
-                except IndexError:
-                    pass
+                name += preview[2]
             if self.casecheck:
                 name = self.apply_case(name)
             if self.spacecheck:
@@ -272,14 +269,9 @@ class FileOps(object):
                     pass
 
             if self.keepext:
-                try:
-                    name += preview[2]
-                except IndexError:
-                    pass
-
-            if len(preview) > 2:
-                preview = (preview[0], preview[1] + preview[2])
-            preview = (preview, name)
+                name += preview[2]
+            preview = ((preview[0], preview[1] + preview[2]), name)
+            print preview
             modified.append(preview)
 
         return modified
@@ -792,5 +784,5 @@ class FileOps(object):
 
 if __name__ == "__main__":
     fileops = FileOps(hidden=True, recursive=True, casemode="1")
-    fileops.get_previews(fileops.get_targets(), "*", "asdf")
+    fileops.get_previews(fileops.get_targets(), "*", "*asdf")
 

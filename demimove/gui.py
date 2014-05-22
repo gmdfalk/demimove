@@ -13,20 +13,20 @@ Options:
     --version            Show the current demimove-ui version.
 """
 # GUI:
-# TODO: History tab.
-# TODO: Statustab with Errors/Warnings, Summaries etc.
-# TODO: Threading for get_previews/get_targets and statusbar progress.
 # FIXME: Filesonly radio + switchview, bold font.
+# TODO: Threading for get_previews/get_targets and statusbar progress.
 # FIXME: Fix performance on many files (recursive)? Maybe threading?
 # TODO: Use QFileSystemModels listing instead of fileops.get_targets()
 # TODO: Save cwd, cwdidx and other information in config file, too?
 # TODO: Properly lock the preview until options are set.
+# TODO: History tab.
+# TODO: Statustab with Errors/Warnings, Summaries etc.
+# TODO: Metatags
 # Fileops:
 # TODO: Exclude & ignorecase option.
 # TODO: Fix count step and count base plus large listings (~i).
 # TODO: Reconcile keepext and not matchreplacecheck.
 
-from operator import itemgetter
 import codecs
 import logging
 import os
@@ -77,8 +77,6 @@ class DirModel(QtGui.QFileSystemModel):
                 if not self.p.autopreview:
                     return
                 fileindex = self.index(index.row(), 0, index.parent())
-#                 item = self.data(fileindex, role).toString().toUtf8()
-#                 item = str(item).decode("utf-8")
                 return self.match_preview(fileindex)
 
         return super(DirModel, self).data(index, role)
