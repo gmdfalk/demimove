@@ -84,10 +84,8 @@ class FileOps(object):
         # Create the logger.
         helpers.configure_logger(verbosity, quiet, self.configdir)
         self.history = []  # History of commited operations, used to undo them.
-        # Match everything inside one set ofbraces:
+        # Match everything inside one set of braces:
         self.bracerx = re.compile("(?<=\{)(.*?)(?=\})")
-        # Split path into components.
-        self.pathrx = re.compile("(^\/.*\/)(.*)(?=\.)(.*)")
 
     def match_filter(self, target):
         if "/" in self.filteredit:
@@ -131,20 +129,20 @@ class FileOps(object):
         if self.matchexcludecheck:
             if self.match_exclude(target) is False:
                 return False
+        if self.excludetargets and target in self.excludetargets:
+            return False
         if self.matchfiltercheck:
             if not self.filteredit:
                 return True
             if self.match_filter(target) is False:
                 return False
-        if self.excludetargets and target in self.excludetargets:
-            return False
         if self.includetargets and target in self.includetargets:
             return True
         return True
 
     def get_dirs(self, root, dirs):
         """Sort, match and decode a list of dirs."""
-        return sorted(((root, d.decode("utf-8")) for d in
+        return sorted(((root, d.decode("utf-8"), u"") for d in
                        dirs if self.match(d)), key=itemgetter(1))
 
     def get_files(self, root, files):

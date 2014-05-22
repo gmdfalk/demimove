@@ -89,11 +89,7 @@ class DirModel(QtGui.QFileSystemModel):
         if not self.p.fileops.recursive and index.parent() != self.p.cwdidx:
             return
         path = self.p.get_path(index)
-        root = os.path.dirname(path) + "/"
-        if os.path.isdir(path):
-            target = (root, os.path.basename(path))
-        else:
-            target = ((root,) + os.path.splitext(os.path.basename(path)))
+        target = helpers.splitpath_os(path)
         if self.p.cwd in target[0] and target in self.p.targets:
             idx = self.p.targets.index(target)
             try:
@@ -151,8 +147,9 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.dirmodel.setFilter(QtCore.QDir.Dirs | QtCore.QDir.Files |
                                     QtCore.QDir.NoDotAndDotDot)
 
-        self.dirview.setModel(self.dirmodel)
         self.menu = QtGui.QMenu(self)
+        self.dirview.setModel(self.dirmodel)
+        self.dirview.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.dirview.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.dirview.customContextMenuRequested.connect(self.on_popmenu)
         self.dirview.setColumnHidden(2, True)
@@ -254,8 +251,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.menu.clear()
         index = self.dirview.indexAt(position)
 
-        items = ["Toggle Include", "Clear Toggled Includes"
-                 "Set/Unset CWD", "Edit", "Delete"]
+        items = ["Toggle Include", "Clear Includes", "Toggle CWD", "Edit", "Delete"]
         for item in items:
             action = self.menu.addAction(item)
             action.triggered[()].connect(lambda i=item: self.menuhandler(i, index))
@@ -263,15 +259,18 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def menuhandler(self, action, index):
         if action == "Toggle Include":
-            target = os.path.basename(self.get_path(index))
+            target = helpers.splitpath_os(self.get_path(index))
+            name = target[1] + target[2]
             if target in self.targets:
-                self.fileops.includetargets.discard(target)
-                self.fileops.excludetargets.add(target)
+                self.fileops.includetargets.discard(name)
+                self.fileops.excludetargets.add(name)
             else:
-                self.fileops.includetargets.add(target)
-                self.fileops.excludetargets.discard(target)
+                self.fileops.includetargets.add(name)
+                self.fileops.excludetargets.discard(name)
+            print "in", self.fileops.includetargets
+            print "ex", self.fileops.excludetargets
             self.update(2)
-        elif action == "Clear Toggled Includes":
+        elif action == "Clear Includes":
             self.fileops.includetargets.clear()
             self.fileops.excludetargets.clear()
             self.update(2)

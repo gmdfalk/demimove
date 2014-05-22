@@ -96,6 +96,11 @@ def splitpath(path):
     except AttributeError:
         pass
 
+def splitpath_os(path):
+    root = os.path.dirname(path) + "/"
+    if os.path.isdir(path):
+        return (root, os.path.basename(path), u"")
+    return ((root,) + os.path.splitext(os.path.basename(path)))
 
 def get_configdir():
     "Determine if an XDG_CONFIG_DIR for demimove exists and if so, use it."
