@@ -12,8 +12,8 @@ Options:
     --version            Show the current demimove-ui version.
 """
 # GUI:
-# TODO: Threading for get_previews/get_targets and statusbar progress.
-# TODO: Use QFileSystemModels listing instead of fileops.get_targets()
+# TODO: Test QDirIterator vs os.path.walk. If positive, replace whole
+#       get_targets functionality.
 # TODO: Properly lock the preview until options are set.
 # TODO: History tab.
 # TODO: Statustab with Errors/Warnings, Summaries etc.
@@ -89,7 +89,7 @@ class DirModel(QtGui.QFileSystemModel):
                 if target[1] + target[2] != self.p.previews[idx][1]:
                     return self.p.previews[idx][1]
                 else:
-                    return "\\1"
+                    return "\\1"  # "No changes to the target.
             except IndexError:
                 pass
 
@@ -166,7 +166,6 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.dirview.setModel(self.dirmodel)
         self.dirview.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.dirview.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.dirview.customContextMenuRequested.connect(self.on_popmenu)
         self.dirview.setColumnHidden(2, True)
         self.dirview.header().swapSections(4, 1)
         self.dirview.header().resizeSection(0, 300)
@@ -330,7 +329,6 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if not self.autopreview:
             return
         self.statusbar.showMessage("Refreshing...")
-        self.updatethread.finished.connect(self.on_updatethread_finished)
         self.updatethread.mode = mode
         self.updatethread.start()
         self.update_view()
@@ -364,6 +362,9 @@ class DemiMoveGUI(QtGui.QMainWindow):
         m.dataChanged.emit(index, m.index(index.row(), m.columnCount()))
 
     def connect_elements(self):
+        self.dirview.customContextMenuRequested.connect(self.on_popmenu)
+        self.updatethread.finished.connect(self.on_updatethread_finished)
+
         # Main buttons:
         self.commitbutton.clicked.connect(self.on_commitbutton)
         self.refreshbutton.clicked.connect(self.on_refreshbutton)
