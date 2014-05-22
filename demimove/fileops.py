@@ -78,6 +78,7 @@ class FileOps(object):
         removelist = [remdups, remext, remnonwords, remsymbols]
         self._removecheck = True if any(removelist) else False
         self._spacecheck = True if isinstance(spacemode, str) else False
+        self.terminatethread = False
         self.includetargets = set()
         self.excludetargets = set()
         self.configdir = helpers.get_configdir()
@@ -173,6 +174,8 @@ class FileOps(object):
                 target = self.get_dirs(root, dirs) + self.get_files(root, files)
 
             targets.extend(target)
+            if self.terminatethread:
+                return targets
 
         return targets
 

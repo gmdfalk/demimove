@@ -334,6 +334,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def update(self, mode=1):
         """Main update routine using threading to get targets and/or previews"""
         # Modes: 0 = targets, 1 = previews, 2 = both.
+        self.fileops.terminatethread = False
         if not self.autopreview or not self.cwd:
             self.update_view()
             return
@@ -481,7 +482,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
 #             self.updatethread.terminate()
             # request stop, wait, log
             print "quitting hread"
-            self.updatethread.quit()
+            self.fileops.terminatethread = True
         else:
             self.update(2)
 
