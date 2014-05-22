@@ -131,13 +131,13 @@ class FileOps(object):
                 return False
         if self.excludetargets and target in self.excludetargets:
             return False
+        if self.includetargets and target in self.includetargets:
+            return True
         if self.matchfiltercheck:
             if not self.filteredit:
                 return True
             if self.match_filter(target) is False:
                 return False
-        if self.includetargets and target in self.includetargets:
-            return True
         return True
 
     def get_dirs(self, root, dirs):
@@ -213,15 +213,14 @@ class FileOps(object):
                 log.debug("Rename Error: {} -> {} ({}).".format(i[0], i[1], e))
 
         self.history.append(actionlist)
-        log.info("Renaming completed.")
+        log.info("Renaming complete.")
 
     def undo(self, actionlist=None):
         if actionlist is None:
             try:
-                actionlist = self.history[-1]
-                # TODO: Pop here instead.
+                actionlist = self.history.pop()
             except IndexError:
-                log.debug("History list is empty.")
+                log.error("History list is empty.")
                 return
 
         for i in actionlist:
@@ -231,9 +230,9 @@ class FileOps(object):
             try:
                 os.rename(i[1], i[0])
             except Exception as e:
-                log.debug("Rename Error: {} -> {} ({}).".format(i[1], i[0], e))
+                log.error("Rename Error: {} -> {} ({}).".format(i[1], i[0], e))
 
-        log.info("Reversed last commit!")
+        log.info("Undo complete.")
 
     def modify_previews(self, previews):
         if self.countcheck:
@@ -780,5 +779,4 @@ class FileOps(object):
 
 if __name__ == "__main__":
     fileops = FileOps(hidden=True, recursive=True, casemode="1")
-    fileops.get_previews(fileops.get_targets(), "*", "*asdf")
-
+    fileops.get_previews(fileops.get_targets(), "*", "asdf")
