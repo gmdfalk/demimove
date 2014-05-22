@@ -12,15 +12,21 @@ Options:
     --version            Show the current demimove-ui version.
 """
 # GUI:
+# TODO: Reset recursive spinbox on disable + reduce min to 0.
+# TODO: Make Previewbutton a ToggleButton to start/stop (refresh label)
+# TODO: Test path argument
 # TODO: Test QDirIterator vs os.path.walk. If positive, replace whole
 #       get_targets functionality.
-# TODO: Properly lock the preview until options are set.
+# TODO: Properly lock the preview until options are set. (Decorator)
 # TODO: History tab.
 # TODO: Statustab with Errors/Warnings, Summaries etc.
 # TODO: Metatags (Photos, Videos, Audio)
+# TODO: Test demimove on windows?
+# TODO: Write unittests for rename/undo with mock unicode input?
 # Fileops:
 # TODO: Fix count step and count base plus large listings (~i).
-# TODO: *.mp3 prefix*.mp3
+# TODO: Enable glob replacing like this: *.mp3 prefix*.mp3
+#       (Adjust translate method to group wildcards).
 
 import codecs
 import logging
@@ -326,19 +332,32 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.delete_index()
 
     def update(self, mode=1):
+        """Main update routine using threading to get targets and/or previews"""
+        # Modes: 0 = targets, 1 = previews, 2 = both.
         if not self.autopreview:
             return
-        self.statusbar.showMessage("Refreshing...")
         self.updatethread.mode = mode
         self.updatethread.start()
+
+    def on_updatethread_started(self):
+        self.statusbar.showMessage("Refreshing...")
+        self.refreshbutton.setText("Stop")
+
+    def on_updatethread_terminated(self):
+        self.statusbar.showMessage("Stopped refresh")
+        log.info("Refresh terminated by user.")
+        self.refreshbutton.setText("Refresh")
         self.update_view()
 
     def on_updatethread_finished(self):
+        self.refreshbutton.setText("Refresh")
         if self.cwd:
             self.statusbar.showMessage("Found {} targets in {}."
                                    .format(len(self.targets), self.cwd))
+
         else:
             self.statusbar.showMessage("No working directory set.")
+        self.update_view()
 
     def update_targets(self):
         if self.cwd:
@@ -364,6 +383,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def connect_elements(self):
         self.dirview.customContextMenuRequested.connect(self.on_popmenu)
         self.updatethread.finished.connect(self.on_updatethread_finished)
+        self.updatethread.started.connect(self.on_updatethread_started)
 
         # Main buttons:
         self.commitbutton.clicked.connect(self.on_commitbutton)
@@ -461,8 +481,12 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_refreshbutton(self):
         """Force a refresh of browser view and model."""
-        log.info("Refreshing.")
-        self.update(2)
+        if self.updatethread.isRunning():
+            self.updatethread.terminate()
+            log.info("Stopped refresh.")
+        else:
+            log.info("Refreshing.")
+            self.update(2)
 
     def on_autopreviewcheck(self, checked):
         self.autopreview = checked
@@ -493,6 +517,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_recursivecheck(self, checked):
         self.fileops.recursive = checked
+        if not checked:
+            self.recursivedepth.setValue(0)
         self.update(2)
 
     def on_recursivedepth(self, num):

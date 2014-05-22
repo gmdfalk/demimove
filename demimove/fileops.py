@@ -21,7 +21,7 @@ class FileOps(object):
                  noclobber=False, recursive=False, regex=False, remdups=False,
                  remext=False, remnonwords=False, remsymbols=False,
                  simulate=False, spacemode=0, quiet=False, verbosity=1,
-                 matchpattern="", replacepattern=""):
+                 matchpattern="", replacepattern="", recursivedepth=0):
         # Universal options:
         try:
             self._casemode = int(casemode)  # 0=lc, 1=uc, 2=flfw, 3=flew
@@ -51,6 +51,7 @@ class FileOps(object):
         self._remsymbols = remsymbols  # Normalize remsymbols (ñé becomes ne).
         self._simulate = simulate  # Simulate renaming and dump result to stdout.
         # Initialize GUI options.
+        self._recursivedepth = recursivedepth
         self._excludeedit = "" if not exclude else exclude
         self._matchedit = "" if not matchpattern else matchpattern
         self._replaceedit = "" if not replacepattern else replacepattern
@@ -72,7 +73,6 @@ class FileOps(object):
         self._matchexcludecheck = False
         self._matchfiltercheck = False
         self._matchreplacecheck = True
-        self._recursivedepth = 1
         self._casecheck = True if isinstance(casemode, str) else False
         self._countcheck = True if isinstance(countpos, str) else False
         removelist = [remdups, remext, remnonwords, remsymbols]

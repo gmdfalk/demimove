@@ -695,7 +695,10 @@
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Recursive Depth&lt;/span&gt;&lt;/p&gt;&lt;p&gt;How deep do you want to go?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="minimum">
-               <number>1</number>
+               <number>0</number>
+              </property>
+              <property name="value">
+               <number>0</number>
               </property>
              </widget>
             </item>
