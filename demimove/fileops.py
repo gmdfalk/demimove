@@ -95,7 +95,7 @@ class FileOps(object):
         if self.regex:
             for pattern in patterns:
                 try:
-                    if re.search(pattern, target):
+                    if re.search(pattern, target, flags=self.ignorecase):
                         return True
                 except:
                     pass
@@ -113,7 +113,7 @@ class FileOps(object):
         if self.regex:
             for pattern in patterns:
                 try:
-                    if re.search(pattern, target):
+                    if re.search(pattern, target, flags=self.ignorecase):
                         return False
                 except:
                     pass
@@ -270,8 +270,8 @@ class FileOps(object):
 
             if self.keepext:
                 name += preview[2]
+
             preview = ((preview[0], preview[1] + preview[2]), name)
-            print preview
             modified.append(preview)
 
         return modified
@@ -341,32 +341,26 @@ class FileOps(object):
         if not self.removecheck:
             return s
         if self.remnonwords:
-            s = re.sub("\W", "", s)
+            s = re.sub("\W", "", s, flags=self.ignorecase)
         if self.remsymbols:
             allowed = string.ascii_letters + string.digits + " .-_+"  # []()
             s = "".join(c for c in normalize("NFKD", s) if c in allowed)
         if self.remdups:
-            s = re.sub(r"([-_ .])\1+", r"\1", s)
+            s = re.sub(r"([-_ .])\1+", r"\1", s, flags=self.ignorecase)
         return s
 
     def apply_replace(self, s):
         if not self.matchreplacecheck or not self.matchedit:
             return s
-        # Translate glob to regular expression.
 
         if not self.regex:
-            matchpat = helpers.translate(self.matchedit)
+            matchpat = fnmatch.translate(self.matchedit)
             replacepat = helpers.translate(self.replaceedit)
         else:
             matchpat = self.matchedit
             replacepat = self.replaceedit
-
-        match = re.search(matchpat, s)
-        if not match:
-            return s
-
         try:
-            s = re.sub(matchpat, replacepat, s)
+            s = re.sub(matchpat, replacepat, s, flags=self.ignorecase)
         except:
             pass
 
@@ -616,8 +610,11 @@ class FileOps(object):
 
     @ignorecase.setter
     def ignorecase(self, boolean):
+        flag = 0
+        if boolean:
+            flag = re.I
         log.debug("ignorecase: {}".format(boolean))
-        self._ignorecase = boolean
+        self._ignorecase = flag
 
     @property
     def mediamode(self):

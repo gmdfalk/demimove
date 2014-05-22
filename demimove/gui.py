@@ -14,6 +14,7 @@ Options:
 """
 # GUI:
 # FIXME: Filesonly radio + switchview, bold font.
+#        Plus filters (hidden).
 # TODO: Threading for get_previews/get_targets and statusbar progress.
 # FIXME: Fix performance on many files (recursive)? Maybe threading?
 # TODO: Use QFileSystemModels listing instead of fileops.get_targets()
@@ -250,7 +251,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         index = self.dirview.indexAt(position)
 
         items = ["Toggle", "Include", "Exclude", "Clear Includes",
-                 "Clear Excludes", "Clear All" "Set/Unset CWD", "Edit", "Delete"]
+                 "Clear Excludes", "Clear Both", "Set/Unset CWD",
+                 "Edit", "Delete"]
         for item in items:
             action = self.menu.addAction(item)
             action.triggered[()].connect(lambda i=item: self.menuhandler(i, index))
@@ -289,7 +291,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.fileops.includetargets.clear()
         elif action == "Clear Excludes":
             self.fileops.excludetargets.clear()
-        elif action == "Clear All":
+        elif action == "Clear Both":
             self.fileops.includetargets.clear()
             self.fileops.excludetargets.clear()
             self.update(2)
