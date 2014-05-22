@@ -202,21 +202,23 @@ class FileOps(object):
         self.remsymbols = True
 
     def commit(self, previews):
-        actionlist = []
-        for i in previews:
-            action = ("".join(i[0]), i[0][0] + i[1])
-            actionlist.append(action)
+        # The sorted generator comprehension of (unicode)doom:
+        # Reverse sort the paths so that the longest paths are changed first.
+        # This should minimize rename errors for recursive operations, for now.
+        actions = sorted((("".join(i[0]).encode("utf-8"), i[0][0].encode("utf-8")
+                           + i[1].encode("utf-8")) for i in previews),
+                         key=lambda i:len(i[0]), reverse=True)
 
-        for i in actionlist:
+        for i in actions:
             if self.simulate:
                 log.debug("{} -> {}.".format(i[0], i[1]))
                 continue
             if self.stopcommit:
-                idx = actionlist.index(i)
+                idx = actions.index(i)
                 log.warn("Stopping commit after {} renames." .format(idx + 1))
                 if idx:
                     log.warn("Use undo to revert the rename actions.")
-                self.history.append(actionlist[:idx + 1])
+                self.history.append(actions[:idx + 1])
                 return
             try:
                 os.rename(i[0], i[1])
@@ -225,18 +227,18 @@ class FileOps(object):
                 if self.autostop:
                     break
 
-        self.history.append(actionlist)
+        self.history.append(actions)
         log.info("Renaming complete.")
 
-    def undo(self, actionlist=None):
-        if actionlist is None:
+    def undo(self, actions=None):
+        if actions is None:
             try:
-                actionlist = self.history.pop()
+                actions = self.history.pop()
             except IndexError:
                 log.error("History list is empty.")
                 return
 
-        for i in actionlist:
+        for i in actions:
             if self.simulate:
                 log.debug("{} -> {}.".format(i[1], i[0]))
                 continue

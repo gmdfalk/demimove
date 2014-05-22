@@ -12,6 +12,8 @@ Options:
     --version            Show the current demimove-ui version.
 """
 # GUI:
+# TODO: Fix recursive renaming (folder names) + add recursive include/exclude
+# TODO: Show amount of files that would be changed (Split statusbar?)
 # TODO: Test QDirIterator vs os.path.walk. If positive, replace whole
 #       get_targets functionality.
 # TODO: Properly lock the preview until options are set. (Decorator)
@@ -308,7 +310,6 @@ class DemiMoveGUI(QtGui.QMainWindow):
             elif mode == 2:
                 self.fileops.includetargets.discard(name)
                 self.fileops.excludetargets.add(name)
-
         self.update(2)
 
     def menuhandler(self, action, index):
@@ -360,8 +361,10 @@ class DemiMoveGUI(QtGui.QMainWindow):
         log.debug("Updatethread finished.")
         self.refreshbutton.setText("Refresh")
         if self.cwd:
-            self.statusbar.showMessage("Found {} targets in {}."
-                                   .format(len(self.targets), self.cwd))
+            lent = len(self.targets)
+            lenp = len([i for i in self.previews if i[0][1] != i[1]])
+            self.statusbar.showMessage("Targets: {}, Staged: {} - {}"
+                                   .format(lent, lenp, self.cwd))
         else:
             self.statusbar.showMessage("No working directory set.")
         self.update_view()
@@ -386,6 +389,16 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def update_indexview(self, index):
         m = self.dirmodel
         m.dataChanged.emit(index, m.index(index.row(), m.columnCount()))
+
+    def on_committhread_started(self):
+        log.debug("Committhread started.")
+        self.statusbar.showMessage("Committing...")
+        self.commitbutton.setText("Stop")
+
+    def on_committhread_finished(self):
+        log.debug("Committhread finished.")
+        self.commitbutton.setText("Commit")
+        self.update(2)
 
     def connect_elements(self):
         self.dirview.customContextMenuRequested.connect(self.on_popmenu)
@@ -481,7 +494,11 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def on_commitbutton(self):
         """Perform the currently previewed rename actions."""
         log.info("Committing previewed changes.")
-        self.committhread.start()
+        if self.committhread.isRunning():
+            self.fileops.stopcommit = True
+        else:
+            self.fileops.stopcommit = False
+            self.committhread.start()
 
     def on_undobutton(self):
         """Pops the history stack of commits, reverting the one on top."""
@@ -805,6 +822,7 @@ def main():
     startdir = os.getcwd()
     try:
         args = docopt(__doc__, version="0.2")
+        args["-v"] = 3  # Force debug logging
         fileop = fileops.FileOps(verbosity=args["-v"],
                                  quiet=args["--quiet"])
         if args["<path>"]:
