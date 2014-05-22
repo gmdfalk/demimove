@@ -334,27 +334,23 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def update(self, mode=1):
         """Main update routine using threading to get targets and/or previews"""
         # Modes: 0 = targets, 1 = previews, 2 = both.
-        if not self.autopreview:
+        if not self.autopreview or not self.cwd:
+            self.update_view()
             return
         self.updatethread.mode = mode
         self.updatethread.start()
 
     def on_updatethread_started(self):
+        log.debug("Updatethread started.")
         self.statusbar.showMessage("Refreshing...")
         self.refreshbutton.setText("Stop")
 
-    def on_updatethread_terminated(self):
-        self.statusbar.showMessage("Stopped refresh")
-        log.info("Refresh terminated by user.")
-        self.refreshbutton.setText("Refresh")
-        self.update_view()
-
     def on_updatethread_finished(self):
+        log.debug("Updatethread finished.")
         self.refreshbutton.setText("Refresh")
         if self.cwd:
             self.statusbar.showMessage("Found {} targets in {}."
                                    .format(len(self.targets), self.cwd))
-
         else:
             self.statusbar.showMessage("No working directory set.")
         self.update_view()
@@ -482,10 +478,11 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def on_refreshbutton(self):
         """Force a refresh of browser view and model."""
         if self.updatethread.isRunning():
-            self.updatethread.terminate()
-            log.info("Stopped refresh.")
+#             self.updatethread.terminate()
+            # request stop, wait, log
+            print "quitting hread"
+            self.updatethread.quit()
         else:
-            log.info("Refreshing.")
             self.update(2)
 
     def on_autopreviewcheck(self, checked):
