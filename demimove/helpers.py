@@ -85,11 +85,11 @@ def walklevels(path, levels=1):
         if num_sep + levels <= num_sep_this:
             del dirs[:]
 
-splitreg = re.compile("(^(?:\w\:)?\/.*\/)(.*?)(\..*)?$")
+splitrx = re.compile("(^(?:\w\:)?\/.*\/)(.*?)(\..*)?$")
 
 def splitpath(path):
     try:
-        match = splitreg.match(path).groups()
+        match = splitrx.match(path).groups()
         if match[-1] is None:
             match = match[:-1] + ("",)
         return match

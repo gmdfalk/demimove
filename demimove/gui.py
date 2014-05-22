@@ -89,15 +89,14 @@ class DirModel(QtGui.QFileSystemModel):
         if not self.p.fileops.recursive and index.parent() != self.p.cwdidx:
             return
         path = self.p.get_path(index)
-#         target = (os.path.dirname(path) + "/",) + os.path.splitext(os.path.basename(path))
+#         target = (os.path.dirname(path),) + os.path.splitext(os.path.basename(path))
         target = helpers.splitpath(path)
-        print target
         if self.p.cwd + "/" in target[0] and target in self.p.targets:
             idx = self.p.targets.index(target)
             try:
                 return self.p.previews[idx][1]
             except IndexError:
-                return "{err}"  # Fail silently.
+                return "{err}"
 
 
 class DemiMoveGUI(QtGui.QMainWindow):
@@ -114,7 +113,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.switchview = False
         # Initialize empty containers for option states and targets.
         self.dualoptions1, self.dualoptions2 = {}, {}
-        self.targets, self.joinedtargets, self.fixedtargets = [], [], []
+        self.targets, self.joinedtargets = [], []
         self.previews = []
 
         self.initialize_ui(startdir)
@@ -232,8 +231,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.dirview.setExpanded(self.cwdidx, False)
             self.cwd = ""
             self.cwdidx = None
-        self.update_targets()
-        self.update_previews()
+        self.update(2)
 
     def delete_index(self, index=None):
         if not index:
@@ -253,7 +251,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.menu.clear()
         index = self.dirview.indexAt(position)
 
-        items = ["Toggle Include", "Toggle CWD", "Edit", "Delete"]
+        items = ["Toggle Include", "Clear Toggled Includes"
+                 "Set/Unset CWD", "Edit", "Delete"]
         for item in items:
             action = self.menu.addAction(item)
             action.triggered[()].connect(lambda i=item: self.menuhandler(i, index))
@@ -263,16 +262,18 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if action == "Toggle Include":
             path = self.get_path(index)
             target = helpers.splitpath(path)
-            try:
-                self.targets.remove(target)
-                self.fixedtargets.remove(target)
-                print target, "removed"
-            except ValueError:
-                self.targets.append(target)
-                self.fixedtargets.append(target)
-                print target, "added"
-            self.update_previews()
-        elif action == "Toggle CWD":
+            if target in self.targets:
+                self.fileops.includetargets.discard(target)
+                self.fileops.excludetargets.add(target)
+            else:
+                self.fileops.includetargets.add(target)
+                self.fileops.excludetargets.discard(target)
+            self.update(2)
+        elif action == "Clear Toggled Includes":
+            self.fileops.includetargets.clear()
+            self.fileops.excludetargets.clear()
+            self.update(2)
+        elif action == "Set/Unset CWD":
             self.set_cwd(index)
         elif action == "Edit":
             self.dirview.edit(index)
@@ -287,10 +288,20 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if e.key() == QtCore.Qt.Key_Delete:
             self.delete_index()
 
+    def update(self, mode=1):
+        if not self.autopreview:
+            return
+        if mode == 0:
+            self.update_targets()
+        elif mode == 1:
+            self.update_previews()
+        elif mode == 2:
+            self.update_targets()
+            self.update_previews()
+
     def update_targets(self):
         if self.cwd:
-            self.targets = sorted(self.fileops.get_targets(self.cwd)
-                                  + self.fixedtargets, key=itemgetter(1))
+            self.targets = self.fileops.get_targets(self.cwd)
             self.statusbar.showMessage("Found {} targets in {}."
                                        .format(len(self.targets), self.cwd))
         else:
@@ -409,14 +420,13 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def on_autopreviewcheck(self, checked):
         self.autopreview = checked
         if checked:
-            self.update_previews()
+            self.update()
 
     def on_keepextensioncheck(self, checked):
         self.fileops.keepext = checked
         if checked:
             self.removeextensionscheck.setChecked(False)
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_hiddencheck(self, checked):
         self.fileops.hidden = checked
@@ -428,26 +438,19 @@ class DemiMoveGUI(QtGui.QMainWindow):
         else:
             self.dirmodel.setFilter(QtCore.QDir.Dirs | QtCore.QDir.Files |
                                         QtCore.QDir.NoDotAndDotDot)
-        if self.autopreview:
-            self.update_targets()
-            self.update_previews()
+        self.update(2)
 
     def on_manualmirrorcheck(self, checked):
         self.fileops.manualmirror = checked
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_recursivecheck(self, checked):
         self.fileops.recursive = checked
-        if self.autopreview:
-            self.update_targets()
-            self.update_previews()
+        self.update(2)
 
     def on_recursivedepth(self, num):
         self.fileops.recursivedepth = int(num)
-        if self.autopreview:
-            self.update_targets()
-            self.update_previews()
+        self.update(2)
 
     def on_autostopcheck(self, checked):
         self.fileops.autostop = checked
@@ -467,140 +470,114 @@ class DemiMoveGUI(QtGui.QMainWindow):
                 self.filteredit.setEnabled(True)
             if self.matchexcludecheck.isChecked():
                 self.excludeedit.setEnabled(True)
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_matchignorecase(self, checked):
         self.fileops.ignorecase = checked
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_filteredit(self, text):
         text = str(text.toUtf8())
         self.fileops.filteredit = text
-        if self.autopreview:
-            self.update_targets()
-            self.update_previews()
+        self.update(2)
 
     def on_excludeedit(self, text):
         text = str(text.toUtf8())
         self.fileops.excludeedit = text
-        if self.autopreview:
-            self.update_targets()
-            self.update_previews()
+        self.update(2)
 
     def on_matchfiltercheck(self, checked):
         self.fileops.matchfiltercheck = checked
-        if self.autopreview:
-            if self.fileops.filteredit:
-                self.update_targets()
-            self.update_previews()
+        if self.fileops.filteredit:
+            self.update(0)
+        self.update()
 
     def on_matchexcludecheck(self, checked):
         self.fileops.matchexcludecheck = checked
-        if self.autopreview:
-            if self.fileops.excludeedit:
-                self.update_targets()
-            self.update_previews()
+        if self.fileops.excludeedit:
+            self.update(0)
+        self.update()
 
     def on_matchreplacecheck(self, checked):
         self.fileops.matchreplacecheck = checked
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_globradio(self, checked):
         self.fileops.regex = not checked
-        if self.autopreview:
-            if self.fileops.matchfiltercheck or self.fileops.matchexcludecheck:
-                self.update_targets()
-            self.update_previews()
+        if self.fileops.matchfiltercheck or self.fileops.matchexcludecheck:
+            self.update(0)
+        self.update()
 
     def on_regexradio(self, checked):
         self.fileops.regex = checked
-        if self.autopreview:
-            if self.fileops.matchfiltercheck or self.fileops.matchexcludecheck:
-                self.update_targets()
-            self.update_previews()
+        if self.fileops.matchfiltercheck or self.fileops.matchexcludecheck:
+            self.update(0)
+        self.update()
 
     def on_insertcheck(self, checked):
         self.fileops.insertcheck = checked
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_insertpos(self, num):
         self.fileops.insertpos = int(num)
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_insertedit(self, text):
         text = str(text.toUtf8())
         self.fileops.insertedit = text
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_countcheck(self, checked):
         self.fileops.countcheck = checked
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_countbase(self, num):
         self.fileops.countbase = int(num)
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_countpos(self, num):
         self.fileops.countpos = int(num)
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_countstep(self, num):
         self.fileops.countstep = int(num)
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_countpreedit(self, text):
         text = str(text.toUtf8())
         self.fileops.countpreedit = text
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_countsufedit(self, text):
         text = str(text.toUtf8())
         self.fileops.countsufedit = text
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_countfillcheck(self, checked):
         self.fileops.countfill = checked
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_removecheck(self, checked):
         self.fileops.removecheck = checked
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_removeduplicates(self, checked):
         self.fileops.remdups = checked
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_removeextensions(self, checked):
         self.fileops.remext = checked
         if checked:
             self.keepextensionscheck.setChecked(False)
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_removenonwords(self, checked):
         self.fileops.remnonwords = checked
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_removesymbols(self, checked):
         self.fileops.remsymbols = checked
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def save_premediaoptions(self):
         self.checksaves = {i: i.isChecked() for i in self.mediachecks}
@@ -627,9 +604,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.restore_premediaoptions()
 
         self.autopreviewcheck.setChecked(True)
-
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_dualmodecheck(self, checked):
         if checked:
@@ -638,8 +613,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         else:
             self.dualoptions2 = self.get_options()
             self.set_options(self.dualoptions1)
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_switchviewcheck(self, checked):
         self.switchview = checked
@@ -658,74 +632,59 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.dirmodel.setFilter(QtCore.QDir.Dirs | QtCore.QDir.Files |
                                     QtCore.QDir.NoDotAndDotDot |
                                     QtCore.QDir.Hidden)
-        if self.autopreview:
-            self.update_targets()
-            self.update_previews()
+        self.update(2)
 
     def on_dirsradio(self, checked):
         self.fileops.dirsonly = checked
         if self.switchview:
             self.dirmodel.setFilter(QtCore.QDir.Dirs | QtCore.QDir.Hidden |
                                     QtCore.QDir.NoDotAndDotDot)
-        if self.autopreview:
-            self.update_targets()
-            self.update_previews()
+        self.update(2)
 
     def on_filesradio(self, checked):
         self.fileops.filesonly = checked
         if self.switchview:
             self.dirmodel.setFilter(QtCore.QDir.Files | QtCore.QDir.Hidden |
                                     QtCore.QDir.NoDotAndDotDot)
-        if self.autopreview:
-            self.update_targets()
-            self.update_previews()
+        self.update(2)
 
     def on_spacecheck(self, checked):
         self.fileops.spacecheck = checked
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_casecheck(self, checked):
         self.fileops.casecheck = checked
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_matchedit(self, text):
         text = str(text.toUtf8())
         self.fileops.matchedit = text
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_replaceedit(self, text):
         text = str(text.toUtf8())
         self.fileops.replaceedit = text
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_deletecheck(self, checked):
         self.fileops.deletecheck = checked
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_deletestart(self, num):
         self.fileops.deletestart = int(num)
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_deleteend(self, num):
         self.fileops.deleteend = int(num)
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_casebox(self, index):
         self.fileops.casemode = index
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     def on_spacebox(self, index):
         self.fileops.spacemode = index
-        if self.autopreview:
-            self.update_previews()
+        self.update()
 
     @property
     def cwd(self):

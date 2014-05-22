@@ -78,7 +78,8 @@ class FileOps(object):
         removelist = [remdups, remext, remnonwords, remsymbols]
         self._removecheck = True if any(removelist) else False
         self._spacecheck = True if isinstance(spacemode, str) else False
-
+        self.includetargets = set()
+        self.excludetargets = set()
         self.configdir = helpers.get_configdir()
         # Create the logger.
         helpers.configure_logger(verbosity, quiet, self.configdir)
@@ -136,19 +137,23 @@ class FileOps(object):
                 return True
             if self.match_filter(target) is False:
                 return False
+        if self.excludetargets and target in self.excludetargets:
+            return False
+        if self.includetargets and target in self.includetargets:
+            return True
         return True
 
 
-    def sort_dirs(self, root, dirs):
+    def get_dirs(self, root, dirs):
         """Sort, match and decode a list of dirs."""
 #         return sorted(((root, d.decode("utf-8")) for d in dirs if self.match(d)),
 #                       key=itemgetter(1))
-        return [(root, d.decode("utf-8"), u"") for d in dirs if self.match(d)]
+        return sorted((root, d.decode("utf-8"), u"") for d in dirs if self.match(d))
 
-    def sort_files(self, root, files):
+    def get_files(self, root, files):
         """Sort, match and decode a list of files."""
-        return [(root,) + os.path.splitext(f.decode("utf-8")) for f in files if
-                self.match(f)]
+        return sorted((root,) + os.path.splitext(f.decode("utf-8")) for f in files if
+                self.match(f))
 
     def get_targets(self, path=None):
         """Return a list of files and/or dirs in path."""
@@ -166,14 +171,14 @@ class FileOps(object):
             root = root.decode("utf-8") + "/"
 
             if self.dirsonly:
-                target = self.sort_dirs(root, dirs)
+                target = self.get_dirs(root, dirs)
             elif self.filesonly:
-                target = self.sort_files(root, files)
+                target = self.get_files(root, files)
             else:
-                target = self.sort_dirs(root, dirs) + self.sort_files(root, files)
+                target = self.get_dirs(root, dirs) + self.get_files(root, files)
 
             targets.extend(target)
-
+        print targets
         return targets
 
     def get_previews(self, targets, matchpat=None, replacepat=None):
