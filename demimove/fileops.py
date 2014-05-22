@@ -211,6 +211,8 @@ class FileOps(object):
                 os.rename(i[0], i[1])
             except Exception as e:
                 log.debug("Rename Error: {} -> {} ({}).".format(i[0], i[1], e))
+                if self.autostop:
+                    break
 
         self.history.append(actionlist)
         log.info("Renaming complete.")
@@ -231,6 +233,8 @@ class FileOps(object):
                 os.rename(i[1], i[0])
             except Exception as e:
                 log.error("Rename Error: {} -> {} ({}).".format(i[1], i[0], e))
+                if self.autostop:
+                    break
 
         log.info("Undo complete.")
 

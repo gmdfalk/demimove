@@ -12,20 +12,15 @@ Options:
     --version            Show the current demimove-ui version.
 """
 # GUI:
-# FIXME: Filesonly radio + switchview, bold font.
-#        Plus filters (hidden).
 # TODO: Threading for get_previews/get_targets and statusbar progress.
-# FIXME: Fix performance on many files (recursive)? Maybe threading?
 # TODO: Use QFileSystemModels listing instead of fileops.get_targets()
-# TODO: Save cwd, cwdidx and other information in config file, too?
 # TODO: Properly lock the preview until options are set.
 # TODO: History tab.
 # TODO: Statustab with Errors/Warnings, Summaries etc.
-# TODO: Metatags
+# TODO: Metatags (Photos, Videos, Audio)
 # Fileops:
-# TODO: Exclude & ignorecase option.
 # TODO: Fix count step and count base plus large listings (~i).
-# TODO: Reconcile keepext and not matchreplacecheck.
+# TODO: *.mp3 prefix*.mp3
 
 import codecs
 import logging
@@ -91,9 +86,29 @@ class DirModel(QtGui.QFileSystemModel):
         if self.p.cwd in target[0] and target in self.p.targets:
             idx = self.p.targets.index(target)
             try:
-                return self.p.previews[idx][1]
+                if target[1] + target[2] != self.p.previews[idx][1]:
+                    return self.p.previews[idx][1]
+                else:
+                    return "\\1"
             except IndexError:
                 pass
+
+
+class UpdateThread(QtCore.QThread):
+
+    def __init__(self, parent=None):
+        super(UpdateThread, self).__init__(parent)
+        self.p = parent
+        self.mode = 1
+
+    def run(self):
+        if self.mode == 0:
+            self.p.update_targets()
+        elif self.mode == 1:
+            self.p.update_previews()
+        elif self.mode == 2:
+            self.p.update_targets()
+            self.p.update_previews()
 
 
 class DemiMoveGUI(QtGui.QMainWindow):
@@ -116,6 +131,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.initialize_ui(startdir)
 
     def initialize_ui(self, startdir):
+        self.updatethread = UpdateThread(self)
         guifile = os.path.join(self.basedir, "data/gui.ui")
         iconfile = os.path.join(self.basedir, "data/icon.png")
         uic.loadUi(guifile, self)
@@ -313,19 +329,22 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def update(self, mode=1):
         if not self.autopreview:
             return
-        if mode == 0:
-            self.update_targets()
-        elif mode == 1:
-            self.update_previews()
-        elif mode == 2:
-            self.update_targets()
-            self.update_previews()
+        self.statusbar.showMessage("Refreshing...")
+        self.updatethread.finished.connect(self.on_updatethread_finished)
+        self.updatethread.mode = mode
+        self.updatethread.start()
+        self.update_view()
+
+    def on_updatethread_finished(self):
+        if self.cwd:
+            self.statusbar.showMessage("Found {} targets in {}."
+                                   .format(len(self.targets), self.cwd))
+        else:
+            self.statusbar.showMessage("No working directory set.")
 
     def update_targets(self):
         if self.cwd:
             self.targets = self.fileops.get_targets(self.cwd)
-            self.statusbar.showMessage("Found {} targets in {}."
-                                       .format(len(self.targets), self.cwd))
         else:
             self.targets = []
 
@@ -334,7 +353,6 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.previews = self.fileops.get_previews(self.targets)
         else:
             self.previews = []
-        self.update_view()
 
     def update_view(self):
         m, v = self.dirmodel, self.dirview
