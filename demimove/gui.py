@@ -251,7 +251,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.menu.clear()
         index = self.dirview.indexAt(position)
 
-        items = ["Toggle Include", "Clear Includes", "Toggle CWD", "Edit", "Delete"]
+        items = ["Toggle Include", "Include", "Exclude", "Clear Includes",
+                 "Clear Excludes", "Clear All" "Set/Unset CWD", "Edit", "Delete"]
         for item in items:
             action = self.menu.addAction(item)
             action.triggered[()].connect(lambda i=item: self.menuhandler(i, index))
@@ -259,18 +260,23 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def menuhandler(self, action, index):
         if action == "Toggle Include":
-            target = helpers.splitpath_os(self.get_path(index))
-            name = target[1] + target[2]
-            if target in self.targets:
-                self.fileops.includetargets.discard(name)
-                self.fileops.excludetargets.add(name)
-            else:
-                self.fileops.includetargets.add(name)
-                self.fileops.excludetargets.discard(name)
-            print "in", self.fileops.includetargets
-            print "ex", self.fileops.excludetargets
+            indexes = self.dirview.selectionModel().selectedIndexes()
+            indexes = indexes[:len(indexes) / 5]
+            for idx in indexes:
+                target = helpers.splitpath_os(self.get_path(idx))
+                name = target[1] + target[2]
+                if target in self.targets:
+                    self.fileops.includetargets.discard(name)
+                    self.fileops.excludetargets.add(name)
+                else:
+                    self.fileops.includetargets.add(name)
+                    self.fileops.excludetargets.discard(name)
             self.update(2)
         elif action == "Clear Includes":
+            self.fileops.includetargets.clear()
+        elif action == "Clear Excludes":
+            self.fileops.excludetargets.clear()
+        elif action == "Clear All":
             self.fileops.includetargets.clear()
             self.fileops.excludetargets.clear()
             self.update(2)
