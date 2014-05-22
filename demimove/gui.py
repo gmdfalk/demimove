@@ -508,6 +508,31 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.fileops.excludeedit = text
         self.update(2)
 
+    def on_insertedit(self, text):
+        text = str(text.toUtf8())
+        self.fileops.insertedit = text
+        self.update()
+
+    def on_countpreedit(self, text):
+        text = str(text.toUtf8())
+        self.fileops.countpreedit = text
+        self.update()
+
+    def on_countsufedit(self, text):
+        text = str(text.toUtf8())
+        self.fileops.countsufedit = text
+        self.update()
+
+    def on_matchedit(self, text):
+        text = str(text.toUtf8())
+        self.fileops.matchedit = text
+        self.update()
+
+    def on_replaceedit(self, text):
+        text = str(text.toUtf8())
+        self.fileops.replaceedit = text
+        self.update()
+
     def on_matchfiltercheck(self, checked):
         self.fileops.matchfiltercheck = checked
         if self.fileops.filteredit:
@@ -544,11 +569,6 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.fileops.insertpos = int(num)
         self.update()
 
-    def on_insertedit(self, text):
-        text = str(text.toUtf8())
-        self.fileops.insertedit = text
-        self.update()
-
     def on_countcheck(self, checked):
         self.fileops.countcheck = checked
         self.update()
@@ -563,16 +583,6 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_countstep(self, num):
         self.fileops.countstep = int(num)
-        self.update()
-
-    def on_countpreedit(self, text):
-        text = str(text.toUtf8())
-        self.fileops.countpreedit = text
-        self.update()
-
-    def on_countsufedit(self, text):
-        text = str(text.toUtf8())
-        self.fileops.countsufedit = text
         self.update()
 
     def on_countfillcheck(self, checked):
@@ -678,16 +688,6 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.fileops.casecheck = checked
         self.update()
 
-    def on_matchedit(self, text):
-        text = str(text.toUtf8())
-        self.fileops.matchedit = text
-        self.update()
-
-    def on_replaceedit(self, text):
-        text = str(text.toUtf8())
-        self.fileops.replaceedit = text
-        self.update()
-
     def on_deletecheck(self, checked):
         self.fileops.deletecheck = checked
         self.update()
@@ -740,30 +740,13 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self._autopreview = boolean
         log.debug("autopreview: {}".format(boolean))
 
-    @property
-    def matchpat(self):
-        return self._matchpat
-
-    @matchpat.setter
-    def matchpat(self, text):
-        log.debug("matchpat: {}".format(text))
-        self._matchpat = str(text)
-
-    @property
-    def replacepat(self):
-        return self._replacepat
-
-    @replacepat.setter
-    def replacepat(self, text):
-        log.debug("replacepat: {}".format(text))
-        self._replacepat = str(text)
-
 
 def main():
     "Main entry point for demimove-ui."
     startdir = os.getcwd()
     try:
         args = docopt(__doc__, version="0.1")
+        args["-v"] = 3
         fileop = fileops.FileOps(verbosity=args["-v"],
                                  quiet=args["--quiet"])
         if args["--dir"]:

@@ -506,6 +506,32 @@ class FileOps(object):
         self._matchreplacecheck = boolean
 
     @property
+    def countpreedit(self):
+        return self._countpreedit
+
+    @countpreedit.setter
+    def countpreedit(self, text):
+        log.debug("countpreedit: {}".format(text))
+        self._countpreedit = text.decode("utf-8")
+
+    @property
+    def countsufedit(self):
+        return self._countsufedit
+
+    @countsufedit.setter
+    def countsufedit(self, text):
+        log.debug("countsufedit: {}".format(text))
+        self._countsufedit = text.decode("utf-8")
+    @property
+    def insertedit(self):
+        return self._insertedit
+
+    @insertedit.setter
+    def insertedit(self, text):
+        log.debug("insertedit: {}.".format(text))
+        self._insertedit = text.decode("utf-8")
+
+    @property
     def matchedit(self):
         return self._matchedit
 
@@ -671,24 +697,6 @@ class FileOps(object):
         self._countstep = num
 
     @property
-    def countpreedit(self):
-        return self._countpreedit
-
-    @countpreedit.setter
-    def countpreedit(self, text):
-        log.debug("countpreedit: {}".format(text))
-        self._countpreedit = text.decode("utf-8")
-
-    @property
-    def countsufedit(self):
-        return self._countsufedit
-
-    @countsufedit.setter
-    def countsufedit(self, text):
-        log.debug("countsufedit: {}".format(text))
-        self._countsufedit = text.decode("utf-8")
-
-    @property
     def insertcheck(self):
         return self._insertcheck
 
@@ -705,15 +713,6 @@ class FileOps(object):
     def insertpos(self, index):
         log.debug("insertpos: {}".format(index))
         self._insertpos = index
-
-    @property
-    def insertedit(self):
-        return self._insertedit
-
-    @insertedit.setter
-    def insertedit(self, text):
-        log.debug("insertedit: {}.".format(text))
-        self._insertedit = text.decode("utf-8")
 
     @property
     def deletecheck(self):
