@@ -251,27 +251,42 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.menu.clear()
         index = self.dirview.indexAt(position)
 
-        items = ["Toggle Include", "Include", "Exclude", "Clear Includes",
+        items = ["Toggle", "Include", "Exclude", "Clear Includes",
                  "Clear Excludes", "Clear All" "Set/Unset CWD", "Edit", "Delete"]
         for item in items:
             action = self.menu.addAction(item)
             action.triggered[()].connect(lambda i=item: self.menuhandler(i, index))
         self.menu.exec_(self.dirview.mapToGlobal(position))
 
-    def menuhandler(self, action, index):
-        if action == "Toggle Include":
-            indexes = self.dirview.selectionModel().selectedIndexes()
-            indexes = indexes[:len(indexes) / 5]
-            for idx in indexes:
-                target = helpers.splitpath_os(self.get_path(idx))
-                name = target[1] + target[2]
+    def toggle_selection(self, mode=0):
+        indexes = self.dirview.selectionModel().selectedIndexes()
+        indexes = indexes[:len(indexes) / 5]
+        for idx in indexes:
+            target = helpers.splitpath_os(self.get_path(idx))
+            name = target[1] + target[2]
+            if mode == 0:
                 if target in self.targets:
                     self.fileops.includetargets.discard(name)
                     self.fileops.excludetargets.add(name)
                 else:
-                    self.fileops.includetargets.add(name)
                     self.fileops.excludetargets.discard(name)
-            self.update(2)
+                    self.fileops.includetargets.add(name)
+            elif mode == 1:
+                self.fileops.excludetargets.discard(name)
+                self.fileops.includetargets.add(name)
+            elif mode == 2:
+                self.fileops.includetargets.discard(name)
+                self.fileops.excludetargets.add(name)
+
+        self.update(2)
+
+    def menuhandler(self, action, index):
+        if action == "Toggle":
+            self.toggle_selection(0)
+        if action == "Include":
+            self.toggle_selection(1)
+        if action == "Exclude":
+            self.toggle_selection(2)
         elif action == "Clear Includes":
             self.fileops.includetargets.clear()
         elif action == "Clear Excludes":
