@@ -2,11 +2,10 @@
 """demimove-ui
 
 Usage:
-    demimove-ui [-d <path>] [-c <file>] [-v|-vv|-vvv] [-q] [-h]
+    demimove-ui [<path>] [-c <file>] [-v|-vv|-vvv] [-q] [-h]
 
 Options:
     -c, --config=<file>  <NYI> Specify a config file to load.
-    -d, --dir=<path>     Specify the working directory. Otherwise CWD is used.
     -v                   Logging verbosity level, up to -vvv.
     -q, --quiet          Do not print logging messages to console.
     -h,  --help          Show this help text and exit.
@@ -94,7 +93,7 @@ class DirModel(QtGui.QFileSystemModel):
             try:
                 return self.p.previews[idx][1]
             except IndexError:
-                return "{index error}"
+                pass
 
 
 class DemiMoveGUI(QtGui.QMainWindow):
@@ -120,6 +119,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         guifile = os.path.join(self.basedir, "data/gui.ui")
         iconfile = os.path.join(self.basedir, "data/icon.png")
         uic.loadUi(guifile, self)
+        self.switchviewcheck.hide()
         self.setWindowIcon(QtGui.QIcon(iconfile))
         self.mainsplitter.setStretchFactor(0, 1)
         self.create_browser(startdir)
@@ -348,6 +348,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def connect_elements(self):
         # Main buttons:
         self.commitbutton.clicked.connect(self.on_commitbutton)
+        self.refreshbutton.clicked.connect(self.on_refreshbutton)
         self.undobutton.clicked.connect(self.on_undobutton)
         self.bothradio.toggled.connect(self.on_bothradio)
         self.dirsradio.toggled.connect(self.on_dirsradio)
@@ -438,6 +439,11 @@ class DemiMoveGUI(QtGui.QMainWindow):
         """Pops the history stack of commits, reverting the one on top."""
         log.info("Reverting last commit.")
         self.fileops.undo()
+
+    def on_refreshbutton(self):
+        """Force a refresh of browser view and model."""
+        log.info("Refreshing.")
+        self.update(2)
 
     def on_autopreviewcheck(self, checked):
         self.autopreview = checked
@@ -749,8 +755,8 @@ def main():
         args["-v"] = 3
         fileop = fileops.FileOps(verbosity=args["-v"],
                                  quiet=args["--quiet"])
-        if args["--dir"]:
-            startdir = args["--dir"]
+        if args["<path>"]:
+            startdir = args["<path>"]
     except NameError:
         fileop = fileops.FileOps()
         log.error("Please install docopt to use the CLI.")
