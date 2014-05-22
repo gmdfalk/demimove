@@ -78,7 +78,8 @@ class FileOps(object):
         removelist = [remdups, remext, remnonwords, remsymbols]
         self._removecheck = True if any(removelist) else False
         self._spacecheck = True if isinstance(spacemode, str) else False
-        self.terminatethread = False
+        self.stopupdate = False
+        self.stopcommit = False
         self.includetargets = set()
         self.excludetargets = set()
         self.configdir = helpers.get_configdir()
@@ -174,7 +175,7 @@ class FileOps(object):
                 target = self.get_dirs(root, dirs) + self.get_files(root, files)
 
             targets.extend(target)
-            if self.terminatethread:
+            if self.stopupdate:
                 return targets
 
         return targets
@@ -210,6 +211,13 @@ class FileOps(object):
             if self.simulate:
                 log.debug("{} -> {}.".format(i[0], i[1]))
                 continue
+            if self.stopcommit:
+                idx = actionlist.index(i)
+                log.warn("Stopping commit after {} renames." .format(idx + 1))
+                if idx:
+                    log.warn("Use undo to revert the rename actions.")
+                self.history.append(actionlist[:idx + 1])
+                return
             try:
                 os.rename(i[0], i[1])
             except Exception as e:

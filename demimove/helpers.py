@@ -158,7 +158,7 @@ def load_configfile(configdir):
                                  "countstep": 1,
                                  "deletestart": 0,
                                  "insertpos": 0,
-                                 "recursivedepth": 1}
+                                 "recursivedepth": 0}
                         }
     options = {}
     try:

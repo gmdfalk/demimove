@@ -12,9 +12,6 @@ Options:
     --version            Show the current demimove-ui version.
 """
 # GUI:
-# TODO: Reset recursive spinbox on disable + reduce min to 0.
-# TODO: Make Previewbutton a ToggleButton to start/stop (refresh label)
-# TODO: Test path argument
 # TODO: Test QDirIterator vs os.path.walk. If positive, replace whole
 #       get_targets functionality.
 # TODO: Properly lock the preview until options are set. (Decorator)
@@ -117,6 +114,16 @@ class UpdateThread(QtCore.QThread):
             self.p.update_previews()
 
 
+class CommitThread(QtCore.QThread):
+
+    def __init__(self, parent=None):
+        super(CommitThread, self).__init__(parent)
+        self.p = parent
+
+    def run(self):
+        self.p.fileops.commit(self.p.previews)
+
+
 class DemiMoveGUI(QtGui.QMainWindow):
 
     def __init__(self, startdir, fileops, parent=None):
@@ -138,6 +145,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def initialize_ui(self, startdir):
         self.updatethread = UpdateThread(self)
+        self.committhread = CommitThread(self)
         guifile = os.path.join(self.basedir, "data/gui.ui")
         iconfile = os.path.join(self.basedir, "data/icon.png")
         uic.loadUi(guifile, self)
@@ -199,9 +207,11 @@ class DemiMoveGUI(QtGui.QMainWindow):
         if not options:
             options = self.defaultoptions
 
-        self.autopreview = False
+#         self.autopreview = False
 
         for k, v in options["checks"].items():
+            # Handle autopreview attribute at the end.
+            if k == "autopreviewcheck": continue
             if sanitize:
                 v = False
             getattr(self, k).setChecked(v)
@@ -218,7 +228,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         for k, v in options["spins"].items():
             getattr(self, k).setValue(v)
 
-        self.autopreview = True
+        self.autopreviewcheck.setChecked(options["checks"]["autopreviewcheck"])
 
     def get_options(self):
         options = self.defaultoptions
@@ -334,7 +344,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def update(self, mode=1):
         """Main update routine using threading to get targets and/or previews"""
         # Modes: 0 = targets, 1 = previews, 2 = both.
-        self.fileops.terminatethread = False
+        self.fileops.stopupdate = False
         if not self.autopreview or not self.cwd:
             self.update_view()
             return
@@ -381,6 +391,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.dirview.customContextMenuRequested.connect(self.on_popmenu)
         self.updatethread.finished.connect(self.on_updatethread_finished)
         self.updatethread.started.connect(self.on_updatethread_started)
+        self.committhread.finished.connect(self.on_committhread_finished)
+        self.committhread.started.connect(self.on_committhread_started)
 
         # Main buttons:
         self.commitbutton.clicked.connect(self.on_commitbutton)
@@ -469,20 +481,18 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def on_commitbutton(self):
         """Perform the currently previewed rename actions."""
         log.info("Committing previewed changes.")
-        self.fileops.commit(self.previews)
+        self.committhread.start()
 
     def on_undobutton(self):
         """Pops the history stack of commits, reverting the one on top."""
         log.info("Reverting last commit.")
         self.fileops.undo()
+        self.update(2)
 
     def on_refreshbutton(self):
         """Force a refresh of browser view and model."""
         if self.updatethread.isRunning():
-#             self.updatethread.terminate()
-            # request stop, wait, log
-            print "quitting hread"
-            self.fileops.terminatethread = True
+            self.fileops.stopupdate = True
         else:
             self.update(2)
 
@@ -794,8 +804,7 @@ def main():
     "Main entry point for demimove-ui."
     startdir = os.getcwd()
     try:
-        args = docopt(__doc__, version="0.1")
-        args["-v"] = 3
+        args = docopt(__doc__, version="0.2")
         fileop = fileops.FileOps(verbosity=args["-v"],
                                  quiet=args["--quiet"])
         if args["<path>"]:
@@ -806,7 +815,6 @@ def main():
 
     app = QtGui.QApplication(sys.argv)
     app.setApplicationName("demimove-ui")
-#     app.setStyle("plastique")
     gui = DemiMoveGUI(startdir, fileop)
     gui.show()
     sys.exit(app.exec_())

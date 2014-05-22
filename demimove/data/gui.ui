@@ -56,15 +56,15 @@
                <property name="text">
                 <string>Match</string>
                </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
               </widget>
              </item>
              <item row="0" column="1">
               <layout class="QHBoxLayout" name="matchradios">
                <item>
                 <widget class="QRadioButton" name="globradio">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="toolTip">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Globbing&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Use globbing instead of regular expressions for pattern matching.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
@@ -78,6 +78,9 @@
                </item>
                <item>
                 <widget class="QRadioButton" name="regexradio">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="toolTip">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Regular Expressions&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Use regular expressions for pattern matching.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
@@ -89,7 +92,7 @@
                <item>
                 <widget class="QCheckBox" name="matchignorecase">
                  <property name="enabled">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="toolTip">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Ignore case&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Disables case sensitivity (regular expressions only).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -105,6 +108,9 @@
               <layout class="QHBoxLayout" name="matchchecks">
                <item>
                 <widget class="QCheckBox" name="matchreplacecheck">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="toolTip">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Replace&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Enables replacing specific regex/glob patterns in file and directory names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
@@ -112,22 +118,31 @@
                   <string>Replace</string>
                  </property>
                  <property name="checked">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QCheckBox" name="matchfiltercheck">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="toolTip">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Filter&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Filter the potential targets by matching them against a glob or regex pattern.&lt;/p&gt;&lt;p&gt;You can specify multiple patterns by separating them with &amp;quot;/&amp;quot;.&lt;/p&gt;&lt;p&gt;E.g. the glob &amp;quot;*.py/*.txt/*.md&amp;quot; will match all files ending with .py, .txt or .md.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="text">
                   <string>Filter</string>
                  </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
                 </widget>
                </item>
                <item>
                 <widget class="QCheckBox" name="matchexcludecheck">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="toolTip">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Exclude&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Exclude files and/or directories from all actions by matching against a regex/glob pattern.&lt;/p&gt;&lt;p&gt;You can specify multiple patterns by separating them with &amp;quot;/&amp;quot;.&lt;/p&gt;&lt;p&gt;E.g. the glob &amp;quot;*.wav/*.mp3/*.ogg&amp;quot; will exclude all files of the type wav, mp3 and ogg.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
@@ -519,9 +534,6 @@
              <property name="text">
               <string>Autopreview</string>
              </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
             </widget>
            </item>
            <item row="3" column="0">
@@ -753,6 +765,9 @@
          <layout class="QHBoxLayout" name="editlayout">
           <item>
            <widget class="QLineEdit" name="matchedit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Match Pattern&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Pattern to search for in all available targets.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
@@ -760,6 +775,9 @@
           </item>
           <item>
            <widget class="QLineEdit" name="replaceedit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Replacement Pattern&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The string or pattern to replace the match found with the match pattern, if any were found.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
