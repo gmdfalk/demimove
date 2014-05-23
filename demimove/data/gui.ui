@@ -616,7 +616,7 @@
        </widget>
        <widget class="QWidget" name="historytab">
         <attribute name="title">
-         <string>History</string>
+         <string>History (NYI)</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout">
          <property name="margin">

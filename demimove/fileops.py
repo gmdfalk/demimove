@@ -80,8 +80,10 @@ class FileOps(object):
         self._spacecheck = True if isinstance(spacemode, str) else False
         self.stopupdate = False
         self.stopcommit = False
-        self.includetargets = set()
-        self.excludetargets = set()
+        self.includes = set()
+        self.excludes = set()
+        self.recursiveincludes = set()
+        self.recursiveexcludes = set()
         self.configdir = helpers.get_configdir()
         # Create the logger.
         helpers.configure_logger(verbosity, quiet, self.configdir)
@@ -131,9 +133,9 @@ class FileOps(object):
         if self.matchexcludecheck:
             if self.match_exclude(target) is False:
                 return False
-        if self.excludetargets and target in self.excludetargets:
+        if self.excludes and target in self.excludes:
             return False
-        if self.includetargets and target in self.includetargets:
+        if self.includes and target in self.includes:
             return True
         if self.matchfiltercheck:
             if not self.filteredit:
@@ -151,6 +153,27 @@ class FileOps(object):
         """Sort, match and decode a list of files."""
         return sorted(((root,) + os.path.splitext(f.decode("utf-8")) for f in
                        files if self.match(f)), key=itemgetter(1))
+
+    def get_manual_targets(self, path=None):
+        """Return a list of files and/or dirs in path."""
+        if not path:
+            path = os.getcwd()
+
+        targets = []
+        for root, dirs, files in os.walk(path):
+            # To unicode.
+            root = root.decode("utf-8") + "/"
+
+            if self.dirsonly:
+                target = [d.decode("utf-8") for d in dirs]
+            elif self.filesonly:
+                target = [f.decode("utf-8") for f in files]
+            else:
+                target = [d.decode("utf-8") for d in dirs] + [f.decode("utf-8") for f in files]
+
+            targets.extend(target)
+
+        return targets
 
     def get_targets(self, path=None):
         """Return a list of files and/or dirs in path."""
@@ -207,7 +230,7 @@ class FileOps(object):
         # This should minimize rename errors for recursive operations, for now.
         actions = sorted((("".join(i[0]).encode("utf-8"), i[0][0].encode("utf-8")
                            + i[1].encode("utf-8")) for i in previews),
-                         key=lambda i:len(i[0]), reverse=True)
+                         key=lambda i: i[0].count("/"), reverse=True)
 
         for i in actions:
             if self.simulate:

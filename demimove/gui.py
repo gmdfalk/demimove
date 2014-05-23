@@ -12,7 +12,7 @@ Options:
     --version            Show the current demimove-ui version.
 """
 # GUI:
-# TODO: Fix recursive renaming (folder names) + add recursive include/exclude
+# TODO: add recursive include/exclude in contextmenu?
 # TODO: Show amount of files that would be changed (Split statusbar?)
 # TODO: Test QDirIterator vs os.path.walk. If positive, replace whole
 #       get_targets functionality.
@@ -283,9 +283,9 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.menu.clear()
         index = self.dirview.indexAt(position)
 
-        items = ["Toggle", "Include", "Exclude", "Clear Includes",
-                 "Clear Excludes", "Clear Both", "Set/Unset CWD",
-                 "Edit", "Delete"]
+        items = ["Toggle", "Include", "Exclude", "Recursive Include (NYI)",
+                 "Recursive Exclude (NYI)", "Clear Includes", "Clear Excludes",
+                 "Clear Both", "Set/Unset CWD", "Edit", "Delete"]
         for item in items:
             action = self.menu.addAction(item)
             action.triggered[()].connect(lambda i=item: self.menuhandler(i, index))
@@ -295,22 +295,36 @@ class DemiMoveGUI(QtGui.QMainWindow):
         indexes = self.dirview.selectionModel().selectedIndexes()
         indexes = indexes[:len(indexes) / 5]
         for idx in indexes:
-            target = helpers.splitpath_os(self.get_path(idx))
+            path = self.get_path(idx)
+            target = helpers.splitpath_os(path)
             name = target[1] + target[2]
-            if mode == 0:
+            if mode == 0:  # Toggle Include/Exclude
                 if target in self.targets:
-                    self.fileops.includetargets.discard(name)
-                    self.fileops.excludetargets.add(name)
+                    self.fileops.includes.discard(name)
+                    self.fileops.excludes.add(name)
                 else:
-                    self.fileops.excludetargets.discard(name)
-                    self.fileops.includetargets.add(name)
-            elif mode == 1:
-                self.fileops.excludetargets.discard(name)
-                self.fileops.includetargets.add(name)
-            elif mode == 2:
-                self.fileops.includetargets.discard(name)
-                self.fileops.excludetargets.add(name)
+                    self.fileops.excludes.discard(name)
+                    self.fileops.includes.add(name)
+            elif mode == 1:  # Include
+                self.fileops.excludes.discard(name)
+                self.fileops.includes.add(name)
+            elif mode == 2:  # Exclude
+                self.fileops.includes.discard(name)
+                self.fileops.excludes.add(name)
+            elif mode == 3:  # Recursive Include
+                includes = self.fileops.get_manual_targets(path)
+                for _ in includes:
+                    self.fileops.excludes.discard(name)
+                    self.fileops.includes.add(name)
+            elif mode == 4:  # Recursive Exclude
+                excludes = self.fileops.get_manual_targets(path)
+                for _ in excludes:
+                    self.fileops.includes.discard(name)
+                    self.fileops.excludes.add(name)
+        log.debug("includes: {}".format(self.fileops.includes))
+        log.debug("excludes: {}".format(self.fileops.excludes))
         self.update(2)
+        log.debug(self.targets)
 
     def menuhandler(self, action, index):
         if action == "Toggle":
@@ -319,13 +333,17 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.toggle_selection(1)
         if action == "Exclude":
             self.toggle_selection(2)
+        if action == "Recursive Include":
+            self.toggle_selection(3)
+        if action == "Recursive Exclude":
+            self.toggle_selection(4)
         elif action == "Clear Includes":
-            self.fileops.includetargets.clear()
+            self.fileops.includes.clear()
         elif action == "Clear Excludes":
-            self.fileops.excludetargets.clear()
+            self.fileops.excludes.clear()
         elif action == "Clear Both":
-            self.fileops.includetargets.clear()
-            self.fileops.excludetargets.clear()
+            self.fileops.includes.clear()
+            self.fileops.excludes.clear()
             self.update(2)
         elif action == "Set/Unset CWD":
             self.set_cwd(index)
