@@ -828,7 +828,7 @@ def main():
     startdir = os.getcwd()
     try:
         args = docopt(__doc__, version="0.2")
-        args["-v"] = 3  # Force debug logging
+#         args["-v"] = 3  # Force debug logging
         fileop = fileops.FileOps(verbosity=args["-v"],
                                  quiet=args["--quiet"])
         if args["<path>"]:
