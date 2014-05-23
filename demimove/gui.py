@@ -310,15 +310,9 @@ class DemiMoveGUI(QtGui.QMainWindow):
                 self.fileops.includes.discard(name)
                 self.fileops.excludes.add(name)
             elif mode == 3:  # Recursive Include
-                includes = self.fileops.get_manual_targets(path)
-                for _ in includes:
-                    self.fileops.excludes.discard(name)
-                    self.fileops.includes.add(name)
+                pass
             elif mode == 4:  # Recursive Exclude
-                excludes = self.fileops.get_manual_targets(path)
-                for _ in excludes:
-                    self.fileops.includes.discard(name)
-                    self.fileops.excludes.add(name)
+                pass
         log.debug("includes: {}".format(self.fileops.includes))
         log.debug("excludes: {}".format(self.fileops.excludes))
         self.update(2)
@@ -378,7 +372,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.refreshbutton.setText("Refresh")
         if self.cwd:
             lent = len(self.targets)
-            lenp = len([i for i in self.previews if i[0][1] != i[1]])
+            lenp = sum(i[0][1] != i[1] for i in self.previews)
             self.statusbar.showMessage("Targets: {}, Staged: {} - {}"
                                    .format(lent, lenp, self.cwd))
         else:

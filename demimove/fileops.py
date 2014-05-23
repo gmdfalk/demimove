@@ -152,28 +152,6 @@ class FileOps(object):
         """Sort, match and decode a list of files."""
         return [(root,) + os.path.splitext(f.decode("utf-8")) for f in
                        files if self.match(f)]
-        # key = itemgetter(1)
-
-    def get_manual_targets(self, path=None):
-        """Return a list of files and/or dirs in path."""
-        if not path:
-            path = os.getcwd()
-
-        targets = []
-        for root, dirs, files in os.walk(path):
-            # To unicode.
-            root = root.decode("utf-8") + "/"
-
-            if self.dirsonly:
-                target = [d.decode("utf-8") for d in dirs]
-            elif self.filesonly:
-                target = [f.decode("utf-8") for f in files]
-            else:
-                target = [d.decode("utf-8") for d in dirs] + [f.decode("utf-8") for f in files]
-
-            targets.extend(target)
-
-        return targets
 
     def get_targets(self, path=None):
         """Return a list of files and/or dirs in path."""
@@ -201,8 +179,7 @@ class FileOps(object):
             if self.stopupdate:
                 return targets
 
-        return sorted(targets, key=lambda i: i[1] + i[2].lower())
-#         return sorted(targets, key=lambda i: i[0][1].lower())
+        return targets
 
     def get_previews(self, targets, matchpat=None, replacepat=None):
         """Simulate rename operation on targets and return results as list."""
