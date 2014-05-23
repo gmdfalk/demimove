@@ -146,13 +146,13 @@ class FileOps(object):
 
     def get_dirs(self, root, dirs):
         """Sort, match and decode a list of dirs."""
-        return sorted(((root, d.decode("utf-8"), u"") for d in
-                       dirs if self.match(d)), key=itemgetter(1))
+        return [(root, d.decode("utf-8"), u"") for d in dirs if self.match(d)]
 
     def get_files(self, root, files):
         """Sort, match and decode a list of files."""
-        return sorted(((root,) + os.path.splitext(f.decode("utf-8")) for f in
-                       files if self.match(f)), key=itemgetter(1))
+        return [(root,) + os.path.splitext(f.decode("utf-8")) for f in
+                       files if self.match(f)]
+        # key = itemgetter(1)
 
     def get_manual_targets(self, path=None):
         """Return a list of files and/or dirs in path."""
@@ -201,7 +201,8 @@ class FileOps(object):
             if self.stopupdate:
                 return targets
 
-        return targets
+        return sorted(targets, key=lambda i: i[1] + i[2].lower())
+#         return sorted(targets, key=lambda i: i[0][1].lower())
 
     def get_previews(self, targets, matchpat=None, replacepat=None):
         """Simulate rename operation on targets and return results as list."""

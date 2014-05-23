@@ -13,10 +13,8 @@ Options:
 """
 # GUI:
 # TODO: add recursive include/exclude in contextmenu?
-# TODO: Show amount of files that would be changed (Split statusbar?)
 # TODO: Test QDirIterator vs os.path.walk. If positive, replace whole
 #       get_targets functionality.
-# TODO: Properly lock the preview until options are set. (Decorator)
 # TODO: History tab.
 # TODO: Statustab with Errors/Warnings, Summaries etc.
 # TODO: Metatags (Photos, Videos, Audio)
