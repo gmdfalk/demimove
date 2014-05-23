@@ -92,6 +92,8 @@ class FileOps(object):
         self.bracerx = re.compile("(?<=\{)(.*?)(?=\})")
 
     def match_filter(self, target):
+        if not self.filteredit:
+            return True
         if "/" in self.filteredit:
             patterns = self.filteredit.split("/")
         else:
@@ -110,6 +112,8 @@ class FileOps(object):
         return False
 
     def match_exclude(self, target):
+        if not self.excludeedit:
+            return
         if "/" in self.excludeedit:
             patterns = self.excludeedit.split("/")
         else:
@@ -138,8 +142,6 @@ class FileOps(object):
         if self.includes and target in self.includes:
             return True
         if self.matchfiltercheck:
-            if not self.filteredit:
-                return True
             if self.match_filter(target) is False:
                 return False
         return True

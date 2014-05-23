@@ -621,15 +621,11 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_matchfiltercheck(self, checked):
         self.fileops.matchfiltercheck = checked
-        if self.fileops.filteredit:
-            self.update(0)
-        self.update()
+        self.update(2)
 
     def on_matchexcludecheck(self, checked):
         self.fileops.matchexcludecheck = checked
-        if self.fileops.excludeedit:
-            self.update(0)
-        self.update()
+        self.update(2)
 
     def on_matchreplacecheck(self, checked):
         self.fileops.matchreplacecheck = checked
