@@ -263,35 +263,39 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.cwdidx = None
         self.update(2)
 
-    def delete_index(self, index=None):
-        if not index:
-            index = self.get_index()
-        path = self.get_path(index)
-        name = os.path.basename(path)
+    def delete_index(self, indexes=None):
+        if not indexes:
+            indexes = self.get_selected_indexes()
+        for index in indexes:
+            path = self.get_path(index)
+            name = os.path.basename(path)
 
-        # TODO: Subclass MessageBox to center it on screen?
-        m = QtGui.QMessageBox(self)
-        reply = m.question(self, "Message", "Delete {}?".format(name),
-                           m.Yes | m.No, m.Yes)
+            # TODO: Subclass MessageBox to center it on screen?
+            m = QtGui.QMessageBox(self)
+            reply = m.question(self, "Message", "Delete {}?".format(name),
+                               m.Yes | m.No, m.Yes)
 
-        if reply == QtGui.QMessageBox.Yes:
-            self.dirmodel.remove(index)
+            if reply == QtGui.QMessageBox.Yes:
+                self.dirmodel.remove(index)
 
     def on_popmenu(self, position):
         self.menu.clear()
         index = self.dirview.indexAt(position)
 
-        items = ["Toggle", "Include", "Exclude", "Recursive Include (NYI)",
-                 "Recursive Exclude (NYI)", "Clear Includes", "Clear Excludes",
-                 "Clear Both", "Set/Unset CWD", "Edit", "Delete"]
+        items = ["Toggle", "Include", "Exclude",
+                 "Clear Includes", "Clear Excludes", "Clear Both",
+                 "Set/Unset CWD", "Edit", "Delete"]
         for item in items:
             action = self.menu.addAction(item)
             action.triggered[()].connect(lambda i=item: self.menuhandler(i, index))
         self.menu.exec_(self.dirview.mapToGlobal(position))
 
-    def toggle_selection(self, mode=0):
+    def get_selected_indexes(self):
         indexes = self.dirview.selectionModel().selectedIndexes()
-        indexes = indexes[:len(indexes) / 5]
+        return indexes[:len(indexes) / 5]
+
+    def toggle_selection(self, mode=0):
+        indexes = self.get_selected_indexes()
         for idx in indexes:
             path = self.get_path(idx)
             target = helpers.splitpath_os(path)
@@ -342,7 +346,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         elif action == "Edit":
             self.dirview.edit(index)
         elif action == "Delete":
-            self.delete_index(index)
+            self.delete_index()
 
     def keyPressEvent(self, e):
         "Overloaded to connect return key to self.set_cwd()."
@@ -526,7 +530,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
     def on_autopreviewcheck(self, checked):
         self.autopreview = checked
         if checked:
-            self.update()
+            self.update(2)
 
     def on_keepextensioncheck(self, checked):
         self.fileops.keepext = checked
