@@ -280,14 +280,13 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
     def on_popmenu(self, position):
         self.menu.clear()
-        index = self.dirview.indexAt(position)
 
         items = ["Toggle", "Include", "Exclude",
                  "Clear Includes", "Clear Excludes", "Clear Both",
                  "Set/Unset CWD", "Edit", "Delete"]
         for item in items:
             action = self.menu.addAction(item)
-            action.triggered[()].connect(lambda i=item: self.menuhandler(i, index))
+            action.triggered[()].connect(lambda i=item: self.menuhandler(i))
         self.menu.exec_(self.dirview.mapToGlobal(position))
 
     def get_selected_indexes(self):
@@ -322,7 +321,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.update(2)
         log.debug(self.targets)
 
-    def menuhandler(self, action, index):
+    def menuhandler(self, action):
         if action == "Toggle":
             self.toggle_selection(0)
         if action == "Include":
@@ -342,9 +341,9 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.fileops.excludes.clear()
             self.update(2)
         elif action == "Set/Unset CWD":
-            self.set_cwd(index)
+            self.set_cwd()
         elif action == "Edit":
-            self.dirview.edit(index)
+            self.dirview.edit(self.get_index())
         elif action == "Delete":
             self.delete_index()
 
