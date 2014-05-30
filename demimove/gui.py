@@ -5,7 +5,7 @@ Usage:
     demimove-ui [<path>] [-c <file>] [-v|-vv|-vvv] [-q] [-h]
 
 Options:
-    -c, --config=<file>  <NYI> Specify a config file to load.
+    -c, --config=<file>  Specify a config file to load.
     -v                   Logging verbosity level, up to -vvv.
     -q, --quiet          Do not print logging messages to console.
     -h,  --help          Show this help text and exit.
@@ -126,7 +126,7 @@ class CommitThread(QtCore.QThread):
 
 class DemiMoveGUI(QtGui.QMainWindow):
 
-    def __init__(self, startdir, fileops, parent=None):
+    def __init__(self, startdir, fileops, configfile, parent=None):
 
         super(DemiMoveGUI, self).__init__(parent)
         self.fileops = fileops
@@ -141,9 +141,9 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.targets, self.joinedtargets = [], []
         self.previews = []
 
-        self.initialize_ui(startdir)
+        self.initialize_ui(startdir, configfile)
 
-    def initialize_ui(self, startdir):
+    def initialize_ui(self, startdir, configfile):
         self.updatethread = UpdateThread(self)
         self.committhread = CommitThread(self)
         guifile = os.path.join(self.basedir, "data/gui.ui")
@@ -157,7 +157,8 @@ class DemiMoveGUI(QtGui.QMainWindow):
         self.connect_elements()
 
         self.startoptions, self.defaultoptions = helpers.load_configfile(
-                                                 self.fileops.configdir)
+                                                 self.fileops.configdir,
+                                                 configfile)
         self.set_options(self.startoptions)
         self.mediachecks = [self.casecheck, self.keepextensionscheck,
                             self.removesymbolscheck, self.removecheck,
@@ -829,6 +830,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
 def main():
     "Main entry point for demimove-ui."
     startdir = os.getcwd()
+    configfile = None
     try:
         args = docopt(__doc__, version="0.2")
 #         args["-v"] = 3  # Force debug logging
@@ -842,7 +844,9 @@ def main():
 
     app = QtGui.QApplication(sys.argv)
     app.setApplicationName("demimove-ui")
-    gui = DemiMoveGUI(startdir, fileop)
+    if args["--config"]:
+        configfile = args["--config"]
+    gui = DemiMoveGUI(startdir, fileop, configfile)
     gui.show()
     sys.exit(app.exec_())
 

@@ -113,9 +113,13 @@ def get_configdir():
     return configdir
 
 
-def load_configfile(configdir):
+def load_configfile(configdir, configfile=None):
     config = ConfigParser()
-    config.read(os.path.join(configdir, "demimove.ini"))
+    if configfile:
+        filepath = os.path.abspath(configfile)
+    else:
+        filepath = os.path.join(configdir, "demimove.ini")
+    config.read(filepath)
     defaultoptions = {"edits":  {"insertedit": u"",
                                  "countpreedit": u"",
                                  "countsufedit": u"",
