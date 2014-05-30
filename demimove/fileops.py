@@ -92,6 +92,7 @@ class FileOps(object):
         self.bracerx = re.compile("(?<=\{)(.*?)(?=\})")
 
     def match_filter(self, target):
+        """Match a file/directory name against a glob/regex pattern."""
         if not self.filteredit:
             return True
         if "/" in self.filteredit:
@@ -112,6 +113,7 @@ class FileOps(object):
         return False
 
     def match_exclude(self, target):
+        """Match a file/directory name against a glob/regex pattern."""
         if not self.excludeedit:
             return
         if "/" in self.excludeedit:
@@ -132,7 +134,7 @@ class FileOps(object):
 
     def match(self, target):
         """Searches target for pattern and returns a bool."""
-        if not self.hidden and target.startswith("."):
+        if not self.hidden and target.startswith(".") and target not in self.includes:
             return False
         if self.matchexcludecheck:
             if self.match_exclude(target) is False:
@@ -147,13 +149,13 @@ class FileOps(object):
         return True
 
     def get_dirs(self, root, dirs):
-        """Sort, match and decode a list of dirs."""
+        """Match and decode (from utf-8 to unicode) a list of dirs."""
         return [(root, d.decode("utf-8"), u"") for d in dirs if self.match(d)]
 
     def get_files(self, root, files):
-        """Sort, match and decode a list of files."""
-        return [(root,) + os.path.splitext(f.decode("utf-8")) for f in
-                       files if self.match(f)]
+        """Match and decode (from utf-8 to unicode) a list of files."""
+        return [(root,) + os.path.splitext(f.decode("utf-8")) for f in files
+                if self.match(f)]
 
     def get_targets(self, path=None):
         """Return a list of files and/or dirs in path."""
@@ -178,6 +180,8 @@ class FileOps(object):
                 target = self.get_dirs(root, dirs) + self.get_files(root, files)
 
             targets.extend(target)
+
+            # Exit out of get_targets when "Stop" is pressed in the GUI.
             if self.stopupdate:
                 return targets
 
@@ -206,7 +210,8 @@ class FileOps(object):
 
     def commit(self, previews):
         # The sorted generator comprehension of (unicode)doom:
-        # Reverse sort the paths so that the longest paths are changed first.
+        # Reverse sort the paths so that the longest paths are changed first
+        # (by counting the amount of slashs in the path).
         # This should minimize rename errors for recursive operations, for now.
         actions = sorted((("".join(i[0]).encode("utf-8"), i[0][0].encode("utf-8")
                            + i[1].encode("utf-8")) for i in previews),
