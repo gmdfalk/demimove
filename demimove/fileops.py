@@ -7,6 +7,7 @@ import re
 import string
 
 import helpers
+from operator import itemgetter
 
 
 log = logging.getLogger("fileops")
@@ -150,10 +151,12 @@ class FileOps(object):
     def get_dirs(self, root, dirs):
         """Match and decode (from utf-8 to unicode) a list of dirs."""
         return [(root, d, "") for d in dirs if self.match(d)]
+#         return sorted((root, d, "") for d in dirs if self.match(d))
 
     def get_files(self, root, files):
         """Match and decode (from utf-8 to unicode) a list of files."""
         return [(root,) + os.path.splitext(f) for f in files if self.match(f)]
+#         return sorted((root,) + os.path.splitext(f) for f in files if self.match(f))
 
     def get_targets(self, path=None):
         """Return a list of files and/or dirs in path."""
@@ -181,7 +184,10 @@ class FileOps(object):
             if self.stopupdate:
                 return targets
 
-        return targets
+        if self.countcheck:
+            return sorted(targets, key=lambda i: i[1] + i[2])
+        else:
+            return targets
 
     def get_previews(self, targets, matchpat=None, replacepat=None):
         """Simulate rename operation on targets and return results as list."""
@@ -193,6 +199,7 @@ class FileOps(object):
             self.set_mediaoptions()
 
         return self.modify_previews(targets)
+#         return sorted(self.modify_previews(targets), key=lambda i: i[0][1])
 
     def set_mediaoptions(self):
         self.casecheck = True
@@ -205,9 +212,8 @@ class FileOps(object):
         self.remsymbols = True
 
     def commit(self, previews):
-        # The sorted generator comprehension of (unicode)doom:
-        # Reverse sort the paths so that the longest paths are changed first
-        # (by counting the amount of slashs in the path).
+        # Reverse sort the paths (by counting the amount of slashs in the path)
+        # so that the longest paths are renamed first.
         # This should minimize rename errors for recursive operations, for now.
         actions = sorted((("".join(i[0]), i[0][0] + i[1]) for i in previews),
                          key=lambda i: i[0].count("/"), reverse=True)
