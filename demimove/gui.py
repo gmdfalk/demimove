@@ -258,11 +258,13 @@ class DemiMoveGUI(QtGui.QMainWindow):
             self.cwd = path
             self.cwdidx = index
             self.dirview.setExpanded(self.cwdidx, True)
+            self.update(2)
         elif self.cwd and path == self.cwd:
+            self.fileops.stopupdate = True
             self.dirview.setExpanded(self.cwdidx, False)
             self.cwd = ""
             self.cwdidx = None
-        self.update(2)
+            self.update_indexview()
 
     def delete_index(self, indexes=None):
         if not indexes:
@@ -400,7 +402,9 @@ class DemiMoveGUI(QtGui.QMainWindow):
         r = v.rect()
         m.dataChanged.emit(v.indexAt(r.topLeft()), v.indexAt(r.bottomRight()))
 
-    def update_indexview(self, index):
+    def update_indexview(self, index=None):
+        if index is None:
+            index = self.get_index()
         m = self.dirmodel
         m.dataChanged.emit(index, m.index(index.row(), m.columnCount()))
 
