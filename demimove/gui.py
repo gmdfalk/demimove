@@ -91,14 +91,18 @@ class DirModel(QtGui.QFileSystemModel):
             idx = self.p.targets.index(target)
             try:
                 # If the preview differs from its original name:
+#                 print self.p.targets, self.p.previews
+#                 print target[1] + target[2], type(target[1] + target[2])
+#                 print self.p.previews[idx][1], type(self.p.previews[idx][1])
                 if target[1] + target[2] != self.p.previews[idx][1]:
-                    try:
-                        preview = self.p.previews[idx][1].decode("utf-8")
-                    except UnicodeDecodeError:
+                    for i in ["utf-8", "latin1"]:
                         try:
-                            preview = self.p.previews[idx][1].decode("latin1")
+                            preview = self.p.previews[idx][1].decode(i)
+                            break
                         except UnicodeDecodeError:
-                            preview = self.p.previews[idx][1]
+                            pass
+                    else:
+                        preview = self.p.previews[idx][1]
                     return preview
                 # Otherwise show "\1" to indicate that nothing changed.
                 else:

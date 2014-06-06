@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from operator import itemgetter
 from unicodedata import normalize
 import fnmatch
 import logging
@@ -168,9 +167,7 @@ class FileOps(object):
 
         targets = []
         for root, dirs, files in helpers.walklevels(path, levels):
-            # To unicode.
             root += "/"
-
             if self.dirsonly:
                 target = self.get_dirs(root, dirs)
             elif self.filesonly:
@@ -183,13 +180,14 @@ class FileOps(object):
             # Exit out of get_targets when "Stop" is pressed in the GUI.
             if self.stopupdate:
                 return targets
+
         return targets
 
     def get_previews(self, targets, matchpat=None, replacepat=None):
         """Simulate rename operation on targets and return results as list."""
-        if matchpat:
+        if matchpat is not None:
             self.matchedit = matchpat
-        if replacepat:
+        if replacepat is not None:
             self.replaceedit = replacepat
         if self.mediamode:
             self.set_mediaoptions()
@@ -215,8 +213,8 @@ class FileOps(object):
                          key=lambda i: i[0].count("/"), reverse=True)
 
         for i in actions:
+            log.debug("{} -> {}.".format(i[0], i[1]))
             if self.simulate:
-                log.debug("{} -> {}.".format(i[0], i[1]))
                 continue
             if self.stopcommit:
                 idx = actions.index(i)
@@ -244,8 +242,8 @@ class FileOps(object):
                 return
 
         for i in actions:
+            log.debug("{} -> {}.".format(i[1], i[0]))
             if self.simulate:
-                log.debug("{} -> {}.".format(i[1], i[0]))
                 continue
             try:
                 os.rename(i[1], i[0])
