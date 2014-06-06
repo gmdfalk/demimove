@@ -842,14 +842,14 @@ def main():
                                  quiet=args["--quiet"])
         if args["<path>"]:
             startdir = args["<path>"]
+        if args["--config"]:
+            configfile = args["--config"]
     except NameError:
         fileop = fileops.FileOps()
         log.error("Please install docopt to use the CLI.")
 
     app = QtGui.QApplication(sys.argv)
     app.setApplicationName("demimove-ui")
-    if args["--config"]:
-        configfile = args["--config"]
     gui = DemiMoveGUI(startdir, fileop, configfile)
     gui.show()
     sys.exit(app.exec_())
