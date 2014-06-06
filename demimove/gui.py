@@ -12,6 +12,7 @@ Options:
     --version            Show the current demimove-ui version.
 """
 # GUI:
+# TODO: Accelerators (C+Q, Q+S)
 # TODO: add recursive include/exclude in contextmenu?
 # TODO: Test QDirIterator vs os.path.walk. If positive, replace whole
 #       get_targets functionality.
@@ -42,7 +43,7 @@ log = logging.getLogger("gui")
 try:
     from docopt import docopt
 except ImportError:
-    print("ImportError: Please install docopt to use the CLI.")
+    print("ImportError: You won't be able to use the CLI.")
 
 
 class BoldDelegate(QtGui.QStyledItemDelegate):
@@ -90,13 +91,14 @@ class DirModel(QtGui.QFileSystemModel):
             idx = self.p.targets.index(target)
             try:
                 # If the preview differs from its original name:
-                print target[1] + target[2], type(target[1] + target[2])
-                print self.p.previews[idx][1], type(self.p.previews[idx][1])
                 if target[1] + target[2] != self.p.previews[idx][1]:
                     try:
                         preview = self.p.previews[idx][1].decode("utf-8")
                     except UnicodeDecodeError:
-                        preview = self.p.previews[idx][1]
+                        try:
+                            preview = self.p.previews[idx][1].decode("latin1")
+                        except UnicodeDecodeError:
+                            preview = self.p.previews[idx][1]
                     return preview
                 # Otherwise show "\1" to indicate that nothing changed.
                 else:

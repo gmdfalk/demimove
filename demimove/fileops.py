@@ -365,17 +365,16 @@ class FileOps(object):
             s = re.sub("\W", "", s, flags=self.ignorecase)
         if self.remsymbols:
             allowed = string.ascii_letters + string.digits + " .-_+"  # []()
-            try:
-                # Convert bytestring to unicode and back.
-                s = "".join(c for c in normalize("NFKD", s.decode("utf-8"))
-                            if c in allowed).encode("utf-8")
-            except UnicodeDecodeError:
+            for i in ["utf-8", "latin1"]:
                 try:
-                    s = "".join(c for c in normalize("NFKD", s.decode("latin1"))
+                    # Convert bytestring to unicode and back.
+                    s = "".join(c for c in normalize("NFKD", s.decode(i))
                                 if c in allowed).encode("utf-8")
+                    break
                 except UnicodeDecodeError:
-                    log.debug("Normalize: Could not decode {} from utf-8 to"
-                              " unicode.".format(s))
+                    pass
+            else:
+                log.debug("Symbols: Could not decode {}.".format(s))
         if self.remdups:
             s = re.sub(r"([-_ .])\1+", r"\1", s, flags=self.ignorecase)
         return s
