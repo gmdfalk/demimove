@@ -89,10 +89,18 @@ class DirModel(QtGui.QFileSystemModel):
         if self.p.cwd in target[0] and target in self.p.targets:
             idx = self.p.targets.index(target)
             try:
+                # If the preview differs from its original name:
+                print target[1] + target[2], type(target[1] + target[2])
+                print self.p.previews[idx][1], type(self.p.previews[idx][1])
                 if target[1] + target[2] != self.p.previews[idx][1]:
-                    return self.p.previews[idx][1]
+                    try:
+                        preview = self.p.previews[idx][1].decode("utf-8")
+                    except UnicodeDecodeError:
+                        preview = self.p.previews[idx][1]
+                    return preview
+                # Otherwise show "\1" to indicate that nothing changed.
                 else:
-                    return "\\1"  # "No changes to the target.
+                    return "\\1"
             except IndexError:
                 pass
 
@@ -222,7 +230,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
             getattr(self, k).setCurrentIndex(v)
         for k, v in options["edits"].items():
             if sanitize:
-                v = u""
+                v = ""
             getattr(self, k).setText(v)
         for k, v in options["radios"].items():
             getattr(self, k).setChecked(v)
@@ -236,15 +244,14 @@ class DemiMoveGUI(QtGui.QMainWindow):
         o = {}
         o["checks"] = {k:getattr(self, k).isChecked() for k in options["checks"].keys()}
         o["combos"] = {k:getattr(self, k).currentIndex() for k in options["combos"].keys()}
-        o["edits"] = {k:str(getattr(self, k).text().toUtf8()).decode("utf-8")\
-                      for k in options["edits"].keys()}
+        o["edits"] = {k:str(getattr(self, k).text().toUtf8()) for k in options["edits"].keys()}
         o["radios"] = {k:getattr(self, k).isChecked() for k in options["radios"].keys()}
         o["spins"] = {k:getattr(self, k).value() for k in options["spins"].keys()}
 
         return o
 
     def get_path(self, index):
-        return str(self.dirmodel.filePath(index).toUtf8()).decode("utf-8")
+        return str(self.dirmodel.filePath(index).toUtf8())
 
     def get_index(self):
         return self.dirview.currentIndex()

@@ -1,8 +1,9 @@
-from ConfigParser import ConfigParser
+import ConfigParser
+import codecs
 import logging
 import os
-import sys
 import re
+import sys
 
 
 log = logging.getLogger("helpers")
@@ -43,39 +44,39 @@ def translate(pat):
     """Adjusted copy of fnmatch.translate. Translate a shell glob into regex."""
 
     i, n = 0, len(pat)
-    res = ''
+    res = ""
     while i < n:
         c = pat[i]
         i = i + 1
-        if c == '*':
-            res = res + '.*'
-        elif c == '?':
-            res = res + '.'
-        elif c == '[':
+        if c == "*":
+            res = res + ".*"
+        elif c == "?":
+            res = res + "."
+        elif c == "[":
             j = i
-            if j < n and pat[j] == '!':
+            if j < n and pat[j] == "!":
                 j = j + 1
-            if j < n and pat[j] == ']':
+            if j < n and pat[j] == "]":
                 j = j + 1
-            while j < n and pat[j] != ']':
+            while j < n and pat[j] != "]":
                 j = j + 1
             if j >= n:
-                res = res + '\\['
+                res = res + "\\["
             else:
-                stuff = pat[i:j].replace('\\', '\\\\')
+                stuff = pat[i:j].replace("\\", "\\\\")
                 i = j + 1
-                if stuff[0] == '!':
-                    stuff = '^' + stuff[1:]
-                elif stuff[0] == '^':
-                    stuff = '\\' + stuff
-                res = '%s[%s]' % (res, stuff)
+                if stuff[0] == "!":
+                    stuff = "^" + stuff[1:]
+                elif stuff[0] == "^":
+                    stuff = "\\" + stuff
+                res = "%s[%s]" % (res, stuff)
         else:
             res = res + re.escape(c)
     return res
 
 
 def walklevels(path, levels=1):
-    """Replacement for os.walk."""
+    """Wrap os.walk to allow setting recursion depth."""
     path = path.rstrip(os.path.sep)
     assert os.path.isdir(path)
     num_sep = path.count(os.path.sep)
@@ -84,6 +85,7 @@ def walklevels(path, levels=1):
         num_sep_this = root.count(os.path.sep)
         if num_sep + levels <= num_sep_this:
             del dirs[:]
+
 
 splitrx = re.compile("(^(?:\w\:)?\/.*\/)(.*?)(\..*)?$")
 
@@ -96,11 +98,13 @@ def splitpath(path):
     except AttributeError:
         pass
 
+
 def splitpath_os(path):
     root = os.path.dirname(path) + "/"
     if os.path.isdir(path):
-        return (root, os.path.basename(path), u"")
+        return (root, os.path.basename(path), "")
     return ((root,) + os.path.splitext(os.path.basename(path)))
+
 
 def get_configdir():
     "Determine if an XDG_CONFIG_DIR for demimove exists and if so, use it."
@@ -114,19 +118,19 @@ def get_configdir():
 
 
 def load_configfile(configdir, configfile=None):
-    config = ConfigParser()
+    config = ConfigParser.ConfigParser()
     if configfile:
         filepath = os.path.abspath(configfile)
     else:
         filepath = os.path.join(configdir, "demimove.ini")
     config.read(filepath)
-    defaultoptions = {"edits":  {"insertedit": u"",
-                                 "countpreedit": u"",
-                                 "countsufedit": u"",
-                                 "replaceedit": u"",
-                                 "filteredit": u"",
-                                 "excludeedit": u"",
-                                 "matchedit": u""},
+    defaultoptions = {"edits":  {"insertedit": "",
+                                 "countpreedit": "",
+                                 "countsufedit": "",
+                                 "replaceedit": "",
+                                 "filteredit": "",
+                                 "excludeedit": "",
+                                 "matchedit": ""},
                       "combos": {"casebox": 0, "spacebox": 0},
                       "checks": {"countcheck": False,
                                  "switchviewcheck": False,
@@ -171,7 +175,7 @@ def load_configfile(configdir, configfile=None):
                              in config.items("checks") if k not in excluded}
         options["combos"] = {k:config.getint("combos", k)\
                              for k, _ in config.items("combos")}
-        options["edits"] = {k:config.get("edits", k).decode("utf-8")\
+        options["edits"] = {k:config.get("edits", k)
                             for k, _ in config.items("edits")}
         options["radios"] = {k:config.getboolean("radios", k)\
                              for k, _ in config.items("radios")}
@@ -188,13 +192,13 @@ def load_configfile(configdir, configfile=None):
 
 def save_configfile(configdir, options):
     configfile = os.path.join(configdir, "demimove.ini")
-    config = ConfigParser()
+    config = ConfigParser.ConfigParser()
     for section, sectiondict in options.items():
         config.add_section(section)
         for key, value in sectiondict.items():
             config.set(section, key, value)
 
-    with open(configfile, "w") as f:
+    with codecs.open(configfile, "w", encoding="utf-8") as f:
         config.write(f)
 
     log.info("Configuration file written to {}.".format(configfile))

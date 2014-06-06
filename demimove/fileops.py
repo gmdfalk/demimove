@@ -150,12 +150,11 @@ class FileOps(object):
 
     def get_dirs(self, root, dirs):
         """Match and decode (from utf-8 to unicode) a list of dirs."""
-        return [(root, d.decode("utf-8"), u"") for d in dirs if self.match(d)]
+        return [(root, d, "") for d in dirs if self.match(d)]
 
     def get_files(self, root, files):
         """Match and decode (from utf-8 to unicode) a list of files."""
-        return [(root,) + os.path.splitext(f.decode("utf-8")) for f in files
-                if self.match(f)]
+        return [(root,) + os.path.splitext(f) for f in files if self.match(f)]
 
     def get_targets(self, path=None):
         """Return a list of files and/or dirs in path."""
@@ -170,7 +169,7 @@ class FileOps(object):
         targets = []
         for root, dirs, files in helpers.walklevels(path, levels):
             # To unicode.
-            root = root.decode("utf-8") + "/"
+            root += "/"
 
             if self.dirsonly:
                 target = self.get_dirs(root, dirs)
@@ -184,7 +183,6 @@ class FileOps(object):
             # Exit out of get_targets when "Stop" is pressed in the GUI.
             if self.stopupdate:
                 return targets
-
         return targets
 
     def get_previews(self, targets, matchpat=None, replacepat=None):
@@ -213,8 +211,7 @@ class FileOps(object):
         # Reverse sort the paths so that the longest paths are changed first
         # (by counting the amount of slashs in the path).
         # This should minimize rename errors for recursive operations, for now.
-        actions = sorted((("".join(i[0]).encode("utf-8"), i[0][0].encode("utf-8")
-                           + i[1].encode("utf-8")) for i in previews),
+        actions = sorted((("".join(i[0]), i[0][0] + i[1]) for i in previews),
                          key=lambda i: i[0].count("/"), reverse=True)
 
         for i in actions:
@@ -368,7 +365,13 @@ class FileOps(object):
             s = re.sub("\W", "", s, flags=self.ignorecase)
         if self.remsymbols:
             allowed = string.ascii_letters + string.digits + " .-_+"  # []()
-            s = "".join(c for c in normalize("NFKD", s) if c in allowed)
+            try:
+                # Convert bytestring to unicode and back.
+                s = "".join(c for c in normalize("NFKD", s.decode("utf-8"))
+                            if c in allowed).encode("utf-8")
+            except UnicodeDecodeError:
+                log.debug("Normalize: Could not decode {} from utf-8 to"
+                          " unicode.".format(s))
         if self.remdups:
             s = re.sub(r"([-_ .])\1+", r"\1", s, flags=self.ignorecase)
         return s
@@ -536,7 +539,7 @@ class FileOps(object):
     @countpreedit.setter
     def countpreedit(self, text):
         log.debug("countpreedit: {}".format(text))
-        self._countpreedit = text.decode("utf-8")
+        self._countpreedit = text
 
     @property
     def countsufedit(self):
@@ -545,7 +548,7 @@ class FileOps(object):
     @countsufedit.setter
     def countsufedit(self, text):
         log.debug("countsufedit: {}".format(text))
-        self._countsufedit = text.decode("utf-8")
+        self._countsufedit = text
     @property
     def insertedit(self):
         return self._insertedit
@@ -553,7 +556,7 @@ class FileOps(object):
     @insertedit.setter
     def insertedit(self, text):
         log.debug("insertedit: {}.".format(text))
-        self._insertedit = text.decode("utf-8")
+        self._insertedit = text
 
     @property
     def matchedit(self):
@@ -562,7 +565,7 @@ class FileOps(object):
     @matchedit.setter
     def matchedit(self, text):
         log.debug("matchedit: {}.".format(text))
-        self._matchedit = text.decode("utf-8")
+        self._matchedit = text
 
     @property
     def replaceedit(self):
@@ -571,7 +574,7 @@ class FileOps(object):
     @replaceedit.setter
     def replaceedit(self, text):
         log.debug("replaceedit: {}.".format(text))
-        self._replaceedit = text.decode("utf-8")
+        self._replaceedit = text
 
     @property
     def filteredit(self):
@@ -580,7 +583,7 @@ class FileOps(object):
     @filteredit.setter
     def filteredit(self, text):
         log.debug("filteredit: {}.".format(text))
-        self._filteredit = text.decode("utf-8")
+        self._filteredit = text
 
     @property
     def excludeedit(self):
@@ -589,7 +592,7 @@ class FileOps(object):
     @excludeedit.setter
     def excludeedit(self, text):
         log.debug("excludeedit: {}.".format(text))
-        self._excludeedit = text.decode("utf-8")
+        self._excludeedit = text
 
     @property
     def remsymbols(self):
