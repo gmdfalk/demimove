@@ -220,6 +220,10 @@ class FileOps(object):
 
         for i in actions:
             log.debug("{} -> {}.".format(i[0], i[1]))
+            # TODO: Implement a check for overwriting.
+            if i[0] == i[1]:
+                log.warn("File already exists. Skipping.")
+                continue
             if self.simulate:
                 continue
             if self.stopcommit:

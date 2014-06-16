@@ -12,10 +12,11 @@ Options:
     --version            Show the current demimove-ui version.
 """
 # GUI:
-# TODO: Accelerators (C+Q, Q+S)
-# TODO: add recursive include/exclude in contextmenu?
-# TODO: Test QDirIterator vs os.path.walk. If positive, replace whole
-#       get_targets functionality.
+# TODO: Overwrite check.
+# TODO: Accelerators (C+Q, Q+S).
+# TODO: Add recursive include/exclude in contextmenu.
+# TODO: Test QDirIterator vs os.path.walk. If positive, replace get_targets
+#       functionality (though Qt has encoding issues for non-utf8 file names).
 # TODO: History tab.
 # TODO: Statustab with Errors/Warnings, Summaries etc.
 # TODO: Metatags (Photos, Videos, Audio)
