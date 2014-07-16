@@ -5,14 +5,15 @@ demimove
 
 Demimove is a file browser written with python2.7 and PyQt4.  
 A couple of features you might find interesting:
-* Interactivity: Demimove allows adding/removing of (multiple) targets quickly by mouse interaction (instead of  or complementary to filtering via regex/globbing).
+* Interactivity: Demimove allows adding/removing of (multiple) targets quickly by mouse interaction (instead of  or complementary to matching via regex/globbing patterns).
 * Automatic Previews: Demimove provides an automatic and immediate preview of any change.  
 * Performance: Demimove is fast, thanks to Qt and its QFileSystemModel. Even thousands of files are no problem (although there's a ceiling, as always).  
 * Commit History: You can undo any commit, although currently only in order of last to first.  
 * Multiple Pattern Support: You can have any number of match and filter patterns by separating them with a slash ("/").
 * Recursive support: Demimove supports recursive lookups and renames. You can specify the depth of the recursion.  
 * Config File: You can save and restore options to and from a file (~/.config/demimove/demimove.ini).  
-* As well as (hopefully) everthing you'd expect from a standard mass renamer, including regex/globbing support and preconfigured actions.
+
+Other than that, it hopefully comes with everything you'd expect from a standard mass renamer, including regex/globbing support and preconfigured actions.
 
 #### Installation  
 Install demimove as follows:  
