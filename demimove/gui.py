@@ -27,6 +27,8 @@ Options:
 # TODO: Enable glob replacing like this: *.mp3 prefix*.mp3
 #       (Adjust translate method to group wildcards).
 # TODO: Fix filters on hiddencheck? Logic for on_refreshbutton?
+# TODO: (more) fallback encodings?
+# TODO: grey out undo button if history empty
 
 import codecs
 import logging
