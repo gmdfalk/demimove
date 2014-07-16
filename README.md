@@ -35,9 +35,9 @@ You can select multiple files and include/exclude them via context menu if you d
 Features i'd like to include when i get time to work on this again:   
 * A status tab that shows errors, warnings and general status information.  
 * A history tab that stores and displays all commited rename operations and allows reversing them.  
-* Metatags for Audio, Video and Image files
-* Make the CLI functional.
-* Replace os.walk with QDirIterator to possibly gain lots of speed.
+* A metatags tab to allow mass renaming of audio, video and image metatags.
+* Making the CLI functional.
+* Replacing os.walk with QDirIterator to possibly gain lots of speed.
 
 #### Known Bugs
 * Trying to access mounted but unavailable samba/nfs shares will freeze the program. I don't think this is something i can fix. Restart required.
