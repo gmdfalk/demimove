@@ -26,6 +26,7 @@ Options:
 # TODO: Fix count step and count base plus large listings (~i).
 # TODO: Enable glob replacing like this: *.mp3 prefix*.mp3
 #       (Adjust translate method to group wildcards).
+# TODO: Fix filters on hiddencheck? Logic for on_refreshbutton?
 
 import codecs
 import logging
