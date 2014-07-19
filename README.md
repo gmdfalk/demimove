@@ -40,5 +40,5 @@ Features i'd like to include when i get time to work on this again:
 * Replacing os.walk with QDirIterator to possibly gain lots of speed.
 
 #### Known Bugs
-* Trying to access mounted but unavailable samba/nfs shares will freeze the program. I don't think this is something i can fix. Restart required.
-* Renaming files on a mounted samba/nfs share can sometimes result in the QFileSystemModel not being able to refresh the listing for that directory. Restart required, if you want to keep working with that particular directory. 
+* Trying to access mounted but unavailable samba/nfs shares will freeze the program. I don't think this is something i can fix. Restart of demimove required.
+* Renaming files on a mounted samba/nfs share can sometimes result in the QFileSystemModel not being able to refresh the listing for that directory. Restart of demimove required, if you want to keep working with that particular directory. 
