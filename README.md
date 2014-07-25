@@ -43,12 +43,16 @@ To just test the application or if you do not wish to install it, navigate to `d
 Press Enter or select "Set/Unset CWD" in the context menu to set the current index as working directory.
 You can select multiple files and include/exclude them via context menu if you don't feel like matching them with an expression. 
 
+# Note on regular expressions vs globbing
+All globbing patterns are translated to regular expressions. Especially for non-trivial patterns (multiple wildcards etc) translation errors might occur.
+The translation method is something i plan to revisit but for the time being I suggest you use regular expressions if you notice your globbing pattern behaving oddly.
+
 #### TODO  
 Features i'd like to include when i get time to work on this again:   
 * A status tab that shows errors, warnings and general status information.  
 * A history tab that stores and displays all commited rename operations and allows reversing them.  
-* A metatags tab to allow mass renaming of audio, video and image metatags.
-* Making the CLI functional.
+* A metatags tab to allow mass renaming of audio, video and image metatags.  
+* Making the CLI functional. This includes revisiting globbing to regex translation which is currently rudimentary.
 * Replacing os.walk with QDirIterator to possibly gain lots of speed.
 
 #### Known Bugs
