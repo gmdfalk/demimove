@@ -49,7 +49,7 @@ You can select multiple files and include/exclude them via context menu if you d
 ##### Note on regular expressions vs globbing
 Regular expressions are generally the better option because all globbing patterns need to be translated to regular expressions by demimove.
 Especially for non-trivial patterns/symbols (multiple wildcards etc) translation errors might occur.
-The translation method is something i plan to revisit but for the time being I suggest you use regular expressions if you notice your globbing pattern behaving oddly or know you will need complex patterns.
+The translation method is something i plan to revisit but for the time being I suggest you switch to regular expressions if you tend to use complex patterns or you notice your globbing pattern behaving oddly.
 
 #### TODO  
 Features i'd like to include when i get time to work on this again:   
