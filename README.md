@@ -47,8 +47,9 @@ Press Enter or select "Set/Unset CWD" in the context menu to set the current ind
 You can select multiple files and include/exclude them via context menu if you don't feel like matching them with an expression. 
 
 ##### Note on regular expressions vs globbing
-All globbing patterns are translated to regular expressions. Especially for non-trivial patterns (multiple wildcards etc) translation errors might occur.
-The translation method is something i plan to revisit but for the time being I suggest you use regular expressions if you notice your globbing pattern behaving oddly.
+Regular expressions are generally the better option because all globbing patterns need to be translated to regular expressions by demimove.
+Especially for non-trivial patterns/symbols (multiple wildcards etc) translation errors might occur.
+The translation method is something i plan to revisit but for the time being I suggest you use regular expressions if you notice your globbing pattern behaving oddly or know you will need complex patterns.
 
 #### TODO  
 Features i'd like to include when i get time to work on this again:   
