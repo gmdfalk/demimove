@@ -3,7 +3,8 @@ demimove
 
 ####A file browser for mass renaming  
 
-Demimove is a file browser written with python2.7 and PyQt4.  
+Demimove is a mass renaming file browser for Linux and Windows, written with python2.7 and PyQt4.  
+
 A couple of features you might find interesting:
 * Interactivity: Demimove allows adding/removing of (multiple) targets quickly by mouse interaction (instead of  or complementary to matching via regex/globbing patterns).
 * Automatic Previews: Demimove provides an automatic and immediate preview of any change.  
@@ -16,12 +17,24 @@ A couple of features you might find interesting:
 Other than that, it hopefully comes with everything you'd expect from a standard mass renamer, including regex/globbing support and preconfigured actions.
 
 #### Installation  
+Make sure you have the following packages on your system:  
+* Python2.7  
+* PyQt4  
+* git  
+* pip  
+* docopt (optional for the GUI, enables some startup options)
+
+To install pip on Windows I suggest using `get-pip.py` from https://pip.pypa.io/en/latest/installing.html.  
+
 Install demimove as follows:  
 ```
 git clone https://github.com/mikar/demimove
 cd demimove
+(pip install docopt)
 pip install .
 ```
+
+To just test the application or if you do not wish to install it, navigate to `demimove/demimove` and try python[.exe] gui.py.  
 
 #### Usage
 ![ScreenShot](http://a.pomf.se/qqbmjz.png) 
@@ -29,7 +42,6 @@ pip install .
 
 Press Enter or select "Set/Unset CWD" in the context menu to set the current index as working directory.
 You can select multiple files and include/exclude them via context menu if you don't feel like matching them with an expression. 
-
 
 #### TODO  
 Features i'd like to include when i get time to work on this again:   
