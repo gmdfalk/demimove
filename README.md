@@ -58,6 +58,7 @@ Features i'd like to include when i get time to work on this again:
 * A metatags tab to allow mass renaming of audio, video and image metatags.  
 * Making the CLI functional. This includes revisiting globbing to regex translation which is currently rudimentary.
 * Replacing os.walk with QDirIterator to possibly gain lots of speed.
+* Mass deletion of targets (files/directories)
 
 #### Known Issues
 
