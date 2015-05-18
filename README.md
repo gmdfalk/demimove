@@ -1,7 +1,7 @@
 demimove
 ========
 
-#### A file browser for mass renaming
+#### A cross-platform file browser for mass renaming
 
 Demimove is a mass renaming file browser for Linux and Windows, written with python2.7 and PyQt4.  
 
@@ -59,7 +59,8 @@ Features i'd like to include when i get time to work on this again:
 * Making the CLI functional. This includes revisiting globbing to regex translation which is currently rudimentary.
 * Replacing os.walk with QDirIterator to possibly gain lots of speed.
 
-#### Known Bugs
+#### Known Issues
 
 * Trying to access mounted but unavailable samba/nfs shares will freeze the program. I don't think this is something I can fix. Restarting demimove is required.
 * Renaming files on a mounted samba/nfs share can sometimes result in the QFileSystemModel not being able to refresh the listing for that directory. Restarting demimove is required if you want to keep working with that particular directory. 
+* On Mac OS X, the root directory does not show all subdirectories.
