@@ -39,8 +39,7 @@ To just test the application or if you do not wish to install it, navigate to `d
 
 #### Usage
 
-![ScreenShot](http://a.pomf.se/qqbmjz.png) 
-![ScreenShot](http://a.pomf.se/ywdmuf.png)  
+![ScreenShot](screenshot.png) 
 
 Press Enter or select "Set/Unset CWD" in the context menu to set the current index as working directory.
 
