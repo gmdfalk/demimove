@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>demimove-ui</string>
+   <string>Demimove</string>
   </property>
   <widget class="QWidget" name="mainwidget">
    <layout class="QHBoxLayout" name="mainlayout" stretch="0">

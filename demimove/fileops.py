@@ -92,7 +92,8 @@ class FileOps(object):
         self.bracerx = re.compile("(?<=\{)(.*?)(?=\})")
 
     def match_filter(self, target):
-        """Match a file/directory name against a glob/regex pattern."""
+        """Match a file/directory name against a glob/regex pattern.
+        Returns True if the target passes the filter."""
         if not self.filteredit:
             return True
         if "/" in self.filteredit:

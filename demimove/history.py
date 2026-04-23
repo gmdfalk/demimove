@@ -86,7 +86,7 @@ class HistoryTreeModel(QtCore.QAbstractItemModel):
         super(HistoryTreeModel, self).__init__(parent)
         self.p = parent
 
-        headers = ("Original", "Current")
+        headers = ("Original", "Renamed")
 
         rootData = [header for header in headers]
         self.rootItem = TreeItem(rootData)

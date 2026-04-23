@@ -842,7 +842,7 @@ class DemiMoveGUI(QtGui.QMainWindow):
 
 
 def main():
-    "Main entry point for demimove-ui."
+    """Main entry point for demimove-ui."""
     startdir = os.getcwd()
     configfile = None
     try:

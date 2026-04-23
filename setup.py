@@ -19,7 +19,7 @@ setup(
     name=_name,
     description="A file browser for mass renaming.",
     long_description=read("README.md"),
-    version="0.1",
+    version="0.2",
     license=_license,
     url="https://github.com/mikar/{}".format(_name),
     author="Max Demian",

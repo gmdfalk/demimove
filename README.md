@@ -3,7 +3,7 @@ demimove
 
 #### A cross-platform file browser for mass renaming
 
-Demimove is a mass renaming file browser for Linux and Windows, written with python2.7 and PyQt4.  
+Demimove is a mass renaming file browser for Linux, macOS, and Windows, written with Python 3 and PyQt5.
 
 A couple of features you might find interesting:
 
@@ -18,24 +18,26 @@ A couple of features you might find interesting:
 Other than that, it hopefully comes with everything you'd expect from a standard mass renamer, including regex/globbing support and preconfigured actions.
 
 #### Installation  
-Make sure you have the following packages on your system:  
-* Python2.7  
-* PyQt4  
-* git  
-* pip  
+Make sure you have the following packages on your system:
+* Python 3.8+
+* PyQt5
+* git
+* pip
 * docopt (optional for the GUI, enables some startup options)
 
-To install pip on Windows I suggest using `get-pip.py` from https://pip.pypa.io/en/latest/installing.html.  
+To install pip on Windows I suggest using `get-pip.py` from https://pip.pypa.io/en/latest/installing.html.
 
-Install demimove as follows:  
+Install demimove as follows:
 ```
 git clone https://github.com/mikar/demimove
 cd demimove
-(pip install docopt)
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+# venv\Scripts\activate   # Windows
 pip install .
 ```
 
-To just test the application or if you do not wish to install it, navigate to `demimove/demimove` and try python[.exe] gui.py.  
+To just test the application or if you do not wish to install it, navigate to `demimove/demimove` and try `python gui.py`.
 
 #### Usage
 
@@ -63,4 +65,4 @@ Features i'd like to include when i get time to work on this again:
 
 * Trying to access mounted but unavailable samba/nfs shares will freeze the program. I don't think this is something I can fix. Restarting demimove is required.
 * Renaming files on a mounted samba/nfs share can sometimes result in the QFileSystemModel not being able to refresh the listing for that directory. Restarting demimove is required if you want to keep working with that particular directory. 
-* On Mac OS X, the root directory does not show all subdirectories.
+* On macOS, the root directory does not show all subdirectories.
